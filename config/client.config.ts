@@ -90,6 +90,7 @@ export const clientConfig = defineClientConfig({
     title: "ViewOne — Impresión digital y publicidad exterior para empresas",
     description:
       "Impresión digital, señalética, estructuras publicitarias e instalación para empresas en Chile. Más de 20 años de experiencia. Cotiza tu proyecto.",
+    ogImageUrl: "/clients/viewone/home/hero-andacor.jpeg",
     businessType: "Organization",
     keywords: [
       "impresion digital empresas",
