@@ -72,7 +72,7 @@ export const clientConfig = defineClientConfig({
 
   modules: {
     contactForm: true,
-    whatsappButton: false,
+    whatsappButton: true,
     testimonials: false,
     faq: false,
     pricing: false,

@@ -85,14 +85,25 @@ export function ProyectosClient({ categorias, proyectos }: { categorias: Categor
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {categorias.map((cat) => {
               const cover = portadas.get(cat.nombre);
-              if (!cover) return null;
+              if (!cover) {
+                // Categoría sin proyecto visible todavía (ej. recién creada en
+                // el admin): "próximamente" en vez de desaparecer sin aviso.
+                return (
+                  <div key={cat.id} className="overflow-hidden rounded-2xl text-left opacity-60">
+                    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-foreground/5">
+                      <p className="text-xs font-bold uppercase tracking-wide text-foreground/40">Próximamente</p>
+                    </div>
+                    <p className="mt-3 font-heading text-base font-bold text-foreground">{cat.nombre}</p>
+                  </div>
+                );
+              }
               return (
                 <button
                   key={cat.id}
                   onClick={() => setCategoria(cat.nombre)}
                   className="group overflow-hidden rounded-2xl text-left"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
                     <Image src={cover.portada} alt={cat.nombre} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-transparent" />
                   </div>
@@ -105,7 +116,7 @@ export function ProyectosClient({ categorias, proyectos }: { categorias: Categor
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {proyectosDeCategoria.map((p) => (
               <button key={p.id} onClick={() => abrirProyecto(p)} className="group overflow-hidden rounded-2xl text-left">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
                   <Image
                     src={p.portada}
                     alt={`${p.cliente} — ${p.trabajo}`}

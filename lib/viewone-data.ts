@@ -271,17 +271,6 @@ export const HOME_NOSOTROS_FOTO = ASSET_BASE + "home/nosotros-letrero-madera.png
 // 20 clientes del handoff (slide 09) — placeholders de texto a propósito:
 // son la lista NUEVA que ViewOne quiere mostrar, distinta a los logos reales
 // del sitio viejo, y el handoff no trae logos gráficos para estos todavía.
-export const CLIENTES_DESTACADOS = [
-  "Coca-Cola",
-  "BCI",
-  "Peugeot",
-  "Mazda",
-  "Aconcagua",
-  "Andacor / El Colorado",
-  "Santander",
-  "LarrainVial",
-];
-
 export const CLIENTES_TODOS = [
   "Coca-Cola",
   "BCI",

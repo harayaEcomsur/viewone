@@ -3,6 +3,8 @@ import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
 import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { ProyectosClient } from "@/components/viewone/ProyectosClient";
 import { listCategoriasVisibles, listProyectosVisibles } from "@/lib/viewone-store";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { clientConfig } from "@/config/client.config";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,7 @@ export const metadata: Metadata = {
 
 export default async function ProyectosPage() {
   const [categorias, proyectos] = await Promise.all([listCategoriasVisibles(), listProyectosVisibles()]);
+  const { contact, modules } = clientConfig;
   return (
     <>
       <ViewOneHeader />
@@ -20,6 +23,9 @@ export default async function ProyectosPage() {
         <ProyectosClient categorias={categorias} proyectos={proyectos} />
       </main>
       <ViewOneFooter />
+      {modules.whatsappButton && contact.whatsapp && (
+        <WhatsAppButton phone={contact.whatsapp} message={contact.whatsappPrefilledMessage} />
+      )}
     </>
   );
 }

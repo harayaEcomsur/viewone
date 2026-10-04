@@ -5,6 +5,8 @@ import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { Container } from "@/components/ui/Container";
 import { SERVICIOS } from "@/lib/viewone-data";
 import { slugifyServicio } from "@/lib/viewone-slug";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { clientConfig } from "@/config/client.config";
 
 export const metadata: Metadata = {
   title: "Servicios — ViewOne",
@@ -16,6 +18,7 @@ export const metadata: Metadata = {
 // alternados foto/texto. H1 único arriba, cada servicio = H2. CTA de cada
 // servicio → /contacto. Textos y fotos son los exactos del handoff aprobado.
 export default function ServiciosPage() {
+  const { contact, modules } = clientConfig;
   return (
     <>
       <ViewOneHeader />
@@ -61,6 +64,9 @@ export default function ServiciosPage() {
         </Container>
       </main>
       <ViewOneFooter />
+      {modules.whatsappButton && contact.whatsapp && (
+        <WhatsAppButton phone={contact.whatsapp} message={contact.whatsappPrefilledMessage} />
+      )}
     </>
   );
 }

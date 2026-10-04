@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X, Instagram, Facebook, Linkedin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
@@ -24,6 +25,10 @@ export function ViewOneHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { contact, meta, branding } = clientConfig;
+  const pathname = usePathname();
+  // El ítem de "Nosotros" es un ancla dentro de Home (/#nosotros), no una
+  // ruta propia — nunca se marca activo junto a Inicio.
+  const isActive = (href: string) => !href.includes("#") && pathname === href;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -92,7 +97,12 @@ export function ViewOneHeader() {
           </a>
           <nav className="hidden gap-7 text-sm font-semibold text-foreground/70 sm:flex">
             {NAV.map((link) => (
-              <a key={link.href} href={link.href} className="transition-colors hover:text-primary">
+              <a
+                key={link.href}
+                href={link.href}
+                aria-current={isActive(link.href) ? "page" : undefined}
+                className={`transition-colors hover:text-primary ${isActive(link.href) ? "text-primary" : ""}`}
+              >
                 {link.label}
               </a>
             ))}
@@ -116,7 +126,10 @@ export function ViewOneHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="border-b border-foreground/5 py-3.5 text-base font-semibold text-foreground/80 last:border-b-0"
+                aria-current={isActive(link.href) ? "page" : undefined}
+                className={`border-b border-foreground/5 py-3.5 text-base font-semibold last:border-b-0 ${
+                  isActive(link.href) ? "text-primary" : "text-foreground/80"
+                }`}
               >
                 {link.label}
               </a>

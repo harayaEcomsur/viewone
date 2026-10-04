@@ -3,6 +3,8 @@ import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
 import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { Container } from "@/components/ui/Container";
 import { ContactoForm } from "@/components/viewone/ContactoForm";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { clientConfig } from "@/config/client.config";
 
 export const metadata: Metadata = {
   title: "Contacto — ViewOne",
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
 // /contacto (handoff sección 21): H1 "Cuéntanos qué necesitas" + bajada +
 // formulario. Desktop en dos columnas, mobile en una (el grid se encarga).
 export default function ContactoPage() {
+  const { contact, modules } = clientConfig;
   return (
     <>
       <ViewOneHeader />
@@ -28,6 +31,9 @@ export default function ContactoPage() {
         </Container>
       </main>
       <ViewOneFooter />
+      {modules.whatsappButton && contact.whatsapp && (
+        <WhatsAppButton phone={contact.whatsapp} message={contact.whatsappPrefilledMessage} />
+      )}
     </>
   );
 }

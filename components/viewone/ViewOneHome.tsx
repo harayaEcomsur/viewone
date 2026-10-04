@@ -7,15 +7,23 @@ import {
   HOME_PROYECTOS_DESTACADOS,
   HOME_HERO_FOTO,
   HOME_NOSOTROS_FOTO,
-  CLIENTES_DESTACADOS,
   CLIENTES_TODOS,
 } from "@/lib/viewone-data";
 import { slugifyServicio } from "@/lib/viewone-slug";
 
-// Home a medida (handoff sección 07-10): Hero → Clientes destacados →
-// Servicios resumidos → Más de 20 años → Proyectos destacados → Nosotros →
-// Clientes (completo) → Cierre. Orden y contenido exactos del handoff
-// aprobado; la composición/paleta/tipografía es la propuesta de HarayaDev.
+// Home a medida (handoff sección 07-10): Hero → Clientes → Servicios
+// resumidos → Proyectos destacados → Nosotros (incl. "Más de 20 años") →
+// Cierre. Contenido exacto del handoff aprobado; la composición/paleta/
+// tipografía es la propuesta de HarayaDev.
+//
+// El handoff repetía la lista de clientes dos veces (destacados + completa,
+// ambas como cajas con el nombre en texto). Pase de diseño (impeccable
+// critique 2026-10-04): se fusionó en una sola lista, justo después del hero
+// — ahí es donde la prueba social pesa más — y se reemplazó la grilla de
+// cajas (que sin logos reales se leía como contenido sin terminar) por un
+// trato tipográfico deliberado: nombres como texto editorial, no como logos
+// fingidos. Cuando ViewOne entregue los logos reales, esta lista es el punto
+// de reemplazo.
 export function ViewOneHome() {
   const { contact } = clientConfig;
   const whatsappHref = contact.whatsapp ? buildWhatsAppLink(contact.whatsapp, contact.whatsappPrefilledMessage) : undefined;
@@ -51,20 +59,20 @@ export function ViewOneHome() {
         </Container>
       </section>
 
-      {/* 02 Clientes destacados */}
-      <section className="border-b border-foreground/10 py-10">
+      {/* 02 Clientes */}
+      <section className="border-b border-foreground/10 py-12">
         <Container>
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
             Empresas que han confiado en ViewOne
           </p>
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-            {CLIENTES_DESTACADOS.map((nombre) => (
-              <div
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-9 gap-y-4">
+            {CLIENTES_TODOS.map((nombre) => (
+              <span
                 key={nombre}
-                className="flex h-14 items-center justify-center rounded-lg border border-foreground/10 bg-foreground/[0.02] px-2 text-center text-xs font-bold text-foreground/50"
+                className="font-heading text-base font-extrabold uppercase tracking-wide text-foreground/35 transition-colors hover:text-foreground/70 sm:text-lg"
               >
                 {nombre}
-              </div>
+              </span>
             ))}
           </div>
         </Container>
@@ -104,24 +112,7 @@ export function ViewOneHome() {
         </Container>
       </section>
 
-      {/* 04 Más de 20 años */}
-      <section className="bg-foreground/[0.02] py-16">
-        <Container>
-          <h2 className="font-heading text-2xl font-extrabold text-foreground sm:text-3xl">Más de 20 años de experiencia</h2>
-          <div className="mt-6 flex flex-wrap gap-3">
-            {["Taller propio", "Producción integral", "Experiencia B2B"].map((a) => (
-              <span
-                key={a}
-                className="rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary"
-              >
-                {a}
-              </span>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* 05 Proyectos destacados */}
+      {/* 04 Proyectos destacados */}
       <section className="py-20 sm:py-28">
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -149,8 +140,9 @@ export function ViewOneHome() {
         </Container>
       </section>
 
-      {/* 06 Nosotros */}
-      <section id="nosotros" className="py-20 sm:py-28">
+      {/* 05 Nosotros (incl. "Más de 20 años", fusionado del band suelto que
+          tenía su propia sección — ver nota de diseño arriba) */}
+      <section id="nosotros" className="bg-foreground/[0.02] py-20 sm:py-28">
         <Container className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground">
             <Image src={HOME_NOSOTROS_FOTO} alt="Letrero de ViewOne sobre madera" fill className="object-contain p-10" />
@@ -158,37 +150,28 @@ export function ViewOneHome() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Nosotros</p>
             <h2 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
-              Experiencia que respalda cada proyecto
+              Más de 20 años de experiencia respaldan cada proyecto
             </h2>
             <p className="mt-5 text-base leading-relaxed text-foreground/70">
-              En ViewOne contamos con más de 20 años de experiencia desarrollando soluciones gráficas y publicitarias
-              para empresas y marcas. Producimos e implementamos proyectos de impresión, fabricación e instalación,
-              adaptándonos a los requerimientos de cada cliente y cada espacio.
+              En ViewOne desarrollamos soluciones gráficas y publicitarias para empresas y marcas. Producimos e
+              implementamos proyectos de impresión, fabricación e instalación, adaptándonos a los requerimientos de
+              cada cliente y cada espacio.
             </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {["Taller propio", "Producción integral", "Experiencia B2B"].map((a) => (
+                <span
+                  key={a}
+                  className="rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary"
+                >
+                  {a}
+                </span>
+              ))}
+            </div>
           </div>
         </Container>
       </section>
 
-      {/* 07 Clientes (completo) */}
-      <section className="bg-foreground/[0.02] py-16">
-        <Container>
-          <h2 className="font-heading text-2xl font-extrabold text-foreground sm:text-3xl">
-            Experiencia con empresas de distintos rubros
-          </h2>
-          <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-            {CLIENTES_TODOS.map((nombre) => (
-              <div
-                key={nombre}
-                className="flex h-12 items-center justify-center rounded-lg border border-foreground/10 px-2 text-center text-xs font-semibold text-foreground/50"
-              >
-                {nombre}
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* 08-09 Cierre */}
+      {/* 06 Cierre */}
       <section className="py-20 sm:py-28">
         <Container className="text-center">
           <h2 className="font-heading text-3xl font-extrabold text-foreground sm:text-4xl">Cuéntanos qué necesitas</h2>
