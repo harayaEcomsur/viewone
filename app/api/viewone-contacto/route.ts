@@ -73,7 +73,13 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: "Sitio web ViewOne <onboarding@resend.dev>",
+      // El sandbox de Resend (onboarding@resend.dev) solo entrega al correo
+      // dueño de la cuenta — nunca a ventas@viewone.cl. viewone.cl todavía no
+      // tiene un dominio verificado en Resend (requiere DNS que no
+      // administramos), así que se envía desde el dominio ya verificado de
+      // HarayaDev; reply_to apunta al cliente real para que ViewOne responda
+      // directo con "Responder".
+      from: "Sitio web ViewOne <formulario@haraya.dev>",
       to: destination,
       reply_to: correo,
       subject: `Nueva cotización de ${nombre}${empresa ? ` (${empresa})` : ""}`,
