@@ -11,6 +11,11 @@ export interface Proyecto {
   trabajo: string;
   foto: string;
   galeria: string[];
+  // Solo presente en los 2 proyectos que el handoff documentó como ejemplo
+  // de lightbox (slides 19-20) — el resto queda sin inventar hasta que el
+  // panel de administración permita completarlo caso por caso.
+  material?: string;
+  aplicacion?: string;
 }
 
 export interface Servicio {
@@ -105,6 +110,8 @@ export const PROYECTOS: Proyecto[] = [
     trabajo: "Gráfica vehicular - 01",
     foto: ASSET_BASE + "proyectos/reale-seguros-grafica-vehicular-01.jpeg",
     galeria: [],
+    material: "Adhesivo vehicular impreso",
+    aplicacion: "Camión",
   },
   {
     categoria: "Vehículos",
@@ -182,6 +189,8 @@ export const PROYECTOS: Proyecto[] = [
     trabajo: "Logos corpóreos exteriores - 01",
     foto: ASSET_BASE + "proyectos/southbridge-logos-corporeos-exteriores-01.jpeg",
     galeria: [ASSET_BASE + "proyectos/southbridge-logos-corporeos-exteriores-galeria-2.jpeg", ASSET_BASE + "proyectos/southbridge-logos-corporeos-exteriores-galeria-3.jpeg", ASSET_BASE + "proyectos/southbridge-logos-corporeos-exteriores-galeria-4.jpeg"],
+    material: "Madera ruteada + estructura de fierro + LED",
+    aplicacion: "Exterior evento",
   },
   {
     categoria: "Vía pública y gran formato",
