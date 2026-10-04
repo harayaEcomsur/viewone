@@ -6,15 +6,16 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
-import { CATEGORIAS_ORDEN, PROYECTOS, type Proyecto } from "@/lib/viewone-data";
+import type { Categoria, Proyecto } from "@/lib/viewone-store";
 
-// /proyectos (handoff sección 17-20): vista 1 = 8 categorías; click en una
+// /proyectos (handoff sección 17-20): vista 1 = categorías; click en una
 // reemplaza la grilla por sus proyectos (misma página, sin navegar); click en
 // un proyecto abre un lightbox con foto(s), cliente, material/aplicación (si
-// se conoce) y CTA "Quiero algo similar" → WhatsApp. La foto de portada de
-// cada categoría es la del primer proyecto definido para ella, igual que en
-// el handoff.
-export function ProyectosClient() {
+// se conoce) y CTA "Quiero algo similar" → WhatsApp. Categorías y proyectos
+// llegan desde el panel /viewone-admin (lib/viewone-store.ts), no están
+// hardcodeados — la foto de portada de cada categoría es la del primer
+// proyecto visible que la incluye.
+export function ProyectosClient({ categorias, proyectos }: { categorias: Categoria[]; proyectos: Proyecto[] }) {
   const [categoria, setCategoria] = useState<string | null>(null);
   const [proyecto, setProyecto] = useState<Proyecto | null>(null);
   const [galIndex, setGalIndex] = useState(0);
@@ -22,13 +23,17 @@ export function ProyectosClient() {
 
   const portadas = useMemo(() => {
     const map = new Map<string, Proyecto>();
-    for (const p of PROYECTOS) if (!map.has(p.categoria)) map.set(p.categoria, p);
+    for (const p of proyectos) {
+      for (const cat of p.categorias) {
+        if (!map.has(cat)) map.set(cat, p);
+      }
+    }
     return map;
-  }, []);
+  }, [proyectos]);
 
   const proyectosDeCategoria = useMemo(
-    () => (categoria ? PROYECTOS.filter((p) => p.categoria === categoria) : []),
-    [categoria]
+    () => (categoria ? proyectos.filter((p) => p.categorias.includes(categoria)) : []),
+    [categoria, proyectos]
   );
 
   function abrirProyecto(p: Proyecto) {
@@ -36,7 +41,7 @@ export function ProyectosClient() {
     setGalIndex(0);
   }
 
-  const fotos = proyecto ? [proyecto.foto, ...proyecto.galeria] : [];
+  const fotos = proyecto ? [proyecto.portada, ...proyecto.galeria] : [];
 
   useEffect(() => {
     if (!proyecto) return;
@@ -51,7 +56,11 @@ export function ProyectosClient() {
   }, [proyecto, fotos.length]);
 
   const whatsappSimilar = proyecto && contact.whatsapp
-    ? buildWhatsAppLink(contact.whatsapp, `Hola! Vi el proyecto de ${proyecto.cliente} (${proyecto.trabajo}) en viewone.cl y quiero algo similar`)
+    ? buildWhatsAppLink(
+        contact.whatsapp,
+        proyecto.whatsappMensaje ??
+          `Hola! Vi el proyecto de ${proyecto.cliente} (${proyecto.trabajo}) en viewone.cl y quiero algo similar`
+      )
     : undefined;
 
   return (
@@ -74,31 +83,31 @@ export function ProyectosClient() {
 
         {!categoria ? (
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {CATEGORIAS_ORDEN.map((cat) => {
-              const cover = portadas.get(cat);
+            {categorias.map((cat) => {
+              const cover = portadas.get(cat.nombre);
               if (!cover) return null;
               return (
                 <button
-                  key={cat}
-                  onClick={() => setCategoria(cat)}
+                  key={cat.id}
+                  onClick={() => setCategoria(cat.nombre)}
                   className="group overflow-hidden rounded-2xl text-left"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                    <Image src={cover.foto} alt={cat} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <Image src={cover.portada} alt={cat.nombre} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-transparent" />
                   </div>
-                  <p className="mt-3 font-heading text-base font-bold text-foreground">{cat}</p>
+                  <p className="mt-3 font-heading text-base font-bold text-foreground">{cat.nombre}</p>
                 </button>
               );
             })}
           </div>
         ) : (
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {proyectosDeCategoria.map((p, i) => (
-              <button key={`${p.cliente}-${i}`} onClick={() => abrirProyecto(p)} className="group overflow-hidden rounded-2xl text-left">
+            {proyectosDeCategoria.map((p) => (
+              <button key={p.id} onClick={() => abrirProyecto(p)} className="group overflow-hidden rounded-2xl text-left">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
                   <Image
-                    src={p.foto}
+                    src={p.portada}
                     alt={`${p.cliente} — ${p.trabajo}`}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"

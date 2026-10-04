@@ -378,6 +378,36 @@ export function ensureSchema(): Promise<void> {
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+
+      // Catálogo de ViewOne (handoff → sección 23 "CMS/autogestión"): un
+      // proyecto puede pertenecer a más de una categoría sin duplicar
+      // contenido, por eso `categorias` es un array, no una sola columna.
+      await sql`
+        CREATE TABLE IF NOT EXISTS viewone_categorias (
+          id TEXT PRIMARY KEY,
+          nombre TEXT NOT NULL,
+          imagen TEXT,
+          orden INTEGER NOT NULL DEFAULT 0,
+          visible BOOLEAN NOT NULL DEFAULT true,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS viewone_proyectos (
+          id TEXT PRIMARY KEY,
+          cliente TEXT NOT NULL,
+          trabajo TEXT NOT NULL,
+          categorias TEXT[] NOT NULL DEFAULT '{}',
+          portada TEXT NOT NULL,
+          galeria TEXT[] NOT NULL DEFAULT '{}',
+          material TEXT,
+          aplicacion TEXT,
+          orden INTEGER NOT NULL DEFAULT 0,
+          visible BOOLEAN NOT NULL DEFAULT true,
+          whatsapp_mensaje TEXT,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
     })().catch((error) => {
       // Si falla la creación, no cachear el fallo: el próximo request reintenta.
       schemaReady = null;
