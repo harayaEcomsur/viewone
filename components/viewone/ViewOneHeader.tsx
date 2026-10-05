@@ -85,18 +85,20 @@ export function ViewOneHeader() {
         </Container>
       </div>
 
-      {/* Header principal: compacto apenas se hace scroll. */}
+      {/* Header principal: compacto apenas se hace scroll. Logo y nav más
+          grandes/confiados (feedback: "el logo lo veo muy pequeño"; referencia
+          speedpro.com/fastsigns.com, donde el logo domina la barra). */}
       <div className="bg-background/95 backdrop-blur">
-        <Container className={`flex items-center justify-between transition-[height] duration-200 ${scrolled ? "h-16" : "h-20"}`}>
+        <Container className={`flex items-center justify-between transition-[height] duration-200 ${scrolled ? "h-20" : "h-24"}`}>
           <a href="/" className="flex min-w-0 items-center gap-3" onClick={() => setOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element -- logo real, formato variable entre clientes */}
             <img
               src={branding.logoUrl}
               alt={meta.businessName}
-              className={`w-auto object-contain transition-[height] duration-200 ${scrolled ? "h-9" : "h-12"}`}
+              className={`w-auto object-contain transition-[height] duration-200 ${scrolled ? "h-11" : "h-14"}`}
             />
           </a>
-          <nav className="hidden gap-7 text-sm font-semibold text-foreground/70 sm:flex">
+          <nav className="hidden gap-8 text-sm font-bold uppercase tracking-wide text-foreground/70 sm:flex">
             {NAV.map((link) => (
               <a
                 key={link.href}
