@@ -4,7 +4,7 @@ import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
 import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { AdminLoginCard } from "@/components/auth/AdminLoginCard";
 import { AdminViewOne } from "@/components/viewone/AdminViewOne";
-import { currentAdminUser, googleLoginEnabled, claveLoginEnabled } from "@/lib/auth";
+import { currentAdminUser, googleLoginEnabled, claveLoginEnabled, isClaveSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,12 @@ export const metadata: Metadata = {
 // Mismo gate de login que el resto del starter-kit (Google u clave
 // compartida — ver lib/auth.ts). Único rol admin, sin staff.
 export default async function ViewOneAdminPage({ searchParams }: { searchParams: { clave?: string } }) {
-  const authorized = Boolean(await currentAdminUser(searchParams.clave ?? null));
+  const user = await currentAdminUser(searchParams.clave ?? null);
+  const authorized = Boolean(user);
+  // Si entró por clave compartida (link ?clave=… o el form, sin cookie de
+  // Google), el cliente necesita la clave real para reenviarla en cada fetch
+  // — ver nota en AdminViewOne.tsx. Nunca se expone a una sesión de Google.
+  const adminKey = isClaveSession(user) ? process.env.AGENDA_ADMIN_KEY : undefined;
   const googleEnabled = googleLoginEnabled();
   const claveEnabled = claveLoginEnabled();
 
@@ -49,7 +54,7 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
                 Contacto. Los cambios se reflejan de inmediato en el sitio.
               </p>
               <div className="mt-8">
-                <AdminViewOne />
+                <AdminViewOne adminKey={adminKey} />
               </div>
             </>
           )}

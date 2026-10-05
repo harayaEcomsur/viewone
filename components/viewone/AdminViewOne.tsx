@@ -24,21 +24,37 @@ type Data = {
   servicios: Servicio[];
 };
 
+// Sesión por clave compartida (sin cookie, ej. abriendo /viewone-admin?clave=…
+// directo en el celular en vez de pasar por el formulario de login): el SSR
+// de page.tsx autoriza esa carga de página, pero un fetch del cliente a
+// /api/* no lleva ni cookie ni ?clave=, así que caía en 401 ("No se pudo
+// cargar el catálogo"). Mismo arreglo que ya usa AdminAgenda: el server le
+// pasa la clave real solo cuando la sesión actual YA es por clave (nunca a
+// una sesión de Google), y el cliente la reenvía en el header x-viewone-key
+// en cada request — variable de módulo porque solo existe una instancia de
+// este panel a la vez, evita hilar el prop por cada sub-formulario.
+let sessionAdminKey: string | undefined;
+
+function authHeaders(extra?: Record<string, string>): Record<string, string> {
+  return { ...extra, ...(sessionAdminKey ? { "x-viewone-key": sessionAdminKey } : {}) };
+}
+
 async function uploadFile(file: File): Promise<string> {
   const form = new FormData();
   form.set("file", file);
-  const res = await fetch("/api/viewone-admin/upload", { method: "POST", body: form });
+  const res = await fetch("/api/viewone-admin/upload", { method: "POST", headers: authHeaders(), body: form });
   const data = await res.json().catch(() => null);
   if (!res.ok || !data?.url) throw new Error(data?.error ?? "No se pudo subir la imagen.");
   return data.url as string;
 }
 
-export function AdminViewOne() {
+export function AdminViewOne({ adminKey }: { adminKey?: string } = {}) {
+  sessionAdminKey = adminKey;
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function reload() {
-    const res = await fetch("/api/viewone-admin");
+    const res = await fetch("/api/viewone-admin", { headers: authHeaders() });
     if (!res.ok) {
       setError("No se pudo cargar el catálogo.");
       return;
@@ -48,7 +64,8 @@ export function AdminViewOne() {
 
   useEffect(() => {
     reload();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminKey]);
 
   if (error) return <p className="text-sm font-semibold text-red-600">{error}</p>;
   if (!data) return <p className="text-sm text-foreground/60">Cargando…</p>;
@@ -72,7 +89,7 @@ const labelClass = "text-xs font-bold uppercase tracking-wide text-foreground/50
 async function patch(body: unknown) {
   const res = await fetch("/api/viewone-admin", {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => null);
