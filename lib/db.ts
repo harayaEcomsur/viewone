@@ -426,6 +426,18 @@ export function ensureSchema(): Promise<void> {
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      // Usuarios admin con login propio (pedido explícito: "poder agregar
+      // usuarios admin o algún tipo de rol diferente" como superadmin, en vez
+      // de una sola clave compartida para todos). lib/auth.ts la consulta
+      // además de clientConfig.admin.users (ese sigue siendo un respaldo de
+      // emergencia a nivel de código, no reemplazado).
+      await sql`
+        CREATE TABLE IF NOT EXISTS viewone_admin_users (
+          email TEXT PRIMARY KEY,
+          role TEXT NOT NULL DEFAULT 'admin',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
     })().catch((error) => {
       // Si falla la creación, no cachear el fallo: el próximo request reintenta.
       schemaReady = null;

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { OAuth2Client } from "google-auth-library";
 import { SignJWT, jwtVerify } from "jose";
 import { clientConfig } from "@/config/client.config";
+import { listAdminUsers } from "@/lib/viewone-content-store";
 
 // Acceso a los paneles de admin (/agenda/admin, /tienda/admin). Dos métodos,
 // ambos opcionales y compatibles entre sí durante la transición:
@@ -40,10 +41,18 @@ function sessionSecret(): Uint8Array | null {
   return new TextEncoder().encode(secret);
 }
 
-function findUser(email: string): SessionUser | null {
-  const users = clientConfig.admin?.users ?? [];
-  const match = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-  return match ? { email: match.email, role: match.role } : null;
+// clientConfig.admin.users sigue como respaldo de emergencia a nivel de
+// código (acceso si la base de datos no responde); la lista real que edita
+// el superadmin desde /viewone-admin vive en viewone_admin_users — ver
+// lib/viewone-content-store.ts.
+async function findUser(email: string): Promise<SessionUser | null> {
+  const configUsers = clientConfig.admin?.users ?? [];
+  const configMatch = configUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  if (configMatch) return { email: configMatch.email, role: configMatch.role };
+
+  const dbUsers = await listAdminUsers();
+  const dbMatch = dbUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  return dbMatch ? { email: dbMatch.email, role: dbMatch.role } : null;
 }
 
 // Verifica el id_token que entrega Google Identity Services en el navegador.
@@ -63,7 +72,7 @@ export async function verifyGoogleCredential(idToken: string): Promise<SessionUs
   }
   const email = payload?.email;
   if (!email || !payload?.email_verified) return { error: "No se pudo verificar el correo de Google." };
-  const user = findUser(email);
+  const user = await findUser(email);
   if (!user) return { error: `${email} no está autorizado para administrar este sitio.` };
   return user;
 }
@@ -105,7 +114,7 @@ async function sessionUserFromCookie(): Promise<SessionUser | null> {
     if (email === CLAVE_COMPARTIDA_EMAIL) {
       return process.env.AGENDA_ADMIN_KEY ? { email: CLAVE_COMPARTIDA_EMAIL, role: "admin" } : null;
     }
-    return findUser(email);
+    return await findUser(email);
   } catch {
     return null;
   }
@@ -136,10 +145,13 @@ export async function currentAdminUser(claveCandidate?: string | null): Promise<
   return user?.role === "admin" ? user : null;
 }
 
+// Ya no depende de clientConfig.admin.users.length: los usuarios autorizados
+// pueden vivir solo en viewone_admin_users (ver lib/viewone-content-store.ts),
+// sembrada automáticamente con el superadmin real. El botón de Google se
+// muestra en cuanto el mecanismo está conectado, sin importar dónde viva la
+// allowlist.
 export function googleLoginEnabled(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && process.env.SESSION_SECRET && clientConfig.admin?.users?.length
-  );
+  return Boolean(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && process.env.SESSION_SECRET);
 }
 
 export function claveLoginEnabled(): boolean {

@@ -4,7 +4,7 @@ import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
 import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { AdminLoginCard } from "@/components/auth/AdminLoginCard";
 import { AdminViewOne } from "@/components/viewone/AdminViewOne";
-import { currentAdminUser, googleLoginEnabled, claveLoginEnabled, isClaveSession } from "@/lib/auth";
+import { currentAgendaUser, googleLoginEnabled, claveLoginEnabled, isClaveSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,14 +14,18 @@ export const metadata: Metadata = {
 };
 
 // CMS completo (pedido explícito 2026-10-05: "poder modificar todo el
-// contenido del sitio, imágenes, texto"): Home, Servicios, catálogo de
-// Proyectos/Categorías, lista de Clientes y datos de Contacto. A propósito
-// NO incluye paleta/tipografía/layout — eso sigue siendo una solicitud a
-// HarayaDev, no autoservicio, para no romper la consistencia de marca.
-// Mismo gate de login que el resto del starter-kit (Google u clave
-// compartida — ver lib/auth.ts). Único rol admin, sin staff.
+// contenido del sitio, imágenes, texto" + "como superadmin poder agregar
+// usuarios admin o algún tipo de rol diferente"): Home, Servicios, catálogo
+// de Proyectos/Categorías, lista de Clientes, datos de Contacto y Usuarios.
+// A propósito NO incluye paleta/tipografía/layout — eso sigue siendo una
+// solicitud a HarayaDev, no autoservicio, para no romper la consistencia de
+// marca.
+//
+// Dos roles reales ahora: "admin" entra a todo; "staff" entra al panel y
+// edita catálogo/contenido, pero no ve Contacto ni Usuarios (gate server-side
+// en app/api/viewone-admin/route.ts, no solo ocultar la sección en la UI).
 export default async function ViewOneAdminPage({ searchParams }: { searchParams: { clave?: string } }) {
-  const user = await currentAdminUser(searchParams.clave ?? null);
+  const user = await currentAgendaUser(searchParams.clave ?? null);
   const authorized = Boolean(user);
   // Si entró por clave compartida (link ?clave=… o el form, sin cookie de
   // Google), el cliente necesita la clave real para reenviarla en cada fetch
@@ -54,7 +58,7 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
                 Contacto. Los cambios se reflejan de inmediato en el sitio.
               </p>
               <div className="mt-8">
-                <AdminViewOne adminKey={adminKey} />
+                <AdminViewOne adminKey={adminKey} role={user?.role} currentEmail={user?.email} />
               </div>
             </>
           )}

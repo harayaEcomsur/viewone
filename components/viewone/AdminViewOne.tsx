@@ -15,6 +15,9 @@ type Contacto = {
   socials?: { platform: string; url: string }[];
 };
 
+type AdminRole = "admin" | "staff";
+type AdminUser = { email: string; role: AdminRole };
+
 type Data = {
   categorias: Categoria[];
   proyectos: Proyecto[];
@@ -22,6 +25,7 @@ type Data = {
   clientes: string[];
   contacto: Contacto;
   servicios: Servicio[];
+  adminUsers: AdminUser[];
 };
 
 // Sesión por clave compartida (sin cookie, ej. abriendo /viewone-admin?clave=…
@@ -48,7 +52,11 @@ async function uploadFile(file: File): Promise<string> {
   return data.url as string;
 }
 
-export function AdminViewOne({ adminKey }: { adminKey?: string } = {}) {
+export function AdminViewOne({
+  adminKey,
+  role,
+  currentEmail,
+}: { adminKey?: string; role?: AdminRole; currentEmail?: string } = {}) {
   sessionAdminKey = adminKey;
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +78,8 @@ export function AdminViewOne({ adminKey }: { adminKey?: string } = {}) {
   if (error) return <p className="text-sm font-semibold text-red-600">{error}</p>;
   if (!data) return <p className="text-sm text-foreground/60">Cargando…</p>;
 
+  const isAdmin = role !== "staff"; // clave compartida y Google admin → true; solo "staff" explícito lo baja.
+
   return (
     <div className="flex flex-col gap-10">
       <HomeContentSection content={data.homeContent} onChange={reload} />
@@ -77,7 +87,13 @@ export function AdminViewOne({ adminKey }: { adminKey?: string } = {}) {
       <CategoriasSection categorias={data.categorias} onChange={reload} />
       <ProyectosSection categorias={data.categorias} proyectos={data.proyectos} onChange={reload} />
       <ClientesSection clientes={data.clientes} onChange={reload} />
-      <ContactoSection contacto={data.contacto} onChange={reload} />
+      {isAdmin && <ContactoSection contacto={data.contacto} onChange={reload} />}
+      {isAdmin && <UsuariosSection adminUsers={data.adminUsers} currentEmail={currentEmail} onChange={reload} />}
+      {!isAdmin && (
+        <p className="text-xs text-foreground/40">
+          Contacto y Usuarios son solo para administradores — tu cuenta tiene acceso de staff.
+        </p>
+      )}
     </div>
   );
 }
@@ -907,6 +923,128 @@ function ContactoSection({ contacto, onChange }: { contacto: Contacto; onChange:
           </button>
         </div>
       </div>
+    </section>
+  );
+}
+
+const ADMIN_ROLES = ["admin", "staff"] as const;
+
+function UsuariosSection({
+  adminUsers,
+  currentEmail,
+  onChange,
+}: {
+  adminUsers: AdminUser[];
+  currentEmail?: string;
+  onChange: () => void;
+}) {
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<AdminRole>("admin");
+  const [saving, setSaving] = useState(false);
+
+  async function agregar(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSaving(true);
+    try {
+      await patch({ action: "addAdminUser", email: email.trim(), role });
+      setEmail("");
+      setRole("admin");
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function cambiarRol(u: AdminUser, nuevoRol: AdminRole) {
+    try {
+      await patch({ action: "addAdminUser", email: u.email, role: nuevoRol });
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    }
+  }
+
+  async function eliminar(u: AdminUser) {
+    if (!confirm(`¿Quitar a ${u.email} del panel de administración?`)) return;
+    try {
+      await patch({ action: "removeAdminUser", email: u.email });
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="font-heading text-xl font-bold text-foreground">Usuarios</h2>
+      <p className="mt-1 text-xs text-foreground/50">
+        Correos autorizados para entrar a este panel con su cuenta de Google. "Admin" ve y edita todo (incluido
+        Contacto y Usuarios); "Staff" edita catálogo y contenido, pero no esas dos secciones.
+      </p>
+      <div className="mt-4 flex flex-col gap-2">
+        {adminUsers.map((u) => (
+          <div key={u.email} className="flex items-center justify-between gap-3 rounded-lg border border-foreground/10 px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {u.email}
+                {u.email === currentEmail && <span className="ml-2 text-xs text-foreground/40">(tú)</span>}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <select
+                value={u.role}
+                onChange={(e) => cambiarRol(u, e.target.value as AdminRole)}
+                className="rounded-lg border border-foreground/20 bg-background px-2 py-1 text-xs text-foreground outline-none focus:border-primary"
+              >
+                {ADMIN_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r === "admin" ? "Admin" : "Staff"}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                disabled={u.email === currentEmail}
+                className="text-xs font-semibold text-red-600 hover:underline disabled:cursor-not-allowed disabled:text-foreground/30 disabled:no-underline"
+                onClick={() => eliminar(u)}
+                title={u.email === currentEmail ? "No puedes quitarte a ti mismo" : undefined}
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <form onSubmit={agregar} className="mt-4 flex flex-wrap gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="correo@gmail.com"
+          className={`min-w-0 flex-1 ${inputClass}`}
+        />
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value as AdminRole)}
+          className="rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+        >
+          {ADMIN_ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r === "admin" ? "Admin" : "Staff"}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          disabled={saving || !email.trim()}
+          className="shrink-0 rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          Agregar
+        </button>
+      </form>
     </section>
   );
 }

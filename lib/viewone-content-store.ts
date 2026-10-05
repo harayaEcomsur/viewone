@@ -276,3 +276,72 @@ export async function deleteServicio(id: string): Promise<void> {
     () => undefined
   );
 }
+
+// Usuarios admin con login propio (2026-10-05: "como superadmin poder
+// agregar usuarios admin o algún tipo de rol diferente"). Reemplaza la
+// dependencia exclusiva de clientConfig.admin.users (que sigue funcionando
+// como respaldo de emergencia a nivel de código) por una lista editable
+// desde /viewone-admin. Sembrada con el superadmin real para que el primer
+// login con Google ya tenga a alguien autorizado sin tocar código.
+export type AdminRole = "admin" | "staff";
+export interface AdminUser {
+  email: string;
+  role: AdminRole;
+}
+
+const SUPERADMIN_SEED: AdminUser = { email: "hector.tazdevil@gmail.com", role: "admin" };
+
+async function seedAdminUsersIfEmpty(): Promise<void> {
+  const sql = db();
+  const [{ count }] = await sql`SELECT count(*)::int AS count FROM viewone_admin_users`;
+  if (Number(count) > 0) return;
+  await sql`
+    INSERT INTO viewone_admin_users (email, role) VALUES (${SUPERADMIN_SEED.email}, ${SUPERADMIN_SEED.role})
+    ON CONFLICT (email) DO NOTHING
+  `;
+}
+
+export async function listAdminUsers(): Promise<AdminUser[]> {
+  return withDb(
+    async () => {
+      await seedAdminUsersIfEmpty();
+      const sql = db();
+      const rows = await sql`SELECT email, role FROM viewone_admin_users ORDER BY created_at ASC`;
+      return rows.map((r) => ({ email: String(r.email), role: r.role as AdminRole }));
+    },
+    () => [SUPERADMIN_SEED]
+  );
+}
+
+export async function addAdminUser(email: string, role: AdminRole): Promise<void> {
+  const normalized = email.trim().toLowerCase();
+  await withDb(
+    async () => {
+      const sql = db();
+      await sql`
+        INSERT INTO viewone_admin_users (email, role) VALUES (${normalized}, ${role})
+        ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role
+      `;
+    },
+    () => undefined
+  );
+}
+
+// No deja sacar al último admin — evitaría que cualquiera pueda volver a
+// entrar al panel con un rol que administre usuarios.
+export async function removeAdminUser(email: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const normalized = email.trim().toLowerCase();
+  return withDb(
+    async () => {
+      const sql = db();
+      const [{ count }] = await sql`SELECT count(*)::int AS count FROM viewone_admin_users WHERE role = 'admin'`;
+      const [target] = await sql`SELECT role FROM viewone_admin_users WHERE email = ${normalized}`;
+      if (target?.role === "admin" && Number(count) <= 1) {
+        return { ok: false, error: "No puedes eliminar al único administrador." };
+      }
+      await sql`DELETE FROM viewone_admin_users WHERE email = ${normalized}`;
+      return { ok: true };
+    },
+    () => ({ ok: false, error: "Sin base de datos disponible." })
+  );
+}

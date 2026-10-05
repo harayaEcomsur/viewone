@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { currentAdminUser } from "@/lib/auth";
+import { currentAdminUser, currentAgendaUser } from "@/lib/auth";
 import {
   listCategorias,
   listProyectos,
@@ -21,34 +21,55 @@ import {
   upsertServicio,
   setServicioVisible,
   deleteServicio,
+  listAdminUsers,
+  addAdminUser,
+  removeAdminUser,
 } from "@/lib/viewone-content-store";
 
 export const runtime = "nodejs";
 
 // Panel /viewone-admin: CMS completo (categorías/proyectos, contenido del
-// Home, servicios, lista de clientes, datos de contacto) editable sin
-// redeploy. Mismo patrón de auth que el resto del starter-kit (ver
-// lib/auth.ts) — cookie de sesión (Google o clave compartida) o
-// ?clave=/header directo. A propósito NO incluye nada de paleta/tipografía/
-// layout — eso sigue siendo una solicitud a HarayaDev (decisión explícita
-// 2026-10-05, para no romper la consistencia de marca).
+// Home, servicios, lista de clientes, datos de contacto, usuarios admin)
+// editable sin redeploy. Mismo patrón de auth que el resto del starter-kit
+// (ver lib/auth.ts) — cookie de sesión (Google o clave compartida) o
+// ?clave=/header directo.
+//
+// Dos niveles: "admin" o "staff" (currentAgendaUser acepta cualquiera de los
+// dos) pueden entrar al panel y editar catálogo/contenido; Contacto y
+// Usuarios son datos de negocio/acceso, así que exigen "admin" puntualmente
+// (currentAdminUser) — mismo criterio que ya separa /agenda/admin de
+// /tienda/admin en el resto del starter-kit.
+//
+// A propósito NO incluye nada de paleta/tipografía/layout — eso sigue siendo
+// una solicitud a HarayaDev (decisión explícita 2026-10-05, para no romper
+// la consistencia de marca).
 function claveFromRequest(req: Request): string | null {
   return req.headers.get("x-viewone-key") ?? new URL(req.url).searchParams.get("clave");
 }
 
 export async function GET(req: Request) {
-  const user = await currentAdminUser(claveFromRequest(req));
+  const user = await currentAgendaUser(claveFromRequest(req));
   if (!user) return Response.json({ error: "No autorizado" }, { status: 401 });
 
-  const [categorias, proyectos, homeContent, clientes, contacto, servicios] = await Promise.all([
+  const [categorias, proyectos, homeContent, clientes, contacto, servicios, adminUsers] = await Promise.all([
     listCategorias(),
     listProyectos(),
     getHomeContent(),
     getClientesContent(),
     getContacto(),
     listServicios(),
+    listAdminUsers(),
   ]);
-  return Response.json({ categorias, proyectos, homeContent, clientes, contacto, servicios });
+  return Response.json({
+    categorias,
+    proyectos,
+    homeContent,
+    clientes,
+    contacto,
+    servicios,
+    adminUsers,
+    currentUser: user,
+  });
 }
 
 const patchSchema = z.discriminatedUnion("action", [
@@ -110,16 +131,25 @@ const patchSchema = z.discriminatedUnion("action", [
   }),
   z.object({ action: z.literal("setServicioVisible"), id: z.string().min(1), visible: z.boolean() }),
   z.object({ action: z.literal("deleteServicio"), id: z.string().min(1) }),
+  z.object({ action: z.literal("addAdminUser"), email: z.string().email(), role: z.enum(["admin", "staff"]) }),
+  z.object({ action: z.literal("removeAdminUser"), email: z.string().email() }),
 ]);
 
-export async function PATCH(req: Request) {
-  const user = await currentAdminUser(claveFromRequest(req));
-  if (!user) return Response.json({ error: "No autorizado" }, { status: 401 });
+// Acciones que tocan datos de negocio/acceso — exigen rol "admin" puntual,
+// no basta con estar logueado como "staff".
+const ADMIN_ONLY_ACTIONS = new Set(["setContactoOverride", "addAdminUser", "removeAdminUser"]);
 
+export async function PATCH(req: Request) {
+  const clave = claveFromRequest(req);
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return Response.json({ error: "Datos inválidos" }, { status: 400 });
   const data = parsed.data;
+
+  const user = ADMIN_ONLY_ACTIONS.has(data.action)
+    ? await currentAdminUser(clave)
+    : await currentAgendaUser(clave);
+  if (!user) return Response.json({ error: "No autorizado" }, { status: 401 });
 
   switch (data.action) {
     case "upsertCategoria":
@@ -157,5 +187,13 @@ export async function PATCH(req: Request) {
     case "deleteServicio":
       await deleteServicio(data.id);
       return Response.json({ ok: true });
+    case "addAdminUser":
+      await addAdminUser(data.email, data.role);
+      return Response.json({ ok: true, adminUsers: await listAdminUsers() });
+    case "removeAdminUser": {
+      const result = await removeAdminUser(data.email);
+      if (!result.ok) return Response.json({ error: result.error }, { status: 400 });
+      return Response.json({ ok: true, adminUsers: await listAdminUsers() });
+    }
   }
 }
