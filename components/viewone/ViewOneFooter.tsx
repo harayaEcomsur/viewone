@@ -11,8 +11,11 @@ import { CmykBar } from "@/components/viewone/CmykBar";
 const SOCIAL_ICON = { instagram: Instagram, facebook: Facebook, linkedin: Linkedin } as const;
 
 export function ViewOneFooter() {
-  const { meta, contact } = clientConfig;
+  const { meta, contact, branding } = clientConfig;
   const year = new Date().getFullYear();
+  // Mismo crédito y link que usa el Footer genérico (components/layout/
+  // Footer.tsx) — ViewOne lo tiene aprobado (branding.credit: true).
+  const mostrarCredito = branding.credit || Boolean(process.env.SITE_NOINDEX);
 
   return (
     <footer className="py-6">
@@ -31,6 +34,16 @@ export function ViewOneFooter() {
               </a>
             );
           })}
+          {mostrarCredito && (
+            <a
+              href="https://haraya.dev/como-lo-hicimos"
+              target="_blank"
+              rel="noopener"
+              className="opacity-70 transition-opacity hover:opacity-100 hover:text-primary"
+            >
+              Sitio por HarayaDev
+            </a>
+          )}
         </div>
       </Container>
     </footer>

@@ -33,54 +33,39 @@ export function ViewOneHome() {
   return (
     <>
       {/* 01 Hero */}
-      {/* Pase de diseño (feedback directo: "muy plano", inspiración
-          speedpro.com / fastsigns.com): ambos referentes del rubro usan
-          bloques de color sólido y la foto enmarcada aparte del texto, nunca
-          una foto de fondo lavada con degradado — eso es lo que leía "plano".
-          Hero asimétrico: panel sólido con el texto a la izquierda, foto real
-          contenida en su propio marco a la derecha. */}
-      <section className="relative overflow-hidden bg-foreground py-20 sm:py-28">
-        <Container>
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="relative">
-              <RegisterMark className="absolute -left-1 -top-10 h-6 w-6 text-background/30 sm:-top-12" />
-              <h1 className="font-heading text-4xl font-extrabold leading-[1.08] text-background sm:text-5xl">
-                Impresión digital y <span className="text-accent">soluciones gráficas</span> para empresas
-              </h1>
-              <p className="mt-6 max-w-md text-base leading-relaxed text-background/70 sm:text-lg">
-                Desarrollamos, producimos e instalamos soluciones gráficas para marcas, empresas y proyectos, desde
-                impresión digital hasta implementaciones integrales.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <a
-                  href="/contacto"
-                  className="group inline-flex items-center gap-3 rounded-full bg-accent py-1.5 pl-7 pr-1.5 text-sm font-bold text-foreground shadow-lg shadow-accent/20 transition-transform active:scale-[0.98]"
-                >
-                  Cotiza tu proyecto
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/10 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                    <ArrowUpRight size={16} />
-                  </span>
-                </a>
-                <a
-                  href="/proyectos"
-                  className="inline-flex items-center rounded-full border border-background/30 px-7 py-3.5 text-sm font-bold text-background transition-colors hover:bg-background/10"
-                >
-                  Ver proyectos
-                </a>
-              </div>
-            </div>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl sm:aspect-[5/4] lg:aspect-[4/5]">
-              <Image
-                src={HOME_HERO_FOTO}
-                alt="Boletería de Andacor con señalética e impresión instalada por ViewOne"
-                fill
-                priority
-                className="object-cover"
-              />
-              <div className="absolute inset-0 ring-1 ring-inset ring-background/10" />
-              <RegisterMark className="absolute right-4 top-4 h-6 w-6 text-background/70" />
-              <RegisterMark className="absolute bottom-4 left-4 h-6 w-6 text-background/70" />
-            </div>
+      {/* Vuelto a la versión anterior (foto de fondo + degradado) por pedido
+          explícito del usuario — le gustaba más que el split asimétrico. */}
+      <section className="relative overflow-hidden py-28 sm:py-36">
+        <Image src={HOME_HERO_FOTO} alt="Boletería de Andacor con señalética e impresión instalada por ViewOne" fill priority className="object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/55 to-foreground/30" />
+        {/* Miras de registro en las esquinas: firma del rubro (ver
+            RegisterMark.tsx), no decoración genérica. */}
+        <RegisterMark className="absolute left-5 top-5 h-6 w-6 text-background/50 sm:left-8 sm:top-8" />
+        <RegisterMark className="absolute bottom-5 right-5 h-6 w-6 text-background/50 sm:bottom-8 sm:right-8" />
+        <Container className="relative">
+          <h1 className="max-w-2xl font-heading text-4xl font-extrabold leading-[1.05] text-background sm:text-6xl">
+            Impresión digital y soluciones gráficas para empresas
+          </h1>
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-background/85 sm:text-lg">
+            Desarrollamos, producimos e instalamos soluciones gráficas para marcas, empresas y proyectos, desde
+            impresión digital hasta implementaciones integrales.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <a
+              href="/contacto"
+              className="group inline-flex items-center gap-3 rounded-full bg-accent py-1.5 pl-7 pr-1.5 text-sm font-bold text-foreground shadow-lg shadow-accent/20 transition-transform active:scale-[0.98]"
+            >
+              Cotiza tu proyecto
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/10 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <ArrowUpRight size={16} />
+              </span>
+            </a>
+            <a
+              href="/proyectos"
+              className="inline-flex items-center rounded-lg border border-background/40 px-7 py-3.5 text-sm font-bold text-background transition-colors hover:bg-background/10"
+            >
+              Ver proyectos
+            </a>
           </div>
         </Container>
       </section>
