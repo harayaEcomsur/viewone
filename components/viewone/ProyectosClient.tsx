@@ -6,6 +6,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { RegisterMark } from "@/components/viewone/RegisterMark";
 import type { Categoria, Proyecto } from "@/lib/viewone-store";
 
 // /proyectos (handoff sección 17-20): vista 1 = categorías; click en una
@@ -106,6 +107,7 @@ export function ProyectosClient({ categorias, proyectos }: { categorias: Categor
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
                     <Image src={cover.portada} alt={cat.nombre} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-transparent" />
+                    <RegisterMark className="absolute right-3 top-3 h-5 w-5 text-background/60" />
                   </div>
                   <p className="mt-3 font-heading text-base font-bold text-foreground">{cat.nombre}</p>
                 </button>
@@ -177,7 +179,9 @@ export function ProyectosClient({ categorias, proyectos }: { categorias: Categor
             </div>
 
             {(proyecto.material || proyecto.aplicacion) && (
-              <p className="mt-4 text-center text-xs text-foreground/50">
+              // font-mono: trato de "ficha técnica" para material/aplicación,
+              // no texto corrido — ver nota en lib/fonts.ts.
+              <p className="mt-4 text-center font-mono text-xs uppercase tracking-wide text-foreground/50">
                 {[proyecto.material, proyecto.aplicacion].filter(Boolean).join(" · Aplicación/superficie: ")}
               </p>
             )}

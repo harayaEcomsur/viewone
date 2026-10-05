@@ -1,7 +1,9 @@
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { RegisterMark } from "@/components/viewone/RegisterMark";
 import {
   SERVICIOS,
   HOME_PROYECTOS_DESTACADOS,
@@ -34,6 +36,10 @@ export function ViewOneHome() {
       <section className="relative overflow-hidden py-28 sm:py-36">
         <Image src={HOME_HERO_FOTO} alt="Boletería de Andacor con señalética e impresión instalada por ViewOne" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/55 to-foreground/30" />
+        {/* Miras de registro en las esquinas: firma del rubro (ver
+            RegisterMark.tsx), no decoración genérica. */}
+        <RegisterMark className="absolute left-5 top-5 h-6 w-6 text-background/50 sm:left-8 sm:top-8" />
+        <RegisterMark className="absolute bottom-5 right-5 h-6 w-6 text-background/50 sm:bottom-8 sm:right-8" />
         <Container className="relative">
           <h1 className="max-w-2xl font-heading text-4xl font-extrabold leading-[1.05] text-background sm:text-6xl">
             Impresión digital y soluciones gráficas para empresas
@@ -45,9 +51,12 @@ export function ViewOneHome() {
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
               href="/contacto"
-              className="inline-flex items-center rounded-lg bg-accent px-7 py-3.5 text-sm font-bold text-foreground shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
+              className="group inline-flex items-center gap-3 rounded-full bg-accent py-1.5 pl-7 pr-1.5 text-sm font-bold text-foreground shadow-lg shadow-accent/20 transition-transform active:scale-[0.98]"
             >
               Cotiza tu proyecto
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-foreground/10 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <ArrowUpRight size={16} />
+              </span>
             </a>
             <a
               href="/proyectos"

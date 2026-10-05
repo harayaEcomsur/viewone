@@ -20,6 +20,11 @@ const config: Config = {
       fontFamily: {
         heading: ["var(--font-heading)"],
         body: ["var(--font-body)"],
+        // Fallback inline (no lista con comas) porque un --font-mono sin
+        // definir invalida TODO el valor de font-family en vez de caer al
+        // siguiente ítem — ver nota de --font-heading/--font-body en
+        // globals.css sobre esta misma trampa.
+        mono: ["var(--font-mono, ui-monospace)", "SFMono-Regular", "monospace"],
       },
     },
   },

@@ -3,6 +3,7 @@ import { clientConfig } from "@/config/client.config";
 import { getFontVariables } from "@/lib/fonts";
 import { paletteToCssVars } from "@/lib/theme";
 import { buildMetadata, buildLocalBusinessJsonLd } from "@/lib/seo";
+import { PaperGrain } from "@/components/viewone/PaperGrain";
 import "./globals.css";
 
 export const metadata: Metadata = buildMetadata(clientConfig);
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={paletteToCssVars(clientConfig.branding.palette)}
     >
       <body>
+        <PaperGrain />
         {children}
         <script
           type="application/ld+json"

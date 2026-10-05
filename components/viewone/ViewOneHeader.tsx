@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, Instagram, Facebook, Linkedin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
+import { CmykBar } from "@/components/viewone/CmykBar";
 
 // Header a medida del handoff (sección 06): franja superior con
 // teléfono/correo/dirección + redes, header principal con logo + nav, y
@@ -85,7 +86,7 @@ export function ViewOneHeader() {
       </div>
 
       {/* Header principal: compacto apenas se hace scroll. */}
-      <div className="border-b border-foreground/10 bg-background/95 backdrop-blur">
+      <div className="bg-background/95 backdrop-blur">
         <Container className={`flex items-center justify-between transition-[height] duration-200 ${scrolled ? "h-16" : "h-20"}`}>
           <a href="/" className="flex min-w-0 items-center gap-3" onClick={() => setOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element -- logo real, formato variable entre clientes */}
@@ -116,6 +117,7 @@ export function ViewOneHeader() {
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </Container>
+        <CmykBar />
       </div>
 
       {open && (
