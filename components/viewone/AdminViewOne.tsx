@@ -3,8 +3,26 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { Categoria, Proyecto } from "@/lib/viewone-store";
+import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
 
-type Data = { categorias: Categoria[]; proyectos: Proyecto[] };
+type Contacto = {
+  phone?: string;
+  whatsapp?: string;
+  whatsappPrefilledMessage?: string;
+  email?: string;
+  address?: string;
+  mapQuery?: string;
+  socials?: { platform: string; url: string }[];
+};
+
+type Data = {
+  categorias: Categoria[];
+  proyectos: Proyecto[];
+  homeContent: HomeContent;
+  clientes: string[];
+  contacto: Contacto;
+  servicios: Servicio[];
+};
 
 async function uploadFile(file: File): Promise<string> {
   const form = new FormData();
@@ -37,11 +55,19 @@ export function AdminViewOne() {
 
   return (
     <div className="flex flex-col gap-10">
+      <HomeContentSection content={data.homeContent} onChange={reload} />
+      <ServiciosSection servicios={data.servicios} onChange={reload} />
       <CategoriasSection categorias={data.categorias} onChange={reload} />
       <ProyectosSection categorias={data.categorias} proyectos={data.proyectos} onChange={reload} />
+      <ClientesSection clientes={data.clientes} onChange={reload} />
+      <ContactoSection contacto={data.contacto} onChange={reload} />
     </div>
   );
 }
+
+const inputClass =
+  "rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary";
+const labelClass = "text-xs font-bold uppercase tracking-wide text-foreground/50";
 
 async function patch(body: unknown) {
   const res = await fetch("/api/viewone-admin", {
@@ -401,6 +427,467 @@ function ProyectosSection({
         <h3 className="text-sm font-semibold text-foreground">Agregar proyecto</h3>
         <div className="mt-2">
           <ProyectoForm categorias={categorias} onSaved={onChange} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ImagePicker({
+  url,
+  onUploaded,
+  label,
+}: {
+  url: string;
+  onUploaded: (url: string) => void;
+  label: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      onUploaded(await uploadFile(file));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error al subir");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        className="rounded-lg border border-foreground/20 px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary disabled:opacity-50"
+      >
+        {uploading ? "Subiendo…" : url ? `Cambiar ${label}` : `Subir ${label}`}
+      </button>
+      {url && <Image src={url} alt={label} width={64} height={48} className="rounded object-cover" />}
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+    </div>
+  );
+}
+
+function HomeContentSection({ content, onChange }: { content: HomeContent; onChange: () => void }) {
+  const [form, setForm] = useState(content);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => setForm(content), [content]);
+
+  function updateDestacado(i: number, patchPart: Partial<{ nombre: string; foto: string }>) {
+    setForm((f) => ({
+      ...f,
+      proyectosDestacados: f.proyectosDestacados.map((p, idx) => (idx === i ? { ...p, ...patchPart } : p)),
+    }));
+  }
+
+  async function guardar() {
+    setSaving(true);
+    try {
+      await patch({ action: "setHomeContent", ...form });
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="font-heading text-xl font-bold text-foreground">Contenido del Home</h2>
+      <div className="mt-4 flex flex-col gap-5 rounded-xl border border-foreground/10 p-4">
+        <div>
+          <p className={labelClass}>Titular del hero</p>
+          <input
+            value={form.heroTitulo}
+            onChange={(e) => setForm((f) => ({ ...f, heroTitulo: e.target.value }))}
+            className={`mt-1 w-full ${inputClass}`}
+          />
+        </div>
+        <div>
+          <p className={labelClass}>Bajada del hero</p>
+          <textarea
+            value={form.heroBajada}
+            onChange={(e) => setForm((f) => ({ ...f, heroBajada: e.target.value }))}
+            rows={3}
+            className={`mt-1 w-full ${inputClass}`}
+          />
+        </div>
+        <div>
+          <p className={labelClass}>Foto del hero</p>
+          <div className="mt-1">
+            <ImagePicker url={form.heroFotoUrl} label="foto" onUploaded={(url) => setForm((f) => ({ ...f, heroFotoUrl: url }))} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 border-t border-foreground/10 pt-5 sm:grid-cols-2">
+          <div>
+            <p className={labelClass}>Etiqueta "Nosotros"</p>
+            <input
+              value={form.nosotrosEyebrow}
+              onChange={(e) => setForm((f) => ({ ...f, nosotrosEyebrow: e.target.value }))}
+              className={`mt-1 w-full ${inputClass}`}
+            />
+          </div>
+          <div>
+            <p className={labelClass}>Título "Nosotros"</p>
+            <input
+              value={form.nosotrosTitulo}
+              onChange={(e) => setForm((f) => ({ ...f, nosotrosTitulo: e.target.value }))}
+              className={`mt-1 w-full ${inputClass}`}
+            />
+          </div>
+        </div>
+        <div>
+          <p className={labelClass}>Texto "Nosotros"</p>
+          <textarea
+            value={form.nosotrosTexto}
+            onChange={(e) => setForm((f) => ({ ...f, nosotrosTexto: e.target.value }))}
+            rows={3}
+            className={`mt-1 w-full ${inputClass}`}
+          />
+        </div>
+        <div>
+          <p className={labelClass}>Foto "Nosotros"</p>
+          <div className="mt-1">
+            <ImagePicker
+              url={form.nosotrosFotoUrl}
+              label="foto"
+              onUploaded={(url) => setForm((f) => ({ ...f, nosotrosFotoUrl: url }))}
+            />
+          </div>
+        </div>
+        <div>
+          <p className={labelClass}>Badges (uno por línea)</p>
+          <textarea
+            value={form.badges.join("\n")}
+            onChange={(e) => setForm((f) => ({ ...f, badges: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) }))}
+            rows={3}
+            className={`mt-1 w-full ${inputClass}`}
+          />
+        </div>
+
+        <div className="border-t border-foreground/10 pt-5">
+          <p className={labelClass}>Proyectos destacados (Home)</p>
+          <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {form.proyectosDestacados.map((p, i) => (
+              <div key={i} className="flex items-center gap-2 rounded-lg border border-foreground/10 p-2">
+                <input
+                  value={p.nombre}
+                  onChange={(e) => updateDestacado(i, { nombre: e.target.value })}
+                  placeholder="Nombre"
+                  className={`min-w-0 flex-1 ${inputClass}`}
+                />
+                <ImagePicker url={p.foto} label="foto" onUploaded={(url) => updateDestacado(i, { foto: url })} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className={labelClass}>Título del cierre</p>
+          <input
+            value={form.cierreTitulo}
+            onChange={(e) => setForm((f) => ({ ...f, cierreTitulo: e.target.value }))}
+            className={`mt-1 w-full ${inputClass}`}
+          />
+        </div>
+
+        <div>
+          <button
+            type="button"
+            onClick={guardar}
+            disabled={saving}
+            className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {saving ? "Guardando…" : "Guardar cambios"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ServicioForm({
+  servicio,
+  onSaved,
+  onCancel,
+}: {
+  servicio?: Servicio;
+  onSaved: () => void;
+  onCancel?: () => void;
+}) {
+  const [nombre, setNombre] = useState(servicio?.nombre ?? "");
+  const [trabajo, setTrabajo] = useState(servicio?.trabajo ?? "");
+  const [textoCorto, setTextoCorto] = useState(servicio?.textoCorto ?? "");
+  const [textoCompleto, setTextoCompleto] = useState(servicio?.textoCompleto ?? "");
+  const [foto, setFoto] = useState(servicio?.foto ?? "");
+  const [cta, setCta] = useState(servicio?.cta ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!nombre.trim() || !trabajo.trim() || !textoCorto.trim() || !textoCompleto.trim() || !foto || !cta.trim()) {
+      alert("Todos los campos son obligatorios.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await patch({
+        action: "upsertServicio",
+        id: servicio?.id,
+        nombre: nombre.trim(),
+        trabajo: trabajo.trim(),
+        textoCorto: textoCorto.trim(),
+        textoCompleto: textoCompleto.trim(),
+        foto,
+        cta: cta.trim(),
+      });
+      onSaved();
+      if (!servicio) {
+        setNombre("");
+        setTrabajo("");
+        setTextoCorto("");
+        setTextoCompleto("");
+        setFoto("");
+        setCta("");
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 rounded-xl border border-foreground/10 p-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre del servicio" className={inputClass} />
+        <input value={trabajo} onChange={(e) => setTrabajo(e.target.value)} placeholder="Trabajo de referencia (ej. Cliente - Trabajo)" className={inputClass} />
+      </div>
+      <textarea value={textoCorto} onChange={(e) => setTextoCorto(e.target.value)} placeholder="Texto corto (tarjeta resumida en Home)" rows={2} className={inputClass} />
+      <textarea value={textoCompleto} onChange={(e) => setTextoCompleto(e.target.value)} placeholder="Texto completo (página /servicios)" rows={3} className={inputClass} />
+      <div className="flex items-center gap-3">
+        <ImagePicker url={foto} label="foto" onUploaded={setFoto} />
+      </div>
+      <input value={cta} onChange={(e) => setCta(e.target.value)} placeholder="Texto del botón (ej. Cotizar impresión)" className={inputClass} />
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={saving}
+          className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {servicio ? "Guardar cambios" : "Agregar servicio"}
+        </button>
+        {onCancel && (
+          <button type="button" onClick={onCancel} className="rounded-lg px-4 py-2 text-xs font-semibold text-foreground/60 hover:underline">
+            Cancelar
+          </button>
+        )}
+      </div>
+    </form>
+  );
+}
+
+function ServiciosSection({ servicios, onChange }: { servicios: Servicio[]; onChange: () => void }) {
+  const [editing, setEditing] = useState<string | null>(null);
+
+  return (
+    <section>
+      <h2 className="font-heading text-xl font-bold text-foreground">Servicios</h2>
+      <div className="mt-4 flex flex-col gap-3">
+        {servicios.map((s) =>
+          editing === s.id ? (
+            <ServicioForm
+              key={s.id}
+              servicio={s}
+              onSaved={() => {
+                setEditing(null);
+                onChange();
+              }}
+              onCancel={() => setEditing(null)}
+            />
+          ) : (
+            <div key={s.id} className="flex items-center justify-between gap-3 rounded-lg border border-foreground/10 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <Image src={s.foto} alt="" width={56} height={42} className="rounded object-cover" />
+                <p className="text-sm font-semibold text-foreground">{s.nombre}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-xs text-foreground/60">
+                  <input
+                    type="checkbox"
+                    checked={s.visible}
+                    onChange={async (e) => {
+                      await patch({ action: "setServicioVisible", id: s.id, visible: e.target.checked });
+                      onChange();
+                    }}
+                  />
+                  Visible
+                </label>
+                <button type="button" className="text-xs font-semibold text-primary hover:underline" onClick={() => setEditing(s.id)}>
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-red-600 hover:underline"
+                  onClick={async () => {
+                    if (!confirm(`¿Eliminar "${s.nombre}"?`)) return;
+                    await patch({ action: "deleteServicio", id: s.id });
+                    onChange();
+                  }}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          )
+        )}
+      </div>
+      <div className="mt-6">
+        <h3 className="text-sm font-semibold text-foreground">Agregar servicio</h3>
+        <div className="mt-2">
+          <ServicioForm onSaved={onChange} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange: () => void }) {
+  const [text, setText] = useState(clientes.join("\n"));
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => setText(clientes.join("\n")), [clientes]);
+
+  async function guardar() {
+    const nombres = text
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    setSaving(true);
+    try {
+      await patch({ action: "setClientesContent", nombres });
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="font-heading text-xl font-bold text-foreground">Clientes</h2>
+      <p className="mt-1 text-xs text-foreground/50">Un nombre por línea. Se muestran en el Home, en el orden que los escribas.</p>
+      <textarea value={text} onChange={(e) => setText(e.target.value)} rows={8} className={`mt-3 w-full ${inputClass}`} />
+      <button
+        type="button"
+        onClick={guardar}
+        disabled={saving}
+        className="mt-3 rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        {saving ? "Guardando…" : "Guardar cambios"}
+      </button>
+    </section>
+  );
+}
+
+const SOCIAL_PLATFORMS = ["instagram", "facebook", "linkedin"] as const;
+
+function ContactoSection({ contacto, onChange }: { contacto: Contacto; onChange: () => void }) {
+  const [form, setForm] = useState(contacto);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => setForm(contacto), [contacto]);
+
+  function socialUrl(platform: string) {
+    return form.socials?.find((s) => s.platform === platform)?.url ?? "";
+  }
+
+  function setSocialUrl(platform: string, url: string) {
+    setForm((f) => {
+      const rest = (f.socials ?? []).filter((s) => s.platform !== platform);
+      return { ...f, socials: url ? [...rest, { platform, url }] : rest };
+    });
+  }
+
+  async function guardar() {
+    setSaving(true);
+    try {
+      await patch({ action: "setContactoOverride", ...form });
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="font-heading text-xl font-bold text-foreground">Contacto</h2>
+      <div className="mt-4 flex flex-col gap-4 rounded-xl border border-foreground/10 p-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <p className={labelClass}>Teléfono (mostrado en el sitio)</p>
+            <input value={form.phone ?? ""} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className={`mt-1 w-full ${inputClass}`} />
+          </div>
+          <div>
+            <p className={labelClass}>WhatsApp (solo números, con código de país)</p>
+            <input value={form.whatsapp ?? ""} onChange={(e) => setForm((f) => ({ ...f, whatsapp: e.target.value }))} className={`mt-1 w-full ${inputClass}`} />
+          </div>
+        </div>
+        <div>
+          <p className={labelClass}>Mensaje precargado de WhatsApp</p>
+          <input
+            value={form.whatsappPrefilledMessage ?? ""}
+            onChange={(e) => setForm((f) => ({ ...f, whatsappPrefilledMessage: e.target.value }))}
+            className={`mt-1 w-full ${inputClass}`}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <p className={labelClass}>Correo de ventas (recibe las cotizaciones)</p>
+            <input value={form.email ?? ""} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className={`mt-1 w-full ${inputClass}`} />
+          </div>
+          <div>
+            <p className={labelClass}>Dirección</p>
+            <input value={form.address ?? ""} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} className={`mt-1 w-full ${inputClass}`} />
+          </div>
+        </div>
+        <div className="border-t border-foreground/10 pt-4">
+          <p className={labelClass}>Redes sociales</p>
+          <div className="mt-2 flex flex-col gap-2">
+            {SOCIAL_PLATFORMS.map((platform) => (
+              <div key={platform} className="flex items-center gap-2">
+                <span className="w-20 shrink-0 text-xs capitalize text-foreground/60">{platform}</span>
+                <input
+                  value={socialUrl(platform)}
+                  onChange={(e) => setSocialUrl(platform, e.target.value)}
+                  placeholder={`https://${platform}.com/...`}
+                  className={`min-w-0 flex-1 ${inputClass}`}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={guardar}
+            disabled={saving}
+            className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {saving ? "Guardando…" : "Guardar cambios"}
+          </button>
         </div>
       </div>
     </section>

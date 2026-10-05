@@ -408,6 +408,24 @@ export function ensureSchema(): Promise<void> {
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      // CMS completo (pedido explícito: "todo el contenido editable en el
+      // admin") — servicios es la única otra lista (además de categorías/
+      // proyectos); el resto del contenido (Home, Clientes, Contacto) son
+      // bloques singleton y usan la tabla genérica `settings`.
+      await sql`
+        CREATE TABLE IF NOT EXISTS viewone_servicios (
+          id TEXT PRIMARY KEY,
+          nombre TEXT NOT NULL,
+          trabajo TEXT NOT NULL,
+          texto_corto TEXT NOT NULL,
+          texto_completo TEXT NOT NULL,
+          foto TEXT NOT NULL,
+          cta TEXT NOT NULL,
+          orden INTEGER NOT NULL DEFAULT 0,
+          visible BOOLEAN NOT NULL DEFAULT true,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+      `;
     })().catch((error) => {
       // Si falla la creación, no cachear el fallo: el próximo request reintenta.
       schemaReady = null;

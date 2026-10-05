@@ -16,11 +16,21 @@ import type { Categoria, Proyecto } from "@/lib/viewone-store";
 // llegan desde el panel /viewone-admin (lib/viewone-store.ts), no están
 // hardcodeados — la foto de portada de cada categoría es la del primer
 // proyecto visible que la incluye.
-export function ProyectosClient({ categorias, proyectos }: { categorias: Categoria[]; proyectos: Proyecto[] }) {
+type ContactInfo = { whatsapp?: string };
+
+export function ProyectosClient({
+  categorias,
+  proyectos,
+  contact: contactOverride,
+}: {
+  categorias: Categoria[];
+  proyectos: Proyecto[];
+  contact?: ContactInfo;
+}) {
   const [categoria, setCategoria] = useState<string | null>(null);
   const [proyecto, setProyecto] = useState<Proyecto | null>(null);
   const [galIndex, setGalIndex] = useState(0);
-  const { contact } = clientConfig;
+  const contact = contactOverride ?? clientConfig.contact;
 
   const portadas = useMemo(() => {
     const map = new Map<string, Proyecto>();

@@ -5,6 +5,9 @@ import { Container } from "@/components/ui/Container";
 import { ContactoForm } from "@/components/viewone/ContactoForm";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { clientConfig } from "@/config/client.config";
+import { getContacto } from "@/lib/viewone-content-store";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contacto — ViewOne",
@@ -13,11 +16,12 @@ export const metadata: Metadata = {
 
 // /contacto (handoff sección 21): H1 "Cuéntanos qué necesitas" + bajada +
 // formulario. Desktop en dos columnas, mobile en una (el grid se encarga).
-export default function ContactoPage() {
-  const { contact, modules } = clientConfig;
+export default async function ContactoPage() {
+  const { modules } = clientConfig;
+  const contact = await getContacto();
   return (
     <>
-      <ViewOneHeader />
+      <ViewOneHeader contact={contact} />
       <main className="py-16 sm:py-24">
         <Container className="grid grid-cols-1 gap-12 sm:grid-cols-2">
           <div>
@@ -30,7 +34,7 @@ export default function ContactoPage() {
           <ContactoForm />
         </Container>
       </main>
-      <ViewOneFooter />
+      <ViewOneFooter contact={contact} />
       {modules.whatsappButton && contact.whatsapp && (
         <WhatsAppButton phone={contact.whatsapp} message={contact.whatsappPrefilledMessage} />
       )}

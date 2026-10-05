@@ -1,17 +1,10 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { clientConfig } from "@/config/client.config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { RegisterMark } from "@/components/viewone/RegisterMark";
-import {
-  SERVICIOS,
-  HOME_PROYECTOS_DESTACADOS,
-  HOME_HERO_FOTO,
-  HOME_NOSOTROS_FOTO,
-  CLIENTES_TODOS,
-} from "@/lib/viewone-data";
 import { slugifyServicio } from "@/lib/viewone-slug";
+import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
 
 // Home a medida (handoff sección 07-10): Hero → Clientes → Servicios
 // resumidos → Proyectos destacados → Nosotros (incl. "Más de 20 años") →
@@ -26,17 +19,29 @@ import { slugifyServicio } from "@/lib/viewone-slug";
 // trato tipográfico deliberado: nombres como texto editorial, no como logos
 // fingidos. Cuando ViewOne entregue los logos reales, esta lista es el punto
 // de reemplazo.
-export function ViewOneHome() {
-  const { contact } = clientConfig;
+//
+// CMS completo (2026-10-05): todo el contenido de abajo (textos, fotos,
+// lista de clientes, servicios) llega por props desde app/page.tsx, leído
+// vía lib/viewone-content-store.ts (DB con fallback al contenido real
+// estático) — así es editable desde /viewone-admin sin tocar código.
+export function ViewOneHome({
+  content,
+  clientes,
+  servicios,
+  contact,
+}: {
+  content: HomeContent;
+  clientes: string[];
+  servicios: Servicio[];
+  contact: { email?: string; phone?: string; whatsapp?: string; whatsappPrefilledMessage?: string };
+}) {
   const whatsappHref = contact.whatsapp ? buildWhatsAppLink(contact.whatsapp, contact.whatsappPrefilledMessage) : undefined;
 
   return (
     <>
       {/* 01 Hero */}
-      {/* Vuelto a la versión anterior (foto de fondo + degradado) por pedido
-          explícito del usuario — le gustaba más que el split asimétrico. */}
       <section className="relative overflow-hidden py-28 sm:py-36">
-        <Image src={HOME_HERO_FOTO} alt="Boletería de Andacor con señalética e impresión instalada por ViewOne" fill priority className="object-cover" />
+        <Image src={content.heroFotoUrl} alt="Boletería de Andacor con señalética e impresión instalada por ViewOne" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/55 to-foreground/30" />
         {/* Miras de registro en las esquinas: firma del rubro (ver
             RegisterMark.tsx), no decoración genérica. */}
@@ -44,12 +49,9 @@ export function ViewOneHome() {
         <RegisterMark className="absolute bottom-5 right-5 h-6 w-6 text-background/50 sm:bottom-8 sm:right-8" />
         <Container className="relative">
           <h1 className="max-w-2xl font-heading text-4xl font-extrabold leading-[1.05] text-background sm:text-6xl">
-            Impresión digital y soluciones gráficas para empresas
+            {content.heroTitulo}
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-background/85 sm:text-lg">
-            Desarrollamos, producimos e instalamos soluciones gráficas para marcas, empresas y proyectos, desde
-            impresión digital hasta implementaciones integrales.
-          </p>
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-background/85 sm:text-lg">{content.heroBajada}</p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <a
               href="/contacto"
@@ -77,7 +79,7 @@ export function ViewOneHome() {
             Empresas que han confiado en ViewOne
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-9 gap-y-4">
-            {CLIENTES_TODOS.map((nombre) => (
+            {clientes.map((nombre) => (
               <span
                 key={nombre}
                 className="font-heading text-base font-extrabold uppercase tracking-wide text-foreground/35 transition-colors hover:text-foreground/70 sm:text-lg"
@@ -99,9 +101,9 @@ export function ViewOneHome() {
             </a>
           </div>
           <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {SERVICIOS.map((s) => (
+            {servicios.map((s) => (
               <a
-                key={s.nombre}
+                key={s.id}
                 href={`/servicios#${slugifyServicio(s.nombre)}`}
                 className="group overflow-hidden rounded-2xl border border-foreground/10 bg-foreground/[0.02] transition-shadow hover:shadow-lg"
               >
@@ -133,7 +135,7 @@ export function ViewOneHome() {
             </a>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-4">
-            {HOME_PROYECTOS_DESTACADOS.map((p) => (
+            {content.proyectosDestacados.map((p) => (
               <a key={p.nombre} href="/proyectos" className="group overflow-hidden rounded-2xl">
                 <div className="relative aspect-square overflow-hidden rounded-2xl">
                   <Image
@@ -156,20 +158,14 @@ export function ViewOneHome() {
       <section id="nosotros" className="bg-foreground/[0.02] py-20 sm:py-28">
         <Container className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground">
-            <Image src={HOME_NOSOTROS_FOTO} alt="Letrero de ViewOne sobre madera" fill className="object-contain p-10" />
+            <Image src={content.nosotrosFotoUrl} alt="Letrero de ViewOne sobre madera" fill className="object-contain p-10" />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Nosotros</p>
-            <h2 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
-              Más de 20 años de experiencia respaldan cada proyecto
-            </h2>
-            <p className="mt-5 text-base leading-relaxed text-foreground/70">
-              En ViewOne desarrollamos soluciones gráficas y publicitarias para empresas y marcas. Producimos e
-              implementamos proyectos de impresión, fabricación e instalación, adaptándonos a los requerimientos de
-              cada cliente y cada espacio.
-            </p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">{content.nosotrosEyebrow}</p>
+            <h2 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">{content.nosotrosTitulo}</h2>
+            <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              {["Taller propio", "Producción integral", "Experiencia B2B"].map((a) => (
+              {content.badges.map((a) => (
                 <span
                   key={a}
                   className="rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary"
@@ -185,7 +181,7 @@ export function ViewOneHome() {
       {/* 06 Cierre */}
       <section className="py-20 sm:py-28">
         <Container className="text-center">
-          <h2 className="font-heading text-3xl font-extrabold text-foreground sm:text-4xl">Cuéntanos qué necesitas</h2>
+          <h2 className="font-heading text-3xl font-extrabold text-foreground sm:text-4xl">{content.cierreTitulo}</h2>
           <div className="mt-5 flex flex-col items-center gap-1 text-foreground/70">
             <p>Santiago, Chile</p>
             {contact.email && <a href={`mailto:${contact.email}`} className="hover:text-primary">{contact.email}</a>}

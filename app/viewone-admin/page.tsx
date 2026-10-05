@@ -13,10 +13,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Panel de autogestión del catálogo (categorías y proyectos): mismo gate de
-// login que el resto del starter-kit (Google u clave compartida — ver
-// lib/auth.ts). Único rol admin, sin staff: ViewOne administra todo desde una
-// cuenta.
+// CMS completo (pedido explícito 2026-10-05: "poder modificar todo el
+// contenido del sitio, imágenes, texto"): Home, Servicios, catálogo de
+// Proyectos/Categorías, lista de Clientes y datos de Contacto. A propósito
+// NO incluye paleta/tipografía/layout — eso sigue siendo una solicitud a
+// HarayaDev, no autoservicio, para no romper la consistencia de marca.
+// Mismo gate de login que el resto del starter-kit (Google u clave
+// compartida — ver lib/auth.ts). Único rol admin, sin staff.
 export default async function ViewOneAdminPage({ searchParams }: { searchParams: { clave?: string } }) {
   const authorized = Boolean(await currentAdminUser(searchParams.clave ?? null));
   const googleEnabled = googleLoginEnabled();
@@ -42,7 +45,8 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Panel del negocio</p>
               <h1 className="mt-3 font-heading text-3xl font-bold text-foreground">Catálogo</h1>
               <p className="mt-2 text-sm text-foreground/60">
-                Agrega, edita u oculta categorías y proyectos. Los cambios se reflejan de inmediato en /proyectos.
+                Edita el contenido del Home, Servicios, el catálogo de Proyectos, la lista de Clientes y los datos de
+                Contacto. Los cambios se reflejan de inmediato en el sitio.
               </p>
               <div className="mt-8">
                 <AdminViewOne />

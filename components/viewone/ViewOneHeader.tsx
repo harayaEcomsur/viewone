@@ -22,10 +22,24 @@ const NAV = [
 
 const SOCIAL_ICON = { instagram: Instagram, facebook: Facebook, linkedin: Linkedin } as const;
 
-export function ViewOneHeader() {
+type ContactInfo = {
+  phone?: string;
+  whatsapp?: string;
+  whatsappPrefilledMessage?: string;
+  email?: string;
+  address?: string;
+  mapQuery?: string;
+  socials?: { platform: string; url: string }[];
+};
+
+// `contact` es opcional a propósito: si una página no pasa el contenido
+// editable desde el admin (lib/viewone-content-store.ts), cae al config
+// estático de siempre — ningún caller existente se rompe.
+export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactInfo } = {}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { contact, meta, branding } = clientConfig;
+  const { meta, branding } = clientConfig;
+  const contact = contactOverride ?? clientConfig.contact;
   const pathname = usePathname();
   // El ítem de "Nosotros" es un ancla dentro de Home (/#nosotros), no una
   // ruta propia — nunca se marca activo junto a Inicio.

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { clientConfig } from "@/config/client.config";
+import { getContacto } from "@/lib/viewone-content-store";
 
 // Formulario de /contacto (handoff sección 21/26): valida, acepta un adjunto
 // real (foto/diseño/referencia) y lo manda por Resend al correo de ventas.
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   });
   if (!parsed.success) return Response.json({ error: "Revisa los datos del formulario." }, { status: 400 });
 
-  const destination = clientConfig.contact.email;
+  const { email: destination } = await getContacto();
   const apiKey = process.env.RESEND_API_KEY;
   if (!destination || !apiKey) {
     console.error("[viewone-contacto] falta RESEND_API_KEY o contact.email");

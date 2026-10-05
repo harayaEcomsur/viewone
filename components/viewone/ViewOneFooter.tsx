@@ -10,8 +10,11 @@ import { CmykBar } from "@/components/viewone/CmykBar";
 // que aparece en todas las páginas.
 const SOCIAL_ICON = { instagram: Instagram, facebook: Facebook, linkedin: Linkedin } as const;
 
-export function ViewOneFooter() {
-  const { meta, contact, branding } = clientConfig;
+type ContactInfo = { socials?: { platform: string; url: string }[] };
+
+export function ViewOneFooter({ contact: contactOverride }: { contact?: ContactInfo } = {}) {
+  const { meta, branding } = clientConfig;
+  const contact = contactOverride ?? clientConfig.contact;
   const year = new Date().getFullYear();
   // Mismo crédito y link que usa el Footer genérico (components/layout/
   // Footer.tsx) — ViewOne lo tiene aprobado (branding.credit: true).
