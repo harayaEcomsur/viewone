@@ -302,34 +302,40 @@ export const CLIENTES_TODOS = [
 // Logos placeholder (pedido explícito del cliente, 16-oct-2026: "Dejalos
 // como placeholder"): recortados directo de la imagen de referencia que
 // ViewOne mandó — esa imagen es un mockup de 900×1600px, así que cada logo
-// sale de ~100×30px recortados y reescalados. Se ve borroso a propósito, es
-// temporal: ViewOne tiene que entregar los archivos reales (SVG/PNG en alta
-// resolución) de cada marca para reemplazar esto antes de producción final.
-// Dos nombres de CLIENTES_TODOS no tienen entrada acá ("Andacor / El
+// sale de ~100×30px recortados y reescalados. Se ve borroso a propósito.
+//
+// Pase 2 (mismo día): el cliente pidió reemplazarlos por logos oficiales en
+// mejor calidad buscados en internet. 12 de 18 ya están resueltos con el
+// archivo oficial (Wikimedia Commons, SVG salvo Chevrolet que es PNG de alta
+// resolución) — LarrainVial, Derco, Salfa, Aconcagua, SuperZoo y Verisure NO
+// tienen un logo con fuente confiable todavía (no existen en Commons; son
+// marcas chilenas/regionales sin ese nivel de documentación pública) y siguen
+// con el recorte borroso del mockup como placeholder hasta conseguir uno
+// mejor. Dos nombres de CLIENTES_TODOS no tienen entrada acá ("Andacor / El
 // Colorado", "Anasac") porque no aparecen en la imagen de referencia — esa
 // mostraba "Agrosuper" y "Falabella" en esas posiciones en vez de esos dos,
 // y no se reemplazó el nombre real del cliente por el de la imagen: el
 // roster de texto (quién es cliente real de ViewOne) es la fuente de verdad,
 // no el mockup. Esos 2 siguen como texto hasta tener su logo real también.
 export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], string>> = {
-  "Coca-Cola": ASSET_BASE + "clientes/coca-cola.png",
-  BCI: ASSET_BASE + "clientes/bci.png",
-  Peugeot: ASSET_BASE + "clientes/peugeot.png",
-  Mazda: ASSET_BASE + "clientes/mazda.png",
-  Santander: ASSET_BASE + "clientes/santander.png",
-  LarrainVial: ASSET_BASE + "clientes/larrainvial.png",
-  BICE: ASSET_BASE + "clientes/bice.png",
-  CCU: ASSET_BASE + "clientes/ccu.png",
+  "Coca-Cola": ASSET_BASE + "clientes/coca-cola.svg",
+  BCI: ASSET_BASE + "clientes/bci.svg",
+  Peugeot: ASSET_BASE + "clientes/peugeot.svg",
+  Mazda: ASSET_BASE + "clientes/mazda.svg",
+  Santander: ASSET_BASE + "clientes/santander.svg",
+  LarrainVial: ASSET_BASE + "clientes/larrainvial.png", // placeholder — sin fuente oficial confiable aún
+  BICE: ASSET_BASE + "clientes/bice.svg",
+  CCU: ASSET_BASE + "clientes/ccu.svg",
   Chevrolet: ASSET_BASE + "clientes/chevrolet.png",
-  Volkswagen: ASSET_BASE + "clientes/volkswagen.png",
-  Entel: ASSET_BASE + "clientes/entel.png",
-  Derco: ASSET_BASE + "clientes/derco.png",
-  Salfa: ASSET_BASE + "clientes/salfa.png",
-  Aconcagua: ASSET_BASE + "clientes/aconcagua.png",
-  "Havas Group": ASSET_BASE + "clientes/havas-group.png",
-  SuperZoo: ASSET_BASE + "clientes/superzoo.png",
-  Verisure: ASSET_BASE + "clientes/verisure.png",
-  Claro: ASSET_BASE + "clientes/claro.png",
+  Volkswagen: ASSET_BASE + "clientes/volkswagen.svg",
+  Entel: ASSET_BASE + "clientes/entel.svg",
+  Derco: ASSET_BASE + "clientes/derco.png", // placeholder — sin fuente oficial confiable aún
+  Salfa: ASSET_BASE + "clientes/salfa.png", // placeholder — sin fuente oficial confiable aún
+  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // placeholder — sin fuente oficial confiable aún
+  "Havas Group": ASSET_BASE + "clientes/havas-group.svg",
+  SuperZoo: ASSET_BASE + "clientes/superzoo.png", // placeholder — sin fuente oficial confiable aún
+  Verisure: ASSET_BASE + "clientes/verisure.png", // placeholder — sin fuente oficial confiable aún
+  Claro: ASSET_BASE + "clientes/claro.svg",
 };
 
 // 8 destacados (feedback real, "Dirección visual": "Solo 8 destacados, con
