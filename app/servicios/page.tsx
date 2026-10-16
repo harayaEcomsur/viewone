@@ -7,6 +7,7 @@ import { listServiciosVisibles, getContacto } from "@/lib/viewone-content-store"
 import { slugifyServicio } from "@/lib/viewone-slug";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { clientConfig } from "@/config/client.config";
+import { pageCanonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
   title: "Servicios — ViewOne",
   description:
     "Impresión digital, señalética y gráfica corporativa, estructuras publicitarias, instalación y montaje, y proyectos integrales para empresas.",
+  ...pageCanonical("/servicios"),
 };
 
 // /servicios (handoff sección 14-16): una sola página larga con bloques

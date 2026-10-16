@@ -6,12 +6,14 @@ import { ContactoForm } from "@/components/viewone/ContactoForm";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { clientConfig } from "@/config/client.config";
 import { getContacto } from "@/lib/viewone-content-store";
+import { pageCanonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contacto — ViewOne",
   description: "Cuéntanos qué necesitas y te ayudamos a definir la solución adecuada para tu proyecto.",
+  ...pageCanonical("/contacto"),
 };
 
 // /contacto (handoff sección 21): H1 "Cuéntanos qué necesitas" + bajada +

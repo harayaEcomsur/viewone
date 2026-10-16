@@ -3,9 +3,11 @@ import { clientConfig } from "@/config/client.config";
 import { Header } from "@/components/layout/Header";
 import { buildPrivacySections } from "@/lib/privacy-content";
 import { ArcoRequestForm } from "@/components/privacy/ArcoRequestForm";
+import { pageCanonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: `Política de privacidad — ${clientConfig.meta.businessName}`,
+  ...pageCanonical("/privacidad"),
 };
 
 // Política de privacidad dinámica (ver lib/privacy-content.ts) + el canal para

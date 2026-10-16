@@ -6,12 +6,14 @@ import { listCategoriasVisibles, listProyectosVisibles } from "@/lib/viewone-sto
 import { getContacto } from "@/lib/viewone-content-store";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { clientConfig } from "@/config/client.config";
+import { pageCanonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Proyectos — ViewOne",
   description: "Proyectos reales de impresión digital, señalética y publicidad exterior para empresas, organizados por categoría.",
+  ...pageCanonical("/proyectos"),
 };
 
 export default async function ProyectosPage() {

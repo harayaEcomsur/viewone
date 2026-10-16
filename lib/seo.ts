@@ -5,10 +5,20 @@ function getSiteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }
 
+// Checklist "Antes del cierre" (feedback real): "canonical" figuraba como
+// pendiente — no había un solo `alternates.canonical` en todo el repo. Cada
+// page.tsx pasa su propio `path` (ej. "/servicios") al armar su metadata;
+// Next.js lo resuelve a absoluto contra `metadataBase`. Home no pasa path
+// (usa el default de buildMetadata, ver abajo).
+export function pageCanonical(path: string): Pick<Metadata, "alternates"> {
+  return { alternates: { canonical: path } };
+}
+
 export function buildMetadata(config: ClientConfig): Metadata {
   const base = getSiteUrl();
   return {
     metadataBase: new URL(base),
+    alternates: { canonical: "/" },
     title: config.seo.title,
     description: config.seo.description,
     keywords: config.seo.keywords,
