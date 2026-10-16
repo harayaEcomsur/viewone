@@ -42,7 +42,13 @@ export default async function ServiciosPage() {
               <Container key={s.id} id={slugifyServicio(s.nombre)} className="scroll-mt-24">
                 <div className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2">
                   <div className={`relative aspect-[4/3] overflow-hidden rounded-2xl ${fotoFirst ? "sm:order-1" : "sm:order-2"}`}>
-                    <Image src={s.foto} alt={`${s.nombre} — ${s.trabajo}, proyecto real de ViewOne`} fill className="object-cover" />
+                    <Image
+                      src={s.foto}
+                      alt={`${s.nombre} — ${s.trabajo}, proyecto real de ViewOne`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover"
+                    />
                   </div>
                   <div className={fotoFirst ? "sm:order-2" : "sm:order-1"}>
                     <h2 className="font-heading text-2xl font-extrabold text-foreground sm:text-3xl">{s.nombre}</h2>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, Instagram, Facebook, Linkedin } from "lucide-react";
+import { Menu, X, Instagram, Facebook, Linkedin, Phone, Mail, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
 
@@ -46,7 +46,7 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const { meta, branding } = clientConfig;
+  const { meta } = clientConfig;
   const contact = contactOverride ?? clientConfig.contact;
   const pathname = usePathname();
   // El ítem de "Nosotros" es un ancla dentro de Home (/#nosotros), no una
@@ -85,7 +85,8 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
           <Container className="flex h-9 items-center justify-between gap-4 text-xs">
             <div className="flex min-w-0 items-center gap-4">
               {whatsappHref && (
-                <a href={whatsappHref} target="_blank" rel="noreferrer" className="shrink-0 hover:underline">
+                <a href={whatsappHref} target="_blank" rel="noreferrer" className="flex shrink-0 items-center gap-1.5 hover:underline">
+                  <Phone size={12} className="shrink-0 opacity-70" />
                   {contact.phone}
                 </a>
               )}
@@ -96,12 +97,14 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
                 // el grupo de arriba (podía cortar el correo entero en
                 // ciertos anchos); ahora `truncate` vive en el propio enlace,
                 // así él solo se recorta con "…" en vez de desaparecer.
-                <a href={`mailto:${contact.email}`} className="hidden truncate hover:underline sm:inline">
+                <a href={`mailto:${contact.email}`} className="hidden items-center gap-1.5 truncate hover:underline sm:flex">
+                  <Mail size={12} className="shrink-0 opacity-70" />
                   {contact.email}
                 </a>
               )}
               {contact.address && (
-                <a href={mapsHref} target="_blank" rel="noreferrer" className="hidden shrink-0 hover:underline lg:inline">
+                <a href={mapsHref} target="_blank" rel="noreferrer" className="hidden shrink-0 items-center gap-1.5 hover:underline lg:flex">
+                  <MapPin size={12} className="shrink-0 opacity-70" />
                   {contact.address}
                 </a>
               )}
@@ -131,9 +134,16 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
           }`}
         >
           <Container className="flex h-20 items-center justify-between">
-            <a href="/" className="flex min-w-0 items-center gap-3" onClick={() => setOpen(false)}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- logo real, formato variable entre clientes */}
-              <img src={branding.logoUrl} alt={meta.businessName} className="h-12 w-auto object-contain" />
+            {/* Wordmark en texto, no branding.logoUrl: ese archivo es un
+                placeholder (badge circular) que no es el logotipo real de la
+                referencia ("VIEW" + "ONE" en dos tonos, sans bold, sin
+                círculo) — en cuanto ViewOne entregue el archivo real del
+                isotipo, esto vuelve a ser <img>. */}
+            <a href="/" className="flex min-w-0 items-center" onClick={() => setOpen(false)} aria-label={meta.businessName}>
+              <span className="font-heading text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+                <span className="text-primary">View</span>
+                <span className="text-accent">One</span>
+              </span>
             </a>
             <nav className="hidden gap-8 text-sm font-bold uppercase tracking-wide text-foreground/70 sm:flex">
               {NAV.map((link) => (

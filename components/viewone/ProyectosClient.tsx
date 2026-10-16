@@ -131,7 +131,13 @@ export function ProyectosClient({
                   className="group overflow-hidden rounded-2xl text-left"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
-                    <Image src={cover.portada} alt={cat.nombre} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <Image
+                      src={cover.portada}
+                      alt={cat.nombre}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/75 via-foreground/10 to-transparent" />
                     <RegisterMark className="absolute right-3 top-3 h-5 w-5 text-background/60" />
                   </div>
@@ -149,6 +155,7 @@ export function ProyectosClient({
                     src={p.portada}
                     alt={`${p.cliente} — ${p.trabajo}`}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
@@ -186,7 +193,13 @@ export function ProyectosClient({
             </div>
 
             <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
-              <Image src={fotos[galIndex]} alt={`${proyecto.cliente} — ${proyecto.trabajo}`} fill className="object-cover" />
+              <Image
+                src={fotos[galIndex]}
+                alt={`${proyecto.cliente} — ${proyecto.trabajo}`}
+                fill
+                sizes="(max-width: 640px) 100vw, 576px"
+                className="object-cover"
+              />
               {fotos.length > 1 && (
                 <>
                   <button
