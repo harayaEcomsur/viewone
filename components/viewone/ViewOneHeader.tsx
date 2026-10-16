@@ -90,7 +90,13 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
                 </a>
               )}
               {contact.email && (
-                <a href={`mailto:${contact.email}`} className="truncate hover:underline">
+                // Oculto en mobile (hidden sm:inline), igual que antes: el
+                // feedback real pide el fix solo "en desktop" — en mobile no
+                // se toca nada. El fix real era el `truncate` puesto en todo
+                // el grupo de arriba (podía cortar el correo entero en
+                // ciertos anchos); ahora `truncate` vive en el propio enlace,
+                // así él solo se recorta con "…" en vez de desaparecer.
+                <a href={`mailto:${contact.email}`} className="hidden truncate hover:underline sm:inline">
                   {contact.email}
                 </a>
               )}
