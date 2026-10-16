@@ -21,9 +21,14 @@ export function ViewOneFooter({ contact: contactOverride }: { contact?: ContactI
   const mostrarCredito = branding.credit || Boolean(process.env.SITE_NOINDEX);
 
   return (
-    <footer className="py-6">
+    // bg-primary (azul profundo), no el claro de siempre: feedback real,
+    // "Footer: alinear terminación visual al mockup azul" — la página ahora
+    // termina en la banda oscura del Cierre (ver ViewOneHome.tsx), y el
+    // footer continúa ese mismo remate oscuro en vez de volver a un fondo
+    // claro justo debajo.
+    <footer className="bg-primary py-6">
       <CmykBar className="mb-6" />
-      <Container className="flex flex-col items-center gap-3 text-center text-sm text-foreground/50 sm:flex-row sm:justify-between">
+      <Container className="flex flex-col items-center gap-3 text-center text-sm text-background/60 sm:flex-row sm:justify-between">
         <p>
           {meta.businessName} Chile · © {year} {meta.businessName}
         </p>
@@ -32,17 +37,20 @@ export function ViewOneFooter({ contact: contactOverride }: { contact?: ContactI
             const Icon = SOCIAL_ICON[s.platform as keyof typeof SOCIAL_ICON];
             if (!Icon) return null;
             return (
-              <a key={s.platform} href={s.url} target="_blank" rel="noreferrer" aria-label={s.platform} className="hover:text-primary">
+              <a key={s.platform} href={s.url} target="_blank" rel="noreferrer" aria-label={s.platform} className="hover:text-background">
                 <Icon size={16} />
               </a>
             );
           })}
           {mostrarCredito && (
+            // Feedback real: "Confirmar si 'Sitio por HarayaDev' quedará en
+            // producción" — queda tal cual (sin decidir por ViewOne) hasta
+            // que lo confirmen.
             <a
               href="https://haraya.dev/como-lo-hicimos"
               target="_blank"
               rel="noopener"
-              className="opacity-70 transition-opacity hover:opacity-100 hover:text-primary"
+              className="opacity-70 transition-opacity hover:opacity-100 hover:text-background"
             >
               Sitio por HarayaDev
             </a>

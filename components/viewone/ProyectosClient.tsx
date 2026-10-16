@@ -18,6 +18,15 @@ import type { Categoria, Proyecto } from "@/lib/viewone-store";
 // proyecto visible que la incluye.
 type ContactInfo = { whatsapp?: string };
 
+// El dato real (lib/viewone-data.ts) usa sufijos "- 01"/"- 02" en `trabajo`
+// para distinguir entradas que comparten cliente+trabajo (ej. dos proyectos
+// "Southbridge · Logos corpóreos exteriores"). El feedback real pide
+// quitarlos de los títulos VISIBLES sin tocar el dato — por eso esto vive
+// acá, en el punto de render, no en viewone-data.ts.
+function tituloVisible(trabajo: string): string {
+  return trabajo.replace(/\s*-\s*0\d+\s*$/, "");
+}
+
 export function ProyectosClient({
   categorias,
   proyectos,
@@ -51,6 +60,13 @@ export function ProyectosClient({
     setProyecto(p);
     setGalIndex(0);
   }
+
+  // Bug real reportado en el feedback: al entrar a una categoría (o volver al
+  // listado completo) a veces se conservaba el scroll anterior y la vista
+  // abría mostrando proyectos de más abajo, no el inicio del listado.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [categoria]);
 
   const fotos = proyecto ? [proyecto.portada, ...proyecto.galeria] : [];
 
@@ -138,7 +154,7 @@ export function ProyectosClient({
                 </div>
                 <div className="mt-3">
                   <h3 className="font-heading text-base font-bold text-foreground">{p.cliente}</h3>
-                  <p className="text-sm text-foreground/50">{p.trabajo}</p>
+                  <p className="text-sm text-foreground/50">{tituloVisible(p.trabajo)}</p>
                 </div>
               </button>
             ))}
@@ -146,19 +162,22 @@ export function ProyectosClient({
         )}
       </Container>
 
-      {/* Lightbox */}
+      {/* Lightbox. Feedback real: "Reducir ligeramente el lightbox en
+          desktop: dejar margen alrededor" — más padding del backdrop en
+          pantallas grandes (p-4 → lg:p-12) y un poco menos de ancho máximo,
+          en vez de quedar casi pegado a los bordes del viewport. */}
       {proyecto && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/80 p-4 sm:p-8 lg:p-12"
           onClick={() => setProyecto(null)}
         >
           <div
-            className="relative w-full max-w-2xl rounded-3xl bg-background p-5 shadow-2xl sm:p-7"
+            className="relative w-full max-w-xl rounded-3xl bg-background p-5 shadow-2xl sm:p-7"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="font-heading text-lg font-extrabold text-foreground sm:text-xl">{proyecto.trabajo}</h3>
+                <h3 className="font-heading text-lg font-extrabold text-foreground sm:text-xl">{tituloVisible(proyecto.trabajo)}</h3>
                 <p className="text-sm font-semibold text-primary">{proyecto.cliente}</p>
               </div>
               <button onClick={() => setProyecto(null)} aria-label="Cerrar" className="shrink-0 rounded-full p-1.5 text-foreground/50 hover:bg-foreground/5 hover:text-foreground">

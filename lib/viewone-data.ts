@@ -293,3 +293,9 @@ export const CLIENTES_TODOS = [
   "Verisure",
   "Claro",
 ];
+
+// 8 destacados (feedback real, "Dirección visual": "Solo 8 destacados, con
+// logos", arriba del Home; los 20 completos van abajo en carrusel lento) —
+// los primeros 8 de la lista de arriba, mismo orden que la referencia visual
+// elegida por el cliente.
+export const CLIENTES_DESTACADOS = CLIENTES_TODOS.slice(0, 8);

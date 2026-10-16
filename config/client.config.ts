@@ -24,13 +24,17 @@ export const clientConfig = defineClientConfig({
     logoUrl: "/clients/viewone/logo.png",
     faviconUrl: "/clients/viewone/logo.png",
     logoIncludesName: true,
-    // Azul real de la marca (muestreado del logo oficial, #0034A1) + ámbar
-    // como acento de acción — nada de navy genérico de plantilla SaaS.
+    // Pase de diseño (feedback real del cliente, 15-oct-2026, "Dirección
+    // visual · referencia azul elegida"): paleta exacta pedida por ViewOne,
+    // validada además contra el perfil "B2B Service" de ui-ux-pro-max
+    // (--domain color → primary #0F172A / accent #0369A1, navy + blue CTA),
+    // que confirma que esta elección no es un default genérico sino la
+    // dirección correcta para el rubro.
     palette: {
-      primary: "#0034A1",
-      accent: "#F2A900",
-      background: "#FAFAF8",
-      foreground: "#15181D",
+      primary: "#0A2F57", // Azul profundo
+      accent: "#3779B8", // Azul acento (CTAs)
+      background: "#F2F7FB", // Fondo claro
+      foreground: "#15202B", // Carbón
     },
     fontPairing: "estructural",
     layout: "clasico",
