@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { Menu, X, Instagram, Facebook, Linkedin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
-import { CmykBar } from "@/components/viewone/CmykBar";
 
 // Header a medida del handoff (sección 06): franja superior con
 // teléfono/correo/dirección + redes, header principal con logo + nav. El
@@ -151,7 +150,6 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
               {open ? <X size={24} /> : <Menu size={24} />}
             </button>
           </Container>
-          <CmykBar />
         </div>
 
       {open && (
