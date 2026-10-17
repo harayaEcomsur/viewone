@@ -379,17 +379,14 @@ export function ViewOneHome({
         </Container>
       </section>
 
-      {/* 07 Clientes (20, carrusel lento — feedback real: "20 logos en
-          carrusel lento. Referencia de comportamiento: milamark.cl"). */}
+      {/* 07 Clientes (20, en 2 filas estáticas — ver nota de diseño en
+          ClientesMarquee.tsx sobre por qué ya no es un carrusel automático;
+          el componente ahora maneja su propio eyebrow + flechas de
+          paginación, por eso ya no vive acá). */}
       <section className="border-y border-foreground/10 bg-white py-10">
         <Container>
-          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
-            Experiencia con empresas de distintos rubros
-          </p>
-        </Container>
-        <div className="mt-5">
           <ClientesMarquee clientes={clientes} />
-        </div>
+        </Container>
       </section>
 
       {/* 08 Cierre — foto + overlay azul (feedback real: "Aplicar al cierre

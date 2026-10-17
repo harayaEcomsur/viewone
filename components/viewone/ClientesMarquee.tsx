@@ -1,43 +1,60 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CLIENTE_LOGO } from "@/lib/viewone-data";
 import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 
-// Carrusel lento de los 20 clientes (feedback real, "Dirección visual": "20
-// logos en carrusel lento. Referencia de comportamiento: milamark.cl"). CSS
-// puro (transform + animation, sin librería nueva): la lista se duplica una
-// vez para que el loop sea perfecto, y se pausa en hover. La animación vive
-// en app/globals.css (.clientes-marquee__track) para poder apagarla por
-// completo bajo prefers-reduced-motion sin tocar este componente — con
-// motion reducido, la fila queda estática y se envuelve (flex-wrap) en vez
-// de desbordar sin forma de leerla completa.
-//
-// Logo cuando hay (ver CLIENTE_LOGO en lib/viewone-data.ts), texto para los
-// 2 nombres que todavía no tienen uno.
-//
-// Pase de fidelidad a la referencia (17-oct-2026): esta fila usaba
-// grayscale+opacity — se veía apagada/translúcida. La referencia trata
-// estos 20 logos EXACTAMENTE igual que los 8 destacados de arriba: mismo
-// navy sólido a opacidad plena (confirmado muestreando píxeles de Derco y
-// Salfa en la imagen — no es un gris neutro). Mismo componente
-// ClienteLogoMark que usa esa fila, ver su comentario para la técnica.
+// Pase de fidelidad a la referencia (17-oct-2026, reemplaza el carrusel
+// automático anterior): la imagen muestra 2 filas ESTÁTICAS de 10 logos
+// cada una (20 en total, el mismo universo de clientes que ya teníamos) con
+// flechas prev/next a la derecha del eyebrow — no una fila que se desplaza
+// sola. Las flechas solo tienen sentido si hay más clientes de los que
+// caben en esas 2 filas; con exactamente 20 (10×2) no se muestran. Si el
+// admin agrega más clientes en el futuro, PAGE_SIZE pagina de a 20 y las
+// flechas aparecen solas.
+const PAGE_SIZE = 20;
+
 export function ClientesMarquee({ clientes }: { clientes: string[] }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(clientes.length / PAGE_SIZE);
+  const paginado = totalPages > 1;
+  const visibles = paginado ? clientes.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE) : clientes;
+
   return (
-    <div className="clientes-marquee overflow-hidden">
-      <div className="clientes-marquee__track flex w-max items-center gap-10 sm:gap-14">
-        {[...clientes, ...clientes].map((nombre, i) => {
+    <div>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
+          Experiencia con empresas de distintos rubros
+        </p>
+        {paginado && (
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
+              aria-label="Página anterior de clientes"
+              className="rounded-full border border-foreground/15 p-1.5 text-foreground/60 transition-colors hover:border-accent hover:text-accent"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={() => setPage((p) => (p + 1) % totalPages)}
+              aria-label="Página siguiente de clientes"
+              className="rounded-full border border-foreground/15 p-1.5 text-foreground/60 transition-colors hover:border-accent hover:text-accent"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="mt-5 grid grid-cols-3 items-center gap-x-6 gap-y-6 sm:grid-cols-5 sm:gap-x-8 lg:grid-cols-10">
+        {visibles.map((nombre) => {
           const logo = CLIENTE_LOGO[nombre];
           return logo ? (
-            <ClienteLogoMark
-              key={`${nombre}-${i}`}
-              logo={logo}
-              nombre={nombre}
-              hidden={i >= clientes.length}
-              className="h-6 w-20 sm:h-7 sm:w-24"
-            />
+            <ClienteLogoMark key={nombre} logo={logo} nombre={nombre} className="h-6 w-full sm:h-7" />
           ) : (
             <span
-              key={`${nombre}-${i}`}
-              aria-hidden={i >= clientes.length}
-              className="shrink-0 font-heading text-base font-extrabold uppercase tracking-wide text-foreground/35 sm:text-lg"
+              key={nombre}
+              className="shrink-0 text-center font-heading text-sm font-extrabold uppercase tracking-wide text-foreground/35 sm:text-base"
             >
               {nombre}
             </span>

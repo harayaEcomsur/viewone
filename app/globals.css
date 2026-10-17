@@ -45,35 +45,3 @@ summary::-webkit-details-marker {
   display: none;
 }
 
-/* Carrusel lento de clientes (components/viewone/ClientesMarquee.tsx) —
-   transform puro (GPU, no layout), pausa en hover, y se apaga por completo
-   bajo prefers-reduced-motion (fila estática que envuelve en vez de
-   desbordar la mitad duplicada para el loop). */
-.clientes-marquee__track {
-  animation: clientes-marquee-scroll 36s linear infinite;
-}
-
-.clientes-marquee:hover .clientes-marquee__track {
-  animation-play-state: paused;
-}
-
-@keyframes clientes-marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .clientes-marquee__track {
-    animation: none;
-    flex-wrap: wrap;
-    width: 100%;
-    justify-content: center;
-  }
-  .clientes-marquee__track > span[aria-hidden="true"] {
-    display: none;
-  }
-}

@@ -346,7 +346,7 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   "Havas Group": ASSET_BASE + "clientes/havas-group.svg",
   SuperZoo: ASSET_BASE + "clientes/superzoo.svg", // superzoo.cl, variante roja del logo (la que sirven por defecto es blanca, pensada para fondo oscuro — mismo problema que Derco)
   Verisure: ASSET_BASE + "clientes/verisure.svg", // verisure.cl/sites/cl/files/flmngr/logo-verisure.svg
-  Claro: ASSET_BASE + "clientes/claro.svg",
+  Claro: ASSET_BASE + "clientes/claro.svg", // clarochile.cl/portal/cl/recursos_tema_evo/assets/vector/logo-claro-rojo.svg — ni el primer Claro.svg (Wikimedia, solo el isotipo circular → círculo sólido con mask-image) ni claro.cl (dominio real de "Claro y Cía.", un estudio jurídico homónimo, no la telecom) eran correctos
 };
 
 // 8 destacados (feedback real, "Dirección visual": "Solo 8 destacados, con
