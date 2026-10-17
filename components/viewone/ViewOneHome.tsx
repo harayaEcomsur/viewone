@@ -267,13 +267,15 @@ export function ViewOneHome({
           desde el texto. `object-top` recorta esta misma foto (boletería +
           montaña) justo en la franja superior, donde solo hay montaña —
           así nunca se ve el cerco de madera de la boletería acá.
-          `backdrop-blur` en el overlay (no solo el degradado): el texto del
-          último atributo ("Experiencia B2B") cae sobre la montaña con poco
-          degradado de por medio y perdía legibilidad contra su textura — en
-          la referencia hay un blur del fondo claro ahí mismo que ayuda al
-          contraste. Subir el stop final del degradado (antes /10, casi
-          foto cruda) + desenfocar la foto detrás del overlay entero
-          reproduce ese mismo efecto sin recurrir a una caja dura. */}
+          Sombra blanca suave (no backdrop-blur de la foto): el texto del
+          último atributo ("Experiencia B2B") caía casi sobre la montaña
+          cruda y perdía legibilidad contra su textura. Desenfocar la foto
+          entera (backdrop-blur) la dejaba pareja pero perdía la nitidez de
+          la montaña que sí se ve nítida en la referencia — el efecto real
+          ahí es una sombra/resplandor blanco suave y difuso localizado
+          detrás de la fila de texto (como una sombra grande, no un blur
+          parejo). Se logra con un div aparte, radial-gradient + su propio
+          filter: blur() (desenfoca el BORDE DEL BLANCO, no la foto). */}
       <section className="relative overflow-hidden py-14 sm:py-16">
         <Image
           src={content.heroFotoUrl}
@@ -283,7 +285,15 @@ export function ViewOneHome({
           sizes="100vw"
           className="object-cover object-top"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-1/2 h-36 -translate-y-1/2 blur-2xl sm:h-44"
+          style={{
+            background:
+              "radial-gradient(ellipse 65% 100% at 50% 50%, rgb(var(--color-background)) 0%, rgb(var(--color-background) / 0.7) 50%, transparent 80%)",
+          }}
+        />
         <Container className="relative">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-10">
             <div className="shrink-0">
