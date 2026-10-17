@@ -165,6 +165,12 @@ export function ViewOneHome({
                     style={{
                       WebkitMaskImage: `url(${logo})`,
                       maskImage: `url(${logo})`,
+                      // Sin esto, Chrome resuelve "match-source" como
+                      // luminancia para el PNG rasterizado de BICE (el único
+                      // que no es SVG) y enmascara mal — se ve un recuadro
+                      // gris sólido en vez de la silueta del logo. Forzar
+                      // "alpha" explícito lo deja igual de bien en SVG y PNG.
+                      maskMode: "alpha" as const,
                       WebkitMaskRepeat: "no-repeat",
                       maskRepeat: "no-repeat",
                       WebkitMaskPosition: "center",
