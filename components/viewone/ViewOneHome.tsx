@@ -1,5 +1,18 @@
 import Image from "next/image";
-import { ArrowRight, Factory, Settings2, Building2, Printer, Signpost, Wrench, Layers, type LucideIcon } from "lucide-react";
+import {
+  ArrowRight,
+  Factory,
+  Settings2,
+  Building2,
+  Printer,
+  Signpost,
+  Wrench,
+  Layers,
+  MapPin,
+  Mail,
+  Phone,
+  type LucideIcon,
+} from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { RegisterMark } from "@/components/viewone/RegisterMark";
@@ -315,26 +328,43 @@ export function ViewOneHome({
       {/* 08 Cierre — foto + overlay azul (feedback real: "Aplicar al cierre
           'Cuéntanos qué necesitas' fondo visual + overlay azul"). Misma foto
           real que el hero, para cerrar el Home con el mismo lenguaje visual
-          con el que abrió. */}
-      <section className="relative overflow-hidden py-20 sm:py-28">
+          con el que abrió.
+          Layout en 3 columnas (eyebrow+título / contacto / botón), no
+          centrado: así es como está en la imagen de referencia del cliente
+          (16-oct-2026) — título y eyebrow anclados a la izquierda, contacto
+          al centro, CTA a la derecha, todo alineado verticalmente. */}
+      <section className="relative overflow-hidden py-16 sm:py-20">
         <Image src={content.heroFotoUrl} alt="" aria-hidden="true" fill sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-primary/90" />
-        <Container className="relative text-center">
-          <h2 className="font-heading text-3xl font-extrabold text-background sm:text-4xl">{content.cierreTitulo}</h2>
-          <div className="mt-5 flex flex-col items-center gap-1 text-background/80">
-            <p>Santiago, Chile</p>
-            {contact.email && <a href={`mailto:${contact.email}`} className="hover:text-background">{contact.email}</a>}
+        <Container className="relative flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-background/60">Hablemos de tu proyecto</p>
+            <h2 className="mt-3 font-heading text-3xl font-extrabold text-background sm:text-4xl">{content.cierreTitulo}</h2>
+          </div>
+          <div className="flex flex-col gap-2 text-sm text-background/80">
+            <p className="flex items-center gap-2">
+              <MapPin size={16} className="shrink-0 opacity-70" />
+              Santiago, Chile
+            </p>
+            {contact.email && (
+              <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-background">
+                <Mail size={16} className="shrink-0 opacity-70" />
+                {contact.email}
+              </a>
+            )}
             {whatsappHref && (
-              <a href={whatsappHref} target="_blank" rel="noreferrer" className="hover:text-background">
+              <a href={whatsappHref} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-background">
+                <Phone size={16} className="shrink-0 opacity-70" />
                 {contact.phone}
               </a>
             )}
           </div>
           <a
             href="/contacto"
-            className="mt-8 inline-flex items-center rounded-lg bg-accent px-8 py-4 text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-accent px-8 py-4 text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02] sm:self-auto"
           >
             Contáctanos
+            <ArrowRight size={16} />
           </a>
         </Container>
       </section>

@@ -145,15 +145,26 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
                 <span className="text-accent">One</span>
               </span>
             </a>
+            {/* Línea bajo el ítem: oculta por defecto, aparece en hover
+                (scale-x-0 → group-hover:scale-x-100) y queda fija en la
+                página activa (scale-x-100 siempre) — igual que la imagen de
+                referencia, donde "INICIO" lleva la línea azul permanente y
+                el resto no. */}
             <nav className="hidden gap-8 text-sm font-bold uppercase tracking-wide text-foreground/70 sm:flex">
               {NAV.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   aria-current={isActive(link.href) ? "page" : undefined}
-                  className={`transition-colors hover:text-primary ${isActive(link.href) ? "text-primary" : ""}`}
+                  className={`group relative pb-1 transition-colors hover:text-primary ${isActive(link.href) ? "text-primary" : ""}`}
                 >
                   {link.label}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-200 ease-out group-hover:scale-x-100 ${
+                      isActive(link.href) ? "scale-x-100" : ""
+                    }`}
+                  />
                 </a>
               ))}
             </nav>
