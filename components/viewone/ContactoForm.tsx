@@ -138,7 +138,7 @@ export function ContactoForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full rounded-lg bg-accent py-3.5 text-sm font-bold text-background transition-transform hover:scale-[1.01] disabled:opacity-50"
+          className="w-full rounded-lg bg-accent py-3.5 text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.01] disabled:opacity-50"
         >
           {status === "loading" ? "Enviando…" : "Solicitar cotización"}
         </button>

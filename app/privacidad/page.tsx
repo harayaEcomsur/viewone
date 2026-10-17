@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { clientConfig } from "@/config/client.config";
-import { Header } from "@/components/layout/Header";
+import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
+import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { buildPrivacySections } from "@/lib/privacy-content";
 import { ArcoRequestForm } from "@/components/privacy/ArcoRequestForm";
+import { getContacto } from "@/lib/viewone-content-store";
 import { pageCanonical } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `Política de privacidad — ${clientConfig.meta.businessName}`,
@@ -13,15 +17,21 @@ export const metadata: Metadata = {
 // Política de privacidad dinámica (ver lib/privacy-content.ts) + el canal para
 // ejercer derechos ARCO+ (Ley 21.719). Página pública, sin login: cualquiera
 // que haya interactuado con el negocio puede llegar acá.
-export default function PrivacidadPage() {
+//
+// Usaba el Header/Footer genéricos del motor (sin footer siquiera) en vez de
+// ViewOneHeader/ViewOneFooter — quedaba visualmente desconectada del resto
+// del sitio (logo, nav y footer reales de ViewOne). Pase de consistencia
+// 17-oct-2026: mismo header/footer que cualquier otra página.
+export default async function PrivacidadPage() {
   const sections = buildPrivacySections();
+  const contact = await getContacto();
 
   return (
     <>
-      <Header config={clientConfig} />
-      <main className="py-14 sm:py-20">
+      <ViewOneHeader contact={contact} />
+      <main className="py-14 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Tus datos</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Tus datos</p>
           <h1 className="mt-3 font-heading text-3xl font-bold text-foreground">Política de privacidad</h1>
           <p className="mt-3 text-sm text-foreground/60">Última actualización: {new Date().toLocaleDateString("es-CL", { year: "numeric", month: "long" })}.</p>
 
@@ -44,6 +54,7 @@ export default function PrivacidadPage() {
           </div>
         </div>
       </main>
+      <ViewOneFooter contact={contact} />
     </>
   );
 }

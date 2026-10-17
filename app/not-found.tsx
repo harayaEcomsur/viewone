@@ -13,7 +13,7 @@ export default function NotFound() {
   return (
     <>
       <ViewOneHeader />
-      <main className="py-28 sm:py-36">
+      <main className="py-16 sm:py-20">
         <Container className="text-center">
           <p className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-accent">Error 404</p>
           <h1 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-5xl">

@@ -109,7 +109,7 @@ export function ProyectosClient({
         )}
 
         {!categoria ? (
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {categorias.map((cat) => {
               const cover = portadas.get(cat.nombre);
               if (!cover) {
@@ -147,7 +147,7 @@ export function ProyectosClient({
             })}
           </div>
         ) : (
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {proyectosDeCategoria.map((p) => (
               <button key={p.id} onClick={() => abrirProyecto(p)} className="group overflow-hidden rounded-2xl text-left">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
@@ -233,7 +233,7 @@ export function ProyectosClient({
                 href={whatsappSimilar}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-5 block w-full rounded-lg bg-accent py-3.5 text-center text-sm font-bold text-background transition-transform hover:scale-[1.01]"
+                className="mt-5 block w-full rounded-lg bg-accent py-3.5 text-center text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.01]"
               >
                 Quiero algo similar
               </a>

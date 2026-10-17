@@ -395,7 +395,7 @@ export function ViewOneHome({
             <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
             <a
               href="/contacto"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-bold text-background transition-transform hover:scale-[1.02]"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
             >
               Conoce más sobre nosotros
               <ArrowRight size={16} />

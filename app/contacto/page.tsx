@@ -24,7 +24,7 @@ export default async function ContactoPage() {
   return (
     <>
       <ViewOneHeader contact={contact} />
-      <main className="py-16 sm:py-24">
+      <main className="py-14 sm:py-16">
         <Container className="grid grid-cols-1 gap-12 sm:grid-cols-2">
           <div>
             <h1 className="font-heading text-3xl font-extrabold text-foreground sm:text-4xl">Cuéntanos qué necesitas</h1>

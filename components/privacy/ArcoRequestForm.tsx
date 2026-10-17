@@ -48,7 +48,7 @@ export function ArcoRequestForm() {
   return (
     <form onSubmit={submit} className="flex flex-col gap-3 rounded-xl border border-foreground/15 p-4 sm:p-5">
       <select
-        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm outline-none focus:border-accent"
         value={tipo}
         onChange={(e) => setTipo(e.target.value as (typeof TIPOS)[number]["value"])}
       >
@@ -59,21 +59,21 @@ export function ArcoRequestForm() {
         ))}
       </select>
       <input
-        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm outline-none focus:border-accent"
         placeholder="Tu nombre"
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
         required
       />
       <input
-        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm outline-none focus:border-accent"
         placeholder="Tu correo o teléfono, para responderte"
         value={contacto}
         onChange={(e) => setContacto(e.target.value)}
         required
       />
       <textarea
-        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm outline-none focus:border-accent"
         placeholder="Detalle (opcional)"
         rows={3}
         value={detalle}
@@ -82,7 +82,7 @@ export function ArcoRequestForm() {
       <button
         type="submit"
         disabled={status === "sending" || !nombre || !contacto}
-        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+        className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02] disabled:opacity-50"
       >
         {status === "sending" ? "Enviando…" : "Enviar solicitud"}
       </button>

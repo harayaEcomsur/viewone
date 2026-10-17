@@ -26,7 +26,7 @@ export default async function ProyectosPage() {
   return (
     <>
       <ViewOneHeader contact={contact} />
-      <main className="py-16 sm:py-24">
+      <main className="py-14 sm:py-16">
         <ProyectosClient categorias={categorias} proyectos={proyectos} contact={contact} />
       </main>
       <ViewOneFooter contact={contact} />
