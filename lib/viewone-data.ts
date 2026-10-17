@@ -305,36 +305,39 @@ export const CLIENTES_TODOS = [
 // sale de ~100×30px recortados y reescalados. Se ve borroso a propósito.
 //
 // Pase 2 (mismo día): el cliente pidió reemplazarlos por logos oficiales en
-// mejor calidad buscados en internet. 12 de 18 ya están resueltos con el
-// archivo oficial (Wikimedia Commons, SVG salvo Chevrolet que es PNG de alta
-// resolución) — LarrainVial, Derco, Salfa, Aconcagua, SuperZoo y Verisure NO
-// tienen un logo con fuente confiable todavía (no existen en Commons; son
-// marcas chilenas/regionales sin ese nivel de documentación pública) y siguen
-// con el recorte borroso del mockup como placeholder hasta conseguir uno
-// mejor. Dos nombres de CLIENTES_TODOS no tienen entrada acá ("Andacor / El
-// Colorado", "Anasac") porque no aparecen en la imagen de referencia — esa
-// mostraba "Agrosuper" y "Falabella" en esas posiciones en vez de esos dos,
-// y no se reemplazó el nombre real del cliente por el de la imagen: el
-// roster de texto (quién es cliente real de ViewOne) es la fuente de verdad,
-// no el mockup. Esos 2 siguen como texto hasta tener su logo real también.
+// mejor calidad buscados en internet. 15 de 18 ya están resueltos con el
+// archivo oficial (Wikimedia Commons o el propio sitio de la marca; SVG en
+// la mayoría, JPG/PNG donde esa era la única fuente confiable disponible —
+// ver cada comentario abajo). LarrainVial, Aconcagua y SuperZoo siguen con
+// el recorte borroso del mockup como placeholder: no tienen un archivo de
+// fuente confiable disponible (LarrainVial devuelve 404 en la ruta que su
+// propio HTML referencia, Aconcagua bloquea requests automatizados con un
+// 403, y el único asset de SuperZoo encontrado es el ícono de la mascota,
+// no el logotipo completo). Dos nombres de CLIENTES_TODOS no tienen entrada
+// acá ("Andacor / El Colorado", "Anasac") porque no aparecen en la imagen de
+// referencia — esa mostraba "Agrosuper" y "Falabella" en esas posiciones en
+// vez de esos dos, y no se reemplazó el nombre real del cliente por el de
+// la imagen: el roster de texto (quién es cliente real de ViewOne) es la
+// fuente de verdad, no el mockup. Esos 2 siguen como texto hasta tener su
+// logo real también.
 export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], string>> = {
   "Coca-Cola": ASSET_BASE + "clientes/coca-cola.svg",
   BCI: ASSET_BASE + "clientes/bci.svg",
   Peugeot: ASSET_BASE + "clientes/peugeot.svg",
   Mazda: ASSET_BASE + "clientes/mazda.svg",
   Santander: ASSET_BASE + "clientes/santander.svg",
-  LarrainVial: ASSET_BASE + "clientes/larrainvial.png", // placeholder — sin fuente oficial confiable aún
-  BICE: ASSET_BASE + "clientes/bice.svg",
+  LarrainVial: ASSET_BASE + "clientes/larrainvial.png", // placeholder — larrainvial.com referencia /img/logo_larrainvial_color.svg pero devuelve 404 al pedirlo directo
+  BICE: ASSET_BASE + "clientes/bice.jpg", // Wikimedia Commons: "Banco BICE" (Chile) — el primer SVG encontrado con ese nombre era de un banco argentino homónimo, se descartó
   CCU: ASSET_BASE + "clientes/ccu.svg",
   Chevrolet: ASSET_BASE + "clientes/chevrolet.png",
   Volkswagen: ASSET_BASE + "clientes/volkswagen.svg",
   Entel: ASSET_BASE + "clientes/entel.svg",
-  Derco: ASSET_BASE + "clientes/derco.png", // placeholder — sin fuente oficial confiable aún
-  Salfa: ASSET_BASE + "clientes/salfa.png", // placeholder — sin fuente oficial confiable aún
-  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // placeholder — sin fuente oficial confiable aún
+  Derco: ASSET_BASE + "clientes/derco.svg", // derco.cl/derco/LogoFooter.svg (la versión Logo.svg del header es blanca, invisible sobre fondo claro)
+  Salfa: ASSET_BASE + "clientes/salfa.png", // salfa.cl (WordPress, logo en /wp-content/uploads/)
+  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // placeholder — iaconcagua.com bloquea requests automatizados (403)
   "Havas Group": ASSET_BASE + "clientes/havas-group.svg",
-  SuperZoo: ASSET_BASE + "clientes/superzoo.png", // placeholder — sin fuente oficial confiable aún
-  Verisure: ASSET_BASE + "clientes/verisure.png", // placeholder — sin fuente oficial confiable aún
+  SuperZoo: ASSET_BASE + "clientes/superzoo.png", // placeholder — el único asset encontrado en superzoo.cl es el ícono de la mascota, no el logotipo completo
+  Verisure: ASSET_BASE + "clientes/verisure.svg", // verisure.cl/sites/cl/files/flmngr/logo-verisure.svg
   Claro: ASSET_BASE + "clientes/claro.svg",
 };
 
