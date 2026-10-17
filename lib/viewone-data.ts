@@ -305,15 +305,23 @@ export const CLIENTES_TODOS = [
 // sale de ~100×30px recortados y reescalados. Se ve borroso a propósito.
 //
 // Pase 2 (mismo día): el cliente pidió reemplazarlos por logos oficiales en
-// mejor calidad buscados en internet. 15 de 18 ya están resueltos con el
+// mejor calidad buscados en internet. 18 de 18 ya están resueltos con el
 // archivo oficial (Wikimedia Commons o el propio sitio de la marca; SVG en
 // la mayoría, JPG/PNG donde esa era la única fuente confiable disponible —
-// ver cada comentario abajo). LarrainVial, Aconcagua y SuperZoo siguen con
-// el recorte borroso del mockup como placeholder: no tienen un archivo de
-// fuente confiable disponible (LarrainVial devuelve 404 en la ruta que su
-// propio HTML referencia, Aconcagua bloquea requests automatizados con un
-// 403, y el único asset de SuperZoo encontrado es el ícono de la mascota,
-// no el logotipo completo). Dos nombres de CLIENTES_TODOS no tienen entrada
+// ver cada comentario abajo).
+//
+// LarrainVial/Aconcagua/SuperZoo necesitaron un enfoque distinto al resto:
+// un curl directo a la URL que cada sitio referencia en su propio HTML
+// fallaba (404 en LarrainVial, 403 en Aconcagua) o encontraba el asset
+// equivocado (el ícono de la mascota de SuperZoo, no el logotipo). La
+// navegación con un browser real (Claude in Chrome) sorteó los tres
+// problemas a la vez: ejecuta el JS/redirects de la página, así que
+// `getComputedStyle`/`<img src>` da la URL real del asset ya resuelta
+// (ej. LarrainVial sirve su logo desde el subdominio chile.larrainvial.com,
+// no www. — por eso el curl directo a www. 404aba) en vez de la que el
+// bot-protection o un typo de ruta rompen con curl/WebFetch.
+//
+// Dos nombres de CLIENTES_TODOS no tienen entrada
 // acá ("Andacor / El Colorado", "Anasac") porque no aparecen en la imagen de
 // referencia — esa mostraba "Agrosuper" y "Falabella" en esas posiciones en
 // vez de esos dos, y no se reemplazó el nombre real del cliente por el de
@@ -326,7 +334,7 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   Peugeot: ASSET_BASE + "clientes/peugeot.svg",
   Mazda: ASSET_BASE + "clientes/mazda.svg",
   Santander: ASSET_BASE + "clientes/santander.svg",
-  LarrainVial: ASSET_BASE + "clientes/larrainvial.png", // placeholder — larrainvial.com referencia /img/logo_larrainvial_color.svg pero devuelve 404 al pedirlo directo
+  LarrainVial: ASSET_BASE + "clientes/larrainvial.svg", // chile.larrainvial.com/img/logo_larrainvial_color.svg (el subdominio real, no www.)
   BICE: ASSET_BASE + "clientes/bice.jpg", // Wikimedia Commons: "Banco BICE" (Chile) — el primer SVG encontrado con ese nombre era de un banco argentino homónimo, se descartó
   CCU: ASSET_BASE + "clientes/ccu.svg",
   Chevrolet: ASSET_BASE + "clientes/chevrolet.png",
@@ -334,9 +342,9 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   Entel: ASSET_BASE + "clientes/entel.svg",
   Derco: ASSET_BASE + "clientes/derco.svg", // derco.cl/derco/LogoFooter.svg (la versión Logo.svg del header es blanca, invisible sobre fondo claro)
   Salfa: ASSET_BASE + "clientes/salfa.png", // salfa.cl (WordPress, logo en /wp-content/uploads/)
-  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // placeholder — iaconcagua.com bloquea requests automatizados (403)
+  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // iaconcagua.com/Content/img/aconcagua-logo.png (rebranding actual del isotipo verde; la imagen de referencia muestra un isotipo anterior que el sitio ya no usa)
   "Havas Group": ASSET_BASE + "clientes/havas-group.svg",
-  SuperZoo: ASSET_BASE + "clientes/superzoo.png", // placeholder — el único asset encontrado en superzoo.cl es el ícono de la mascota, no el logotipo completo
+  SuperZoo: ASSET_BASE + "clientes/superzoo.svg", // superzoo.cl, variante roja del logo (la que sirven por defecto es blanca, pensada para fondo oscuro — mismo problema que Derco)
   Verisure: ASSET_BASE + "clientes/verisure.svg", // verisure.cl/sites/cl/files/flmngr/logo-verisure.svg
   Claro: ASSET_BASE + "clientes/claro.svg",
 };
