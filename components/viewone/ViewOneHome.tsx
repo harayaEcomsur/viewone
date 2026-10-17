@@ -83,8 +83,10 @@ export function ViewOneHome({
 
   return (
     <>
-      {/* 01 Hero */}
-      <section className="relative overflow-hidden py-28 sm:py-36">
+      {/* 01 Hero — py más chico (antes py-28 sm:py-36): medido contra la
+          imagen de referencia, esta sección quedaba ~33% más alta que en
+          la foto real. Igual con los márgenes internos de abajo. */}
+      <section className="relative overflow-hidden py-16 sm:py-20">
         <Image
           src={content.heroFotoUrl}
           alt="Boletería de Andacor con señalética e impresión instalada por ViewOne"
@@ -107,8 +109,8 @@ export function ViewOneHome({
           <h1 className="mt-3 max-w-2xl font-heading text-4xl font-extrabold leading-[1.05] text-background sm:text-6xl">
             {content.heroTitulo}
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-background/85 sm:text-lg">{content.heroBajada}</p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-background/85 sm:text-lg">{content.heroBajada}</p>
+          <div className="mt-7 flex flex-wrap items-center gap-4">
             {/* rounded-lg en ambos botones (no rounded-full + medalla
                 circular como antes): la referencia usa el mismo radio de
                 esquina en los dos CTA del hero — SHAPE CONSISTENCY LOCK. */}
@@ -149,16 +151,20 @@ export function ViewOneHome({
           la referencia alterna esa franja celeste con bandas blancas puras
           para esta fila, Proyectos destacados y el carrusel de 20 clientes;
           Servicios y Nosotros sí usan el celeste de página sin diferencia. */}
-      <section className="border-b border-foreground/10 bg-white py-12">
+      <section className="border-b border-foreground/10 bg-white py-10">
         <Container>
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
             Empresas que han confiado en ViewOne
           </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+          {/* gap-x-8 (antes gap-x-10) + logos un poco más angostos (w-24,
+              antes w-28 en sm+): con 8 logos los 10/28 no entraban en una
+              sola fila a 1440-1470px de ancho y se partían en dos — la
+              referencia los tiene todos en una sola fila. */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-6">
             {clientesDestacados.map((nombre) => {
               const logo = CLIENTE_LOGO[nombre];
               return logo ? (
-                <span key={nombre} className="group relative block h-7 w-24 shrink-0 sm:h-8 sm:w-28">
+                <span key={nombre} className="group relative block h-7 w-24 shrink-0">
                   <span
                     aria-hidden="true"
                     className="absolute inset-0 bg-primary transition-opacity duration-200 group-hover:opacity-0"
@@ -199,7 +205,7 @@ export function ViewOneHome({
       </section>
 
       {/* 03 Servicios resumidos */}
-      <section id="servicios" className="py-20 sm:py-28">
+      <section id="servicios" className="py-14 sm:py-16">
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -214,7 +220,7 @@ export function ViewOneHome({
               Ver todos los servicios →
             </a>
           </div>
-          <div className="mt-10 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-8 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-5">
             {servicios.map((s) => {
               const Icono = SERVICIO_ICONO[s.nombre] ?? Building2;
               return (
@@ -329,7 +335,7 @@ export function ViewOneHome({
       </section>
 
       {/* 05 Proyectos destacados */}
-      <section className="bg-white py-20 sm:py-28">
+      <section className="bg-white py-14 sm:py-16">
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -343,7 +349,7 @@ export function ViewOneHome({
               Ver todos los proyectos →
             </a>
           </div>
-          <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-4">
             {content.proyectosDestacados.map((p) => (
               <a key={p.nombre} href="/proyectos" className="group overflow-hidden rounded-2xl">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
@@ -364,14 +370,17 @@ export function ViewOneHome({
       </section>
 
       {/* 06 Nosotros (sin los badges de "+20 años": esos ahora tienen su
-          propia banda arriba — ver nota de diseño). */}
-      <section id="nosotros" className="py-20 sm:py-28">
-        <Container className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2">
-          {/* object-cover sin padding (antes: object-contain + fondo negro):
-              la foto real es 4:3 exacto (1448×1086), igual que el
-              contenedor — llena el marco sin recorte, como en la referencia
-              (foto a sangre, no un logo apagado sobre fondo oscuro). */}
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+          propia banda arriba — ver nota de diseño).
+          Pase de fidelidad a la referencia (17-oct-2026): la foto ahí es
+          panorámica y corta (ancho:alto ≈ 5:2), no 4:3 — con 4:3 esta
+          sección quedaba más del doble de alta que en la imagen. object-
+          cover sigue recortando sin deformar (la foto fuente es 4:3,
+          1448×1086; a 5:2 se recorta verticalmente, el letrero "VIEWONE"
+          queda centrado igual). También faltaba el botón "Conoce más sobre
+          nosotros" que la referencia sí tiene bajo el párrafo. */}
+      <section id="nosotros" className="py-10 sm:py-12">
+        <Container className="grid grid-cols-1 items-center gap-8 sm:grid-cols-2">
+          <div className="relative aspect-[5/2] overflow-hidden rounded-2xl">
             <Image
               src={content.nosotrosFotoUrl}
               alt="Letrero de ViewOne sobre pared de madera en nuestras oficinas"
@@ -384,19 +393,26 @@ export function ViewOneHome({
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{content.nosotrosEyebrow}</p>
             <h2 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">{content.nosotrosTitulo}</h2>
             <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
+            <a
+              href="/contacto"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-bold text-background transition-transform hover:scale-[1.02]"
+            >
+              Conoce más sobre nosotros
+              <ArrowRight size={16} />
+            </a>
           </div>
         </Container>
       </section>
 
       {/* 07 Clientes (20, carrusel lento — feedback real: "20 logos en
           carrusel lento. Referencia de comportamiento: milamark.cl"). */}
-      <section className="border-y border-foreground/10 bg-white py-12">
+      <section className="border-y border-foreground/10 bg-white py-10">
         <Container>
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
             Experiencia con empresas de distintos rubros
           </p>
         </Container>
-        <div className="mt-7">
+        <div className="mt-5">
           <ClientesMarquee clientes={clientes} />
         </div>
       </section>
@@ -409,7 +425,7 @@ export function ViewOneHome({
           centrado: así es como está en la imagen de referencia del cliente
           (16-oct-2026) — título y eyebrow anclados a la izquierda, contacto
           al centro, CTA a la derecha, todo alineado verticalmente. */}
-      <section className="relative overflow-hidden py-16 sm:py-20">
+      <section className="relative overflow-hidden py-12 sm:py-14">
         <Image src={content.heroFotoUrl} alt="" aria-hidden="true" fill sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-primary/90" />
         <Container className="relative flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
