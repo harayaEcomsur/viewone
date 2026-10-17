@@ -276,14 +276,21 @@ export const HOME_NOSOTROS_FOTO = ASSET_BASE + "home/nosotros-letrero-madera.jpg
 // 20 clientes del handoff (slide 09) — placeholders de texto a propósito:
 // son la lista NUEVA que ViewOne quiere mostrar, distinta a los logos reales
 // del sitio viejo, y el handoff no trae logos gráficos para estos todavía.
+//
 // "Andacor / El Colorado" y "Anasac" salieron de esta lista (17-oct-2026,
-// pedido explícito): no aparecen en la imagen de referencia del cliente
-// (que en esas 2 posiciones muestra "Agrosuper" y "Falabella") — se
-// desactivan de esta sección en vez de mostrarse como texto. Sí existe un
-// logo real para ambos (encontrado en un sitio Wix sin publicar que el
-// cliente armó en algún momento, ctrlroom7.wixstudio.com/my-site-5 →
-// "Nuestros Clientes"), pero la regla pedida es más simple y estricta:
-// si el nombre no está en la imagen, no se muestra acá, tenga logo o no.
+// pedido explícito): no aparecen en la imagen de referencia del cliente,
+// que en esas 2 posiciones muestra "Agrosuper" y "Falabella" — la regla es
+// estricta: si el nombre del cliente real no está en la imagen, se
+// desactiva de esta sección en vez de mostrarse como texto. (Sí existe un
+// logo real para ambos, encontrado en un sitio Wix sin publicar del
+// cliente — ctrlroom7.wixstudio.com/my-site-5 → "Nuestros Clientes" — pero
+// no se usa acá por la regla anterior ni para mantener los logos actuales
+// sin tocar, pedido aparte.)
+//
+// "Agrosuper" y "Falabella" SÍ se agregan (mismo pedido, 17-oct-2026): son
+// los 2 nombres que la imagen de referencia muestra en esas posiciones, y
+// ahora sí tienen logo real (ver CLIENTE_LOGO) — con eso la fila vuelve a
+// los 20 nombres exactos de la imagen, los 20 con logo real.
 export const CLIENTES_TODOS = [
   "Coca-Cola",
   "BCI",
@@ -298,11 +305,13 @@ export const CLIENTES_TODOS = [
   "Entel",
   "Derco",
   "Salfa",
+  "Agrosuper",
   "Aconcagua",
   "Havas Group",
   "SuperZoo",
   "Verisure",
   "Claro",
+  "Falabella",
 ];
 
 // Logos placeholder (pedido explícito del cliente, 16-oct-2026: "Dejalos
@@ -341,11 +350,13 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   Entel: ASSET_BASE + "clientes/entel.svg",
   Derco: ASSET_BASE + "clientes/derco.svg", // derco.cl/derco/LogoFooter.svg (la versión Logo.svg del header es blanca, invisible sobre fondo claro)
   Salfa: ASSET_BASE + "clientes/salfa.png", // salfa.cl (WordPress, logo en /wp-content/uploads/)
+  Agrosuper: ASSET_BASE + "clientes/agrosuper.png", // agrosuper.com (logo "Empresas Agrosuper" vigente en su propio sitio; la imagen de referencia usa una variante más antigua con swoosh que ya no publican)
   Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // iaconcagua.com/Content/img/aconcagua-logo.png — el sitio Wix sin publicar (ctrlroom7.wixstudio.com/my-site-5) tiene otro logo de Aconcagua, pero es una versión antigua; se mantiene este, el vigente
   "Havas Group": ASSET_BASE + "clientes/havas-group.svg",
   SuperZoo: ASSET_BASE + "clientes/superzoo.svg", // superzoo.cl, variante roja del logo (la que sirven por defecto es blanca, pensada para fondo oscuro — mismo problema que Derco)
   Verisure: ASSET_BASE + "clientes/verisure.svg", // verisure.cl/sites/cl/files/flmngr/logo-verisure.svg
   Claro: ASSET_BASE + "clientes/claro.svg", // clarochile.cl/portal/cl/recursos_tema_evo/assets/vector/logo-claro-rojo.svg — ni el primer Claro.svg (Wikimedia, solo el isotipo circular → círculo sólido con mask-image) ni claro.cl (dominio real de "Claro y Cía.", un estudio jurídico homónimo, no la telecom) eran correctos
+  Falabella: ASSET_BASE + "clientes/falabella.svg", // Wikimedia Commons, wordmark script oficial — calza exacto con la referencia
 };
 
 // 8 destacados (feedback real, "Dirección visual": "Solo 8 destacados, con
