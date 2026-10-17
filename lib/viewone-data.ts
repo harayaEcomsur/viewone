@@ -276,6 +276,14 @@ export const HOME_NOSOTROS_FOTO = ASSET_BASE + "home/nosotros-letrero-madera.jpg
 // 20 clientes del handoff (slide 09) — placeholders de texto a propósito:
 // son la lista NUEVA que ViewOne quiere mostrar, distinta a los logos reales
 // del sitio viejo, y el handoff no trae logos gráficos para estos todavía.
+// "Andacor / El Colorado" y "Anasac" salieron de esta lista (17-oct-2026,
+// pedido explícito): no aparecen en la imagen de referencia del cliente
+// (que en esas 2 posiciones muestra "Agrosuper" y "Falabella") — se
+// desactivan de esta sección en vez de mostrarse como texto. Sí existe un
+// logo real para ambos (encontrado en un sitio Wix sin publicar que el
+// cliente armó en algún momento, ctrlroom7.wixstudio.com/my-site-5 →
+// "Nuestros Clientes"), pero la regla pedida es más simple y estricta:
+// si el nombre no está en la imagen, no se muestra acá, tenga logo o no.
 export const CLIENTES_TODOS = [
   "Coca-Cola",
   "BCI",
@@ -291,8 +299,6 @@ export const CLIENTES_TODOS = [
   "Derco",
   "Salfa",
   "Aconcagua",
-  "Andacor / El Colorado",
-  "Anasac",
   "Havas Group",
   "SuperZoo",
   "Verisure",
@@ -321,13 +327,6 @@ export const CLIENTES_TODOS = [
 // no www. — por eso el curl directo a www. 404aba) en vez de la que el
 // bot-protection o un typo de ruta rompen con curl/WebFetch.
 //
-// Dos nombres de CLIENTES_TODOS no tienen entrada
-// acá ("Andacor / El Colorado", "Anasac") porque no aparecen en la imagen de
-// referencia — esa mostraba "Agrosuper" y "Falabella" en esas posiciones en
-// vez de esos dos, y no se reemplazó el nombre real del cliente por el de
-// la imagen: el roster de texto (quién es cliente real de ViewOne) es la
-// fuente de verdad, no el mockup. Esos 2 siguen como texto hasta tener su
-// logo real también.
 export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], string>> = {
   "Coca-Cola": ASSET_BASE + "clientes/coca-cola.svg",
   BCI: ASSET_BASE + "clientes/bci.svg",
@@ -342,7 +341,7 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   Entel: ASSET_BASE + "clientes/entel.svg",
   Derco: ASSET_BASE + "clientes/derco.svg", // derco.cl/derco/LogoFooter.svg (la versión Logo.svg del header es blanca, invisible sobre fondo claro)
   Salfa: ASSET_BASE + "clientes/salfa.png", // salfa.cl (WordPress, logo en /wp-content/uploads/)
-  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // iaconcagua.com/Content/img/aconcagua-logo.png (rebranding actual del isotipo verde; la imagen de referencia muestra un isotipo anterior que el sitio ya no usa)
+  Aconcagua: ASSET_BASE + "clientes/aconcagua.png", // iaconcagua.com/Content/img/aconcagua-logo.png — el sitio Wix sin publicar (ctrlroom7.wixstudio.com/my-site-5) tiene otro logo de Aconcagua, pero es una versión antigua; se mantiene este, el vigente
   "Havas Group": ASSET_BASE + "clientes/havas-group.svg",
   SuperZoo: ASSET_BASE + "clientes/superzoo.svg", // superzoo.cl, variante roja del logo (la que sirven por defecto es blanca, pensada para fondo oscuro — mismo problema que Derco)
   Verisure: ASSET_BASE + "clientes/verisure.svg", // verisure.cl/sites/cl/files/flmngr/logo-verisure.svg
