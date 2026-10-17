@@ -31,8 +31,16 @@ export const clientConfig = defineClientConfig({
     // que confirma que esta elección no es un default genérico sino la
     // dirección correcta para el rubro.
     palette: {
-      primary: "#0A2F57", // Azul profundo
-      accent: "#3779B8", // Azul acento (CTAs)
+      primary: "#0A2F57", // Azul profundo — barras oscuras (header, overlays), nunca links/botones/íconos
+      // Pase de fidelidad a la referencia (17-oct-2026): el azul de
+      // botones/links/íconos en la imagen es notablemente más claro y vívido
+      // que este accent (medido directo del botón "Cotiza tu proyecto":
+      // rgb(16,102,228) ≈ #1668E3) — el #3779B8 anterior quedaba apagado en
+      // comparación. Antes varios de estos elementos (eyebrows, links "Ver
+      // todos...", íconos de servicios/atributos, botones de /servicios,
+      // /proyectos y /contacto) usaban primary por error; se corrigieron a
+      // accent además de este cambio de tono.
+      accent: "#1668E3", // Azul vívido (CTAs, links, íconos, eyebrows)
       background: "#F2F7FB", // Fondo claro
       foreground: "#15202B", // Carbón
     },

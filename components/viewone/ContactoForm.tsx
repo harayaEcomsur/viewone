@@ -59,7 +59,7 @@ export function ContactoForm() {
 
   if (status === "ok") {
     return (
-      <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
+      <div className="rounded-2xl border border-accent/20 bg-accent/5 p-8 text-center">
         <p className="font-heading text-lg font-bold text-foreground">¡Listo! Recibimos tu solicitud.</p>
         <p className="mt-2 text-sm text-foreground/60">Te contactaremos a la brevedad para cotizar tu proyecto.</p>
       </div>
@@ -67,9 +67,9 @@ export function ContactoForm() {
   }
 
   const inputClass =
-    "mt-1 w-full rounded-lg border border-foreground/15 bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary";
+    "mt-1 w-full rounded-lg border border-foreground/15 bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent";
   const labelClass = "text-xs font-bold uppercase tracking-wide text-foreground/50";
-  const groupLabelClass = "text-xs font-bold uppercase tracking-[0.2em] text-primary";
+  const groupLabelClass = "text-xs font-bold uppercase tracking-[0.2em] text-accent";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-7">
@@ -138,7 +138,7 @@ export function ContactoForm() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="w-full rounded-lg bg-primary py-3.5 text-sm font-bold text-background transition-transform hover:scale-[1.01] disabled:opacity-50"
+          className="w-full rounded-lg bg-accent py-3.5 text-sm font-bold text-background transition-transform hover:scale-[1.01] disabled:opacity-50"
         >
           {status === "loading" ? "Enviando…" : "Solicitar cotización"}
         </button>

@@ -156,12 +156,12 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
                   key={link.href}
                   href={link.href}
                   aria-current={isActive(link.href) ? "page" : undefined}
-                  className={`group relative pb-1 transition-colors hover:text-primary ${isActive(link.href) ? "text-primary" : ""}`}
+                  className={`group relative pb-1 transition-colors hover:text-accent ${isActive(link.href) ? "text-accent" : ""}`}
                 >
                   {link.label}
                   <span
                     aria-hidden="true"
-                    className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-200 ease-out group-hover:scale-x-100 ${
+                    className={`absolute inset-x-0 -bottom-0.5 h-0.5 origin-left scale-x-0 bg-accent transition-transform duration-200 ease-out group-hover:scale-x-100 ${
                       isActive(link.href) ? "scale-x-100" : ""
                     }`}
                   />
@@ -189,7 +189,7 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
                 onClick={() => setOpen(false)}
                 aria-current={isActive(link.href) ? "page" : undefined}
                 className={`border-b border-foreground/5 py-3.5 text-base font-semibold last:border-b-0 ${
-                  isActive(link.href) ? "text-primary" : "text-foreground/80"
+                  isActive(link.href) ? "text-accent" : "text-foreground/80"
                 }`}
               >
                 {link.label}

@@ -55,7 +55,7 @@ export default async function ServiciosPage() {
                     <p className="mt-4 text-base leading-relaxed text-foreground/70">{s.textoCompleto}</p>
                     <a
                       href="/contacto"
-                      className="mt-7 inline-flex items-center rounded-lg bg-primary px-6 py-3 text-sm font-bold text-background transition-transform hover:scale-[1.02]"
+                      className="mt-7 inline-flex items-center rounded-lg bg-accent px-6 py-3 text-sm font-bold text-background transition-transform hover:scale-[1.02]"
                     >
                       {s.cta}
                     </a>
@@ -69,7 +69,7 @@ export default async function ServiciosPage() {
         <Container className="mt-20 text-center sm:mt-28">
           <a
             href="/proyectos"
-            className="inline-flex items-center rounded-lg border border-foreground/20 px-7 py-3.5 text-sm font-bold text-foreground transition-colors hover:border-primary hover:text-primary"
+            className="inline-flex items-center rounded-lg border border-foreground/20 px-7 py-3.5 text-sm font-bold text-foreground transition-colors hover:border-accent hover:text-accent"
           >
             Ver todos los proyectos
           </a>

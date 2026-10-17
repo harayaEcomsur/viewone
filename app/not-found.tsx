@@ -15,7 +15,7 @@ export default function NotFound() {
       <ViewOneHeader />
       <main className="py-28 sm:py-36">
         <Container className="text-center">
-          <p className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-primary">Error 404</p>
+          <p className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-accent">Error 404</p>
           <h1 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-5xl">
             No encontramos esta página
           </h1>
@@ -26,13 +26,13 @@ export default function NotFound() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             <a
               href="/"
-              className="inline-flex items-center rounded-lg bg-primary px-7 py-3.5 text-sm font-bold text-background shadow-lg shadow-primary/20 transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center rounded-lg bg-accent px-7 py-3.5 text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
             >
               Volver al inicio
             </a>
             <a
               href="/proyectos"
-              className="inline-flex items-center rounded-lg border border-foreground/20 px-7 py-3.5 text-sm font-bold text-foreground transition-colors hover:border-primary hover:text-primary"
+              className="inline-flex items-center rounded-lg border border-foreground/20 px-7 py-3.5 text-sm font-bold text-foreground transition-colors hover:border-accent hover:text-accent"
             >
               Ver proyectos
             </a>

@@ -96,7 +96,7 @@ export function ProyectosClient({
         {categoria ? (
           <button
             onClick={() => setCategoria(null)}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:underline"
           >
             ← Volver a todas las categorías
           </button>
@@ -185,7 +185,7 @@ export function ProyectosClient({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="font-heading text-lg font-extrabold text-foreground sm:text-xl">{tituloVisible(proyecto.trabajo)}</h3>
-                <p className="text-sm font-semibold text-primary">{proyecto.cliente}</p>
+                <p className="text-sm font-semibold text-accent">{proyecto.cliente}</p>
               </div>
               <button onClick={() => setProyecto(null)} aria-label="Cerrar" className="shrink-0 rounded-full p-1.5 text-foreground/50 hover:bg-foreground/5 hover:text-foreground">
                 <X size={22} />
@@ -233,7 +233,7 @@ export function ProyectosClient({
                 href={whatsappSimilar}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-5 block w-full rounded-lg bg-primary py-3.5 text-center text-sm font-bold text-background transition-transform hover:scale-[1.01]"
+                className="mt-5 block w-full rounded-lg bg-accent py-3.5 text-center text-sm font-bold text-background transition-transform hover:scale-[1.01]"
               >
                 Quiero algo similar
               </a>

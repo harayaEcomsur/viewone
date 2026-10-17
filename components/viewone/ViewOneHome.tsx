@@ -203,14 +203,14 @@ export function ViewOneHome({
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Nuestros servicios</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Nuestros servicios</p>
               {/* Título del feedback real ("Dirección visual · cambios
                   concretos"): "Soluciones gráficas de alto impacto". */}
               <h2 className="mt-2 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
                 Soluciones gráficas de alto impacto
               </h2>
             </div>
-            <a href="/servicios" className="text-sm font-bold text-primary hover:underline">
+            <a href="/servicios" className="text-sm font-bold text-accent hover:underline">
               Ver todos los servicios →
             </a>
           </div>
@@ -232,13 +232,22 @@ export function ViewOneHome({
                       -mt-5 la sube sobre el borde inferior de la foto, por
                       fuera del overflow-hidden de la foto (que vive en el div
                       de arriba, no acá), con ring-4 ring-background para que
-                      "corte" contra la foto y el fondo claro de la página. */}
-                  <div className="relative z-10 -mt-5 ml-4 flex h-10 w-10 items-center justify-center rounded-full bg-background text-primary shadow-md ring-4 ring-background">
+                      "corte" contra la foto y el fondo claro de la página.
+                      El bloque de texto de abajo usa `mt-3` (positivo, no
+                      negativo): con `-mt-2.5` quedaba pegado — a veces
+                      tapado — contra la medalla; la referencia los deja con
+                      aire de sobra entre ambos. */}
+                  <div className="relative z-10 -mt-5 ml-4 flex h-10 w-10 items-center justify-center rounded-full bg-background text-accent shadow-md ring-4 ring-background">
                     <Icono size={18} />
                   </div>
-                  <div className="-mt-2.5 px-0.5">
+                  <div className="mt-3 px-0.5">
                     <h3 className="font-heading text-sm font-bold text-foreground">{s.nombre}</h3>
                     <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">{s.textoCorto}</p>
+                    {/* Flecha final por tarjeta (referencia): faltaba por
+                        completo, no solo el color. */}
+                    <span className="mt-3 inline-flex text-accent transition-transform group-hover:translate-x-1">
+                      <ArrowRight size={16} />
+                    </span>
                   </div>
                 </a>
               );
@@ -257,7 +266,14 @@ export function ViewOneHome({
           con la montaña nevada bien visible a la derecha, en degradado
           desde el texto. `object-top` recorta esta misma foto (boletería +
           montaña) justo en la franja superior, donde solo hay montaña —
-          así nunca se ve el cerco de madera de la boletería acá. */}
+          así nunca se ve el cerco de madera de la boletería acá.
+          `backdrop-blur` en el overlay (no solo el degradado): el texto del
+          último atributo ("Experiencia B2B") cae sobre la montaña con poco
+          degradado de por medio y perdía legibilidad contra su textura — en
+          la referencia hay un blur del fondo claro ahí mismo que ayuda al
+          contraste. Subir el stop final del degradado (antes /10, casi
+          foto cruda) + desenfocar la foto detrás del overlay entero
+          reproduce ese mismo efecto sin recurrir a una caja dura. */}
       <section className="relative overflow-hidden py-14 sm:py-16">
         <Image
           src={content.heroFotoUrl}
@@ -267,11 +283,11 @@ export function ViewOneHome({
           sizes="100vw"
           className="object-cover object-top"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40 backdrop-blur-[2px]" />
         <Container className="relative">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-10">
             <div className="shrink-0">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Más de 20 años</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Más de 20 años</p>
               <p className="font-heading text-4xl font-extrabold leading-none text-foreground sm:text-5xl">+20 años</p>
               <p className="mt-3 font-heading text-xl font-bold leading-snug text-foreground/80 sm:text-2xl">
                 haciendo realidad grandes proyectos
@@ -287,7 +303,7 @@ export function ViewOneHome({
                     key={titulo}
                     className={`flex items-start gap-3 ${i > 0 ? "sm:border-l sm:border-foreground/15 sm:pl-6" : ""}`}
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-primary text-primary">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-accent text-accent">
                       <Icono size={18} />
                     </span>
                     <div>
@@ -307,13 +323,13 @@ export function ViewOneHome({
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Proyectos destacados</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Proyectos destacados</p>
               {/* Título del feedback real: "Resultados que hablan por sí solos". */}
               <h2 className="mt-2 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
                 Resultados que hablan por sí solos
               </h2>
             </div>
-            <a href="/proyectos" className="text-sm font-bold text-primary hover:underline">
+            <a href="/proyectos" className="text-sm font-bold text-accent hover:underline">
               Ver todos los proyectos →
             </a>
           </div>
@@ -355,7 +371,7 @@ export function ViewOneHome({
             />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">{content.nosotrosEyebrow}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{content.nosotrosEyebrow}</p>
             <h2 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">{content.nosotrosTitulo}</h2>
             <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
           </div>
