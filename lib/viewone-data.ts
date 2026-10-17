@@ -291,6 +291,26 @@ export const HOME_NOSOTROS_FOTO = ASSET_BASE + "home/nosotros-letrero-madera.jpg
 // los 2 nombres que la imagen de referencia muestra en esas posiciones, y
 // ahora sí tienen logo real (ver CLIENTE_LOGO) — con eso la fila vuelve a
 // los 20 nombres exactos de la imagen, los 20 con logo real.
+// Ampliación a ~38 clientes (17-oct-2026, pedido explícito vía
+// AskUserQuestion: "Sí, agregar los 18 (Recomendado)" sobre la lista de
+// clientes reales identificada en el sitio Wix sin publicar del cliente
+// (ctrlroom7.wixstudio.com/my-site-5 → "Nuestros Clientes"). Mismo criterio
+// que el resto del archivo: ese sitio Wix solo sirvió para IDENTIFICAR cuáles
+// son clientes reales — todos los logos de abajo se buscaron de nuevo en el
+// sitio oficial vigente de cada marca ("deja los logos actuales, no ocupes
+// logos antiguos", pedido explícito del cliente), nunca se reusó el archivo
+// del Wix.
+//
+// De los ~19 nombres candidatos, 16 quedaron con logo verificable y 3 se
+// excluyeron (no se fabricó ni se adivinó ningún logo):
+// - Patio Bellavista: el sitio oficial (patiobellavista.cl) está caído
+//   (error de conexión a base de datos WordPress) y no hay alternativa
+//   confiable (Wikimedia Commons no tiene el logo).
+// - Deportes Zapallar: resultó ser una sub-página de la Municipalidad de
+//   Zapallar sin marca gráfica propia, no una entidad separada.
+// - Municipalidad de Zapallar: el único asset disponible en su sitio es de
+//   85×39px (confirmado incluso sin los parámetros de recorte de la URL —
+//   el archivo fuente es así de chico), ilegible a cualquier escala.
 export const CLIENTES_TODOS = [
   "Coca-Cola",
   "BCI",
@@ -312,6 +332,22 @@ export const CLIENTES_TODOS = [
   "Verisure",
   "Claro",
   "Falabella",
+  "El Colorado",
+  "SuKsa",
+  "Wood Inmobiliaria",
+  "IDEA Inmobiliaria",
+  "Undurraga",
+  "Saint George's College",
+  "DESCO",
+  "Anasac",
+  "Inmobiliaria Almahue",
+  "ZIVO Inmobiliaria",
+  "NUMANCIA Inmobiliaria",
+  "School of Rock",
+  "Netafim",
+  "maestra",
+  "sanasalud",
+  "INMOBILIA",
 ];
 
 // Logos placeholder (pedido explícito del cliente, 16-oct-2026: "Dejalos
@@ -357,6 +393,28 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   Verisure: ASSET_BASE + "clientes/verisure.svg", // verisure.cl/sites/cl/files/flmngr/logo-verisure.svg
   Claro: ASSET_BASE + "clientes/claro.svg", // clarochile.cl/portal/cl/recursos_tema_evo/assets/vector/logo-claro-rojo.svg — ni el primer Claro.svg (Wikimedia, solo el isotipo circular → círculo sólido con mask-image) ni claro.cl (dominio real de "Claro y Cía.", un estudio jurídico homónimo, no la telecom) eran correctos
   Falabella: ASSET_BASE + "clientes/falabella.svg", // Wikimedia Commons, wordmark script oficial — calza exacto con la referencia
+
+  // Los 16 nuevos (ver comentario sobre CLIENTES_TODOS) — mismo método que
+  // arriba: verificar el dominio oficial real antes de confiar en el logo,
+  // extraer el archivo vigente del propio sitio, y si el PNG/JPG venía
+  // opaco con fondo blanco/gris en vez de transparencia real, reprocesarlo
+  // con un umbral de luminancia para recuperar el canal alfa.
+  "El Colorado": ASSET_BASE + "clientes/el-colorado.svg", // elcolorado.cl, SVG inline del header (ícono + wordmark "El Colorado / Centro de Montaña")
+  SuKsa: ASSET_BASE + "clientes/suksa.png", // suksa.cl/img/logo.png — venía opaco sobre blanco, reprocesado con canal alfa
+  "Wood Inmobiliaria": ASSET_BASE + "clientes/wood.png", // iwood.cl/images/logo-wood-blanco.png — ya transparente (diseño blanco pensado para fondo oscuro, igual que Derco/SuperZoo)
+  "IDEA Inmobiliaria": ASSET_BASE + "clientes/idea.svg", // idea.cl/wp-content/themes/idea-inmobiliaria/assets/img/logo.svg — el ícono tiene barras de color que la técnica mask-image aplana a un solo tono sólido (mismo trade-off aceptado que en otros logos multicolor)
+  Undurraga: ASSET_BASE + "clientes/undurraga.svg", // undurraga.cl/wp-content/uploads/2022/05/logo_undurraga.svg
+  "Saint George's College": ASSET_BASE + "clientes/saint-george.svg", // saintgeorge.cl — escudo "Santiago St. George's College / Recte At Ardua"
+  DESCO: ASSET_BASE + "clientes/desco.png", // desco.cl/wp-content/uploads/2024/03/logo_desco_transparente.png — reprocesado (alfa casi opaco) y recortado al isotipo "D" verde; el wordmark no se logró recuperar del archivo fuente
+  Anasac: ASSET_BASE + "clientes/anasac.png", // anasac.cl/wp-content/uploads/2024/11/logo.png
+  "Inmobiliaria Almahue": ASSET_BASE + "clientes/almahue.svg", // ialmahue.com/wp-content/uploads/2022/01/logo_almahue.svg — bloqueado por curl directo (403), extraído con fetch() same-origin desde el navegador
+  "ZIVO Inmobiliaria": ASSET_BASE + "clientes/zivo.png", // zivo.cl — el archivo original es un lockup combinado "ZIVO INMOBILIARIA | TERRAVISTA"; recortado para dejar solo la marca ZIVO
+  "NUMANCIA Inmobiliaria": ASSET_BASE + "clientes/numancia.png", // numancia.cl/wp-content/uploads/2022/04/logo-numancia-200.png
+  "School of Rock": ASSET_BASE + "clientes/school-of-rock.png", // CDN de schoolofrock.com, variante @3x (la @1x por defecto quedaba demasiado chica)
+  Netafim: ASSET_BASE + "clientes/netafim.svg", // de-proxificado desde la URL de resize de Cloudflare que sirve netafim.cl hasta el SVG original en netafim.com; recortado (editando el viewBox) para dejar gotas + wordmark + "An Orbia business", sacando el ícono circular multicolor de la derecha
+  maestra: ASSET_BASE + "clientes/maestra.svg", // maestra.cl/wp-content/themes/maestra-2022/img/logo-maestra-main.svg
+  sanasalud: ASSET_BASE + "clientes/sanasalud.svg", // sanasalud.cl/stuff/uploads/2025/12/Sanasalud-1.svg
+  INMOBILIA: ASSET_BASE + "clientes/inmobilia.png", // inmobiliachile.cl/images/logo/new_logo_inm.png — el original venía con un sello "+30 AÑOS" pegado; recortado para dejar solo el wordmark INMOBILIA
 };
 
 // 8 destacados (feedback real, "Dirección visual": "Solo 8 destacados, con
