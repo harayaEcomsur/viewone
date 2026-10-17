@@ -335,7 +335,7 @@ export const CLIENTE_LOGO: Partial<Record<(typeof CLIENTES_TODOS)[number], strin
   Mazda: ASSET_BASE + "clientes/mazda.svg",
   Santander: ASSET_BASE + "clientes/santander.svg",
   LarrainVial: ASSET_BASE + "clientes/larrainvial.svg", // chile.larrainvial.com/img/logo_larrainvial_color.svg (el subdominio real, no www.)
-  BICE: ASSET_BASE + "clientes/bice.jpg", // Wikimedia Commons: "Banco BICE" (Chile) — el primer SVG encontrado con ese nombre era de un banco argentino homónimo, se descartó
+  BICE: ASSET_BASE + "clientes/bice.png", // Wikimedia Commons: "Banco BICE" (Chile) — el primer SVG encontrado con ese nombre era de un banco argentino homónimo, se descartó. Reprocesado a PNG con canal alfa (el JPG original no tenía transparencia) para que funcione con la técnica mask-image de la fila "destacados", ver ViewOneHome.tsx
   CCU: ASSET_BASE + "clientes/ccu.svg",
   Chevrolet: ASSET_BASE + "clientes/chevrolet.png",
   Volkswagen: ASSET_BASE + "clientes/volkswagen.svg",

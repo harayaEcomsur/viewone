@@ -132,25 +132,53 @@ export function ViewOneHome({
         </Container>
       </section>
 
-      {/* 02 Clientes destacados (8, estáticos — ver nota arriba) */}
-      <section className="border-b border-foreground/10 py-12">
+      {/* 02 Clientes destacados (8, estáticos — ver nota arriba).
+          Pase de fidelidad a la referencia (17-oct-2026): esa fila NO es
+          gris/translúcida — es cada logo recoloreado 100% a un solo tono
+          (el primary de marca), a opacidad plena. CSS grayscale() no logra
+          eso (desatura a gris neutro, no a azul); la técnica que sí lo hace
+          para un logo arbitrario (sin importar sus colores originales) es
+          mask-image: usa el alfa/silueta del archivo como máscara y rellena
+          con bg-primary por detrás — por eso BICE se reprocesó a PNG con
+          canal alfa real (su JPG original no tenía transparencia que
+          enmascarar). En hover se revela el color real de cada marca
+          (cross-fade con el <img> de abajo) como affordance, ya que la
+          imagen de referencia es estática y no lo muestra.
+          `bg-white` explícito (no `bg-background`): el token `background`
+          del tema es el celeste de marca (#F2F7FB, ver client.config.ts) —
+          la referencia alterna esa franja celeste con bandas blancas puras
+          para esta fila, Proyectos destacados y el carrusel de 20 clientes;
+          Servicios y Nosotros sí usan el celeste de página sin diferencia. */}
+      <section className="border-b border-foreground/10 bg-white py-12">
         <Container>
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
             Empresas que han confiado en ViewOne
           </p>
-          {/* Logo cuando hay (placeholder recortado de la referencia, ver
-              nota en lib/viewone-data.ts sobre CLIENTE_LOGO) — texto como
-              antes para los 2 nombres que todavía no tienen uno. */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
             {clientesDestacados.map((nombre) => {
               const logo = CLIENTE_LOGO[nombre];
               return logo ? (
-                <img
-                  key={nombre}
-                  src={logo}
-                  alt={nombre}
-                  className="h-7 w-auto object-contain opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0 sm:h-8"
-                />
+                <span key={nombre} className="group relative block h-7 w-24 shrink-0 sm:h-8 sm:w-28">
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-primary transition-opacity duration-200 group-hover:opacity-0"
+                    style={{
+                      WebkitMaskImage: `url(${logo})`,
+                      maskImage: `url(${logo})`,
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskPosition: "center",
+                      maskPosition: "center",
+                      WebkitMaskSize: "contain",
+                      maskSize: "contain",
+                    }}
+                  />
+                  <img
+                    src={logo}
+                    alt={nombre}
+                    className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                  />
+                </span>
               ) : (
                 <span
                   key={nombre}
@@ -216,33 +244,49 @@ export function ViewOneHome({
       {/* 04 "+20 años" — banda propia con foto + overlay (feedback real:
           "Recuperar bloque '+20 años'", separado de Nosotros donde antes
           vivía fusionado como pills). Reutiliza la foto real del hero (misma
-          ubicación, Andacor): nunca se inventa un asset nuevo. */}
-      <section className="relative overflow-hidden py-20 sm:py-28">
-        <Image src={content.heroFotoUrl} alt="" aria-hidden="true" fill sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-primary/90" />
+          ubicación, Andacor): nunca se inventa un asset nuevo.
+          Pase de fidelidad a la imagen de referencia (17-oct-2026): la
+          referencia NO oscurece la foto — es una banda clara (texto azul
+          marino sobre blanco/celeste, no blanco sobre overlay azul oscuro)
+          con la montaña nevada bien visible a la derecha, en degradado
+          desde el texto. `object-top` recorta esta misma foto (boletería +
+          montaña) justo en la franja superior, donde solo hay montaña —
+          así nunca se ve el cerco de madera de la boletería acá. */}
+      <section className="relative overflow-hidden py-14 sm:py-16">
+        <Image
+          src={content.heroFotoUrl}
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="100vw"
+          className="object-cover object-top"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/10" />
         <Container className="relative">
-          {/* Heading grande a la izquierda + los 3 atributos en fila a la
-              derecha (referencia): antes era un párrafo full-width arriba y
-              una grilla de 3 columnas abajo. */}
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:items-center">
-            <div>
-              <p className="font-heading text-4xl font-extrabold leading-none text-background sm:text-5xl">+20 años</p>
-              <p className="mt-3 font-heading text-xl font-bold leading-snug text-background/75 sm:text-2xl">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-10">
+            <div className="shrink-0">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Más de 20 años</p>
+              <p className="font-heading text-4xl font-extrabold leading-none text-foreground sm:text-5xl">+20 años</p>
+              <p className="mt-3 font-heading text-xl font-bold leading-snug text-foreground/80 sm:text-2xl">
                 haciendo realidad grandes proyectos
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-              {content.badges.map((titulo) => {
+            <div className="hidden h-20 w-px shrink-0 bg-foreground/15 lg:block" />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+              {content.badges.map((titulo, i) => {
                 const info = ATRIBUTO_INFO[titulo];
                 const Icono = info?.icono ?? Building2;
                 return (
-                  <div key={titulo} className="flex items-start gap-4">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-background/10 text-background">
-                      <Icono size={20} />
+                  <div
+                    key={titulo}
+                    className={`flex items-start gap-3 ${i > 0 ? "sm:border-l sm:border-foreground/15 sm:pl-6" : ""}`}
+                  >
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-primary text-primary">
+                      <Icono size={18} />
                     </span>
                     <div>
-                      <p className="font-heading text-base font-bold text-background">{titulo}</p>
-                      {info && <p className="mt-1 text-sm leading-relaxed text-background/75">{info.descripcion}</p>}
+                      <p className="font-heading text-sm font-bold text-foreground">{titulo}</p>
+                      {info && <p className="mt-1 text-xs leading-relaxed text-foreground/60">{info.descripcion}</p>}
                     </div>
                   </div>
                 );
@@ -253,7 +297,7 @@ export function ViewOneHome({
       </section>
 
       {/* 05 Proyectos destacados */}
-      <section className="py-20 sm:py-28">
+      <section className="bg-white py-20 sm:py-28">
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -289,7 +333,7 @@ export function ViewOneHome({
 
       {/* 06 Nosotros (sin los badges de "+20 años": esos ahora tienen su
           propia banda arriba — ver nota de diseño). */}
-      <section id="nosotros" className="bg-foreground/[0.02] py-20 sm:py-28">
+      <section id="nosotros" className="py-20 sm:py-28">
         <Container className="grid grid-cols-1 items-center gap-10 sm:grid-cols-2">
           {/* object-cover sin padding (antes: object-contain + fondo negro):
               la foto real es 4:3 exacto (1448×1086), igual que el
@@ -314,7 +358,7 @@ export function ViewOneHome({
 
       {/* 07 Clientes (20, carrusel lento — feedback real: "20 logos en
           carrusel lento. Referencia de comportamiento: milamark.cl"). */}
-      <section className="border-y border-foreground/10 py-12">
+      <section className="border-y border-foreground/10 bg-white py-12">
         <Container>
           <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
             Experiencia con empresas de distintos rubros
