@@ -1,4 +1,5 @@
 import { CLIENTE_LOGO } from "@/lib/viewone-data";
+import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 
 // Carrusel lento de los 20 clientes (feedback real, "Dirección visual": "20
 // logos en carrusel lento. Referencia de comportamiento: milamark.cl"). CSS
@@ -9,8 +10,15 @@ import { CLIENTE_LOGO } from "@/lib/viewone-data";
 // motion reducido, la fila queda estática y se envuelve (flex-wrap) en vez
 // de desbordar sin forma de leerla completa.
 //
-// Logo cuando hay (placeholder, ver CLIENTE_LOGO en lib/viewone-data.ts),
-// texto para los 2 nombres que todavía no tienen uno.
+// Logo cuando hay (ver CLIENTE_LOGO en lib/viewone-data.ts), texto para los
+// 2 nombres que todavía no tienen uno.
+//
+// Pase de fidelidad a la referencia (17-oct-2026): esta fila usaba
+// grayscale+opacity — se veía apagada/translúcida. La referencia trata
+// estos 20 logos EXACTAMENTE igual que los 8 destacados de arriba: mismo
+// navy sólido a opacidad plena (confirmado muestreando píxeles de Derco y
+// Salfa en la imagen — no es un gris neutro). Mismo componente
+// ClienteLogoMark que usa esa fila, ver su comentario para la técnica.
 export function ClientesMarquee({ clientes }: { clientes: string[] }) {
   return (
     <div className="clientes-marquee overflow-hidden">
@@ -18,12 +26,12 @@ export function ClientesMarquee({ clientes }: { clientes: string[] }) {
         {[...clientes, ...clientes].map((nombre, i) => {
           const logo = CLIENTE_LOGO[nombre];
           return logo ? (
-            <img
+            <ClienteLogoMark
               key={`${nombre}-${i}`}
-              src={logo}
-              alt={nombre}
-              aria-hidden={i >= clientes.length}
-              className="h-6 w-auto shrink-0 object-contain opacity-50 grayscale transition-all hover:opacity-100 hover:grayscale-0 sm:h-7"
+              logo={logo}
+              nombre={nombre}
+              hidden={i >= clientes.length}
+              className="h-6 w-20 sm:h-7 sm:w-24"
             />
           ) : (
             <span

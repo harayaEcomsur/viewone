@@ -17,6 +17,7 @@ import { Container } from "@/components/ui/Container";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { RegisterMark } from "@/components/viewone/RegisterMark";
 import { ClientesMarquee } from "@/components/viewone/ClientesMarquee";
+import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 import { slugifyServicio } from "@/lib/viewone-slug";
 import { CLIENTE_LOGO } from "@/lib/viewone-data";
 import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
@@ -164,33 +165,7 @@ export function ViewOneHome({
             {clientesDestacados.map((nombre) => {
               const logo = CLIENTE_LOGO[nombre];
               return logo ? (
-                <span key={nombre} className="group relative block h-7 w-24 shrink-0">
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-0 bg-primary transition-opacity duration-200 group-hover:opacity-0"
-                    style={{
-                      WebkitMaskImage: `url(${logo})`,
-                      maskImage: `url(${logo})`,
-                      // Sin esto, Chrome resuelve "match-source" como
-                      // luminancia para el PNG rasterizado de BICE (el único
-                      // que no es SVG) y enmascara mal — se ve un recuadro
-                      // gris sólido en vez de la silueta del logo. Forzar
-                      // "alpha" explícito lo deja igual de bien en SVG y PNG.
-                      maskMode: "alpha" as const,
-                      WebkitMaskRepeat: "no-repeat",
-                      maskRepeat: "no-repeat",
-                      WebkitMaskPosition: "center",
-                      maskPosition: "center",
-                      WebkitMaskSize: "contain",
-                      maskSize: "contain",
-                    }}
-                  />
-                  <img
-                    src={logo}
-                    alt={nombre}
-                    className="absolute inset-0 h-full w-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                  />
-                </span>
+                <ClienteLogoMark key={nombre} logo={logo} nombre={nombre} />
               ) : (
                 <span
                   key={nombre}
