@@ -27,7 +27,7 @@ export default async function ContactoPage() {
       <main className="py-14 sm:py-16">
         <Container className="grid grid-cols-1 gap-12 sm:grid-cols-2">
           <div>
-            <h1 className="font-heading text-3xl font-extrabold text-foreground sm:text-4xl">Cuéntanos qué necesitas</h1>
+            <h1 className="font-heading text-3xl font-extrabold text-primary sm:text-4xl">Cuéntanos qué necesitas</h1>
             <p className="mt-5 max-w-sm text-base leading-relaxed text-foreground/60">
               ¿Tienes una idea, una referencia o una foto de lo que necesitas? Envíanos la información y te ayudamos a
               definir la solución adecuada para tu proyecto.

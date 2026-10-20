@@ -32,7 +32,7 @@ export default async function PrivacidadPage() {
       <main className="py-14 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Tus datos</p>
-          <h1 className="mt-3 font-heading text-3xl font-bold text-foreground">Política de privacidad</h1>
+          <h1 className="mt-3 font-heading text-3xl font-bold text-primary">Política de privacidad</h1>
           <p className="mt-3 text-sm text-foreground/60">Última actualización: {new Date().toLocaleDateString("es-CL", { year: "numeric", month: "long" })}.</p>
 
           <div className="mt-8 flex flex-col gap-8">

@@ -16,7 +16,7 @@ export default function NotFound() {
       <main className="py-16 sm:py-20">
         <Container className="text-center">
           <p className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-accent">Error 404</p>
-          <h1 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-5xl">
+          <h1 className="mt-3 font-heading text-3xl font-extrabold text-primary sm:text-5xl">
             No encontramos esta página
           </h1>
           <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-foreground/60">
