@@ -353,7 +353,7 @@ export function ViewOneHome({
           1448×1086; a 5:2 se recorta verticalmente, el letrero "VIEWONE"
           queda centrado igual). También faltaba el botón "Conoce más sobre
           nosotros" que la referencia sí tiene bajo el párrafo. */}
-      <section id="nosotros" className="grid grid-cols-1 items-stretch sm:grid-cols-2">
+      <section id="nosotros" className="scroll-mt-14 grid grid-cols-1 items-stretch sm:grid-cols-2">
         {/* Foto a sangre (feedback: sin padding de la sección a izquierda,
             arriba ni abajo): ocupa todo el alto de la fila, el padding vive
             solo en la columna de texto. */}
@@ -363,7 +363,7 @@ export function ViewOneHome({
             alt="Plotter de impresión digital y muestras de gráfica en el taller de ViewOne"
             fill
             sizes="(max-width: 640px) 100vw, 50vw"
-            className="object-cover"
+            className="object-cover object-top"
           />
         </div>
         <div className="flex flex-col justify-center px-4 py-10 sm:px-12 sm:py-12 lg:max-w-xl">
