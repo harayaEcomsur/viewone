@@ -4,6 +4,7 @@ import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
 import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { AdminLoginCard } from "@/components/auth/AdminLoginCard";
 import { AdminViewOne } from "@/components/viewone/AdminViewOne";
+import { hasDb } from "@/lib/db";
 import { currentAgendaUser, googleLoginEnabled, claveLoginEnabled, isClaveSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +34,9 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
   const adminKey = isClaveSession(user) ? process.env.AGENDA_ADMIN_KEY : undefined;
   const googleEnabled = googleLoginEnabled();
   const claveEnabled = claveLoginEnabled();
+  // Correo + contraseña: necesita la cookie de sesión firmada y la tabla de
+  // usuarios (sin base no hay dónde guardar contraseñas).
+  const passwordEnabled = Boolean(process.env.SESSION_SECRET && hasDb());
 
   return (
     <>
@@ -47,6 +51,7 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
                 description="Administra las categorías y proyectos que se muestran en viewone.cl — sin tocar código."
                 googleEnabled={googleEnabled}
                 claveEnabled={claveEnabled}
+                passwordEnabled={passwordEnabled}
               />
             </div>
           ) : (

@@ -287,18 +287,43 @@ export type AdminRole = "admin" | "staff";
 export interface AdminUser {
   email: string;
   role: AdminRole;
+  hasPassword?: boolean;
+  // true = puede crear su contraseña en el próximo acceso (invitación nueva
+  // o contraseña restablecida por un admin).
+  invitePending?: boolean;
 }
 
 const SUPERADMIN_SEED: AdminUser = { email: "hector.tazdevil@gmail.com", role: "admin" };
 
+// Usuarios del equipo de ViewOne pedidos explícitamente (2026-10-20), con
+// acceso por correo + contraseña creada en su primer ingreso. Se insertan UNA
+// sola vez (marca en `settings`): si después alguien los quita desde el
+// panel, no reaparecen solos en el próximo request.
+const INVITES_2026_10_20: AdminUser[] = [
+  { email: "constanza@viewone.cl", role: "staff" },
+  { email: "mgl@viewone.cl", role: "staff" },
+];
+const INVITES_FLAG = "viewone_admin_invites_2026_10_20";
+
 async function seedAdminUsersIfEmpty(): Promise<void> {
   const sql = db();
   const [{ count }] = await sql`SELECT count(*)::int AS count FROM viewone_admin_users`;
-  if (Number(count) > 0) return;
-  await sql`
-    INSERT INTO viewone_admin_users (email, role) VALUES (${SUPERADMIN_SEED.email}, ${SUPERADMIN_SEED.role})
-    ON CONFLICT (email) DO NOTHING
-  `;
+  if (Number(count) === 0) {
+    await sql`
+      INSERT INTO viewone_admin_users (email, role) VALUES (${SUPERADMIN_SEED.email}, ${SUPERADMIN_SEED.role})
+      ON CONFLICT (email) DO NOTHING
+    `;
+  }
+  const flag = await sql`SELECT 1 FROM settings WHERE key = ${INVITES_FLAG} LIMIT 1`;
+  if (flag.length === 0) {
+    for (const u of INVITES_2026_10_20) {
+      await sql`
+        INSERT INTO viewone_admin_users (email, role, invite_pending) VALUES (${u.email}, ${u.role}, true)
+        ON CONFLICT (email) DO NOTHING
+      `;
+    }
+    await sql`INSERT INTO settings (key, value) VALUES (${INVITES_FLAG}, ${jsonb({ done: true })}) ON CONFLICT (key) DO NOTHING`;
+  }
 }
 
 export async function listAdminUsers(): Promise<AdminUser[]> {
@@ -306,8 +331,16 @@ export async function listAdminUsers(): Promise<AdminUser[]> {
     async () => {
       await seedAdminUsersIfEmpty();
       const sql = db();
-      const rows = await sql`SELECT email, role FROM viewone_admin_users ORDER BY created_at ASC`;
-      return rows.map((r) => ({ email: String(r.email), role: r.role as AdminRole }));
+      const rows = await sql`
+        SELECT email, role, (password_hash IS NOT NULL) AS has_password, invite_pending
+        FROM viewone_admin_users ORDER BY created_at ASC
+      `;
+      return rows.map((r) => ({
+        email: String(r.email),
+        role: r.role as AdminRole,
+        hasPassword: Boolean(r.has_password),
+        invitePending: Boolean(r.invite_pending),
+      }));
     },
     () => [SUPERADMIN_SEED]
   );
@@ -319,7 +352,7 @@ export async function addAdminUser(email: string, role: AdminRole): Promise<void
     async () => {
       const sql = db();
       await sql`
-        INSERT INTO viewone_admin_users (email, role) VALUES (${normalized}, ${role})
+        INSERT INTO viewone_admin_users (email, role, invite_pending) VALUES (${normalized}, ${role}, true)
         ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role
       `;
     },
@@ -343,5 +376,61 @@ export async function removeAdminUser(email: string): Promise<{ ok: true } | { o
       return { ok: true };
     },
     () => ({ ok: false, error: "Sin base de datos disponible." })
+  );
+}
+
+// --- Login con correo + contraseña (ver app/api/auth/password/route.ts) ---
+
+// null = el correo no está autorizado. `canSetup` = tiene una invitación
+// pendiente y puede crear su contraseña ahora.
+export async function getAdminPasswordHash(
+  email: string
+): Promise<{ hash: string | null; canSetup: boolean } | null> {
+  const normalized = email.trim().toLowerCase();
+  return withDb(
+    async () => {
+      await seedAdminUsersIfEmpty();
+      const sql = db();
+      const [row] = await sql`SELECT password_hash, invite_pending FROM viewone_admin_users WHERE email = ${normalized}`;
+      if (!row) return null;
+      const hash = (row.password_hash as string | null) ?? null;
+      return { hash, canSetup: Boolean(row.invite_pending) && hash === null };
+    },
+    () => null
+  );
+}
+
+// Solo fija la contraseña si hay invitación pendiente y todavía no tiene
+// una (UPDATE condicional, atómico): un segundo "primer acceso" no puede
+// pisar una contraseña ya creada, y una cuenta sin invitación no se puede
+// "reclamar".
+export async function setInitialAdminPassword(email: string, hash: string): Promise<boolean> {
+  const normalized = email.trim().toLowerCase();
+  return withDb(
+    async () => {
+      const sql = db();
+      const rows = await sql`
+        UPDATE viewone_admin_users SET password_hash = ${hash}, invite_pending = false
+        WHERE email = ${normalized} AND password_hash IS NULL AND invite_pending = true
+        RETURNING email
+      `;
+      return rows.length > 0;
+    },
+    () => false
+  );
+}
+
+// Vuelve la cuenta a "primer acceso": la persona crea una contraseña nueva
+// la próxima vez que entre (también sirve para habilitar contraseña a alguien
+// que hasta ahora solo entraba con Google). Solo admin (ver
+// ADMIN_ONLY_ACTIONS en la ruta).
+export async function resetAdminPassword(email: string): Promise<void> {
+  const normalized = email.trim().toLowerCase();
+  await withDb(
+    async () => {
+      const sql = db();
+      await sql`UPDATE viewone_admin_users SET password_hash = NULL, invite_pending = true WHERE email = ${normalized}`;
+    },
+    () => undefined
   );
 }

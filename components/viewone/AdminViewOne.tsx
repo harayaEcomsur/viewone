@@ -16,7 +16,7 @@ type Contacto = {
 };
 
 type AdminRole = "admin" | "staff";
-type AdminUser = { email: string; role: AdminRole };
+type AdminUser = { email: string; role: AdminRole; hasPassword?: boolean; invitePending?: boolean };
 
 type Data = {
   categorias: Categoria[];
@@ -967,6 +967,19 @@ function UsuariosSection({
     }
   }
 
+  async function restablecer(u: AdminUser) {
+    const msg = u.hasPassword
+      ? `¿Restablecer la contraseña de ${u.email}? Deberá crear una nueva en su próximo acceso.`
+      : `¿Permitir que ${u.email} cree una contraseña en su próximo acceso?`;
+    if (!confirm(msg)) return;
+    try {
+      await patch({ action: "resetAdminPassword", email: u.email });
+      onChange();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error");
+    }
+  }
+
   async function eliminar(u: AdminUser) {
     if (!confirm(`¿Quitar a ${u.email} del panel de administración?`)) return;
     try {
@@ -981,8 +994,9 @@ function UsuariosSection({
     <section>
       <h2 className="font-heading text-xl font-bold text-foreground">Usuarios</h2>
       <p className="mt-1 text-xs text-foreground/50">
-        Correos autorizados para entrar a este panel con su cuenta de Google. "Admin" ve y edita todo (incluido
-        Contacto y Usuarios); "Staff" edita catálogo y contenido, pero no esas dos secciones.
+        Correos autorizados para entrar a este panel, con Google o con correo y contraseña (en su primer acceso cada
+        persona crea su propia contraseña). "Admin" ve y edita todo (incluido Contacto y Usuarios); "Staff" edita
+        catálogo y contenido, pero no esas dos secciones.
       </p>
       <div className="mt-4 flex flex-col gap-2">
         {adminUsers.map((u) => (
@@ -991,6 +1005,13 @@ function UsuariosSection({
               <p className="text-sm font-medium text-foreground">
                 {u.email}
                 {u.email === currentEmail && <span className="ml-2 text-xs text-foreground/40">(tú)</span>}
+              </p>
+              <p className="mt-0.5 text-xs text-foreground/50">
+                {u.hasPassword
+                  ? "Contraseña creada"
+                  : u.invitePending
+                    ? "Pendiente: crea su contraseña en el primer acceso"
+                    : "Sin contraseña (entra con Google o clave)"}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -1005,6 +1026,15 @@ function UsuariosSection({
                   </option>
                 ))}
               </select>
+              {!u.invitePending && (
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-foreground/60 hover:underline"
+                  onClick={() => restablecer(u)}
+                >
+                  {u.hasPassword ? "Restablecer contraseña" : "Habilitar contraseña"}
+                </button>
+              )}
               <button
                 type="button"
                 disabled={u.email === currentEmail}
@@ -1023,7 +1053,7 @@ function UsuariosSection({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="correo@gmail.com"
+          placeholder="correo@empresa.cl"
           className={`min-w-0 flex-1 ${inputClass}`}
         />
         <select

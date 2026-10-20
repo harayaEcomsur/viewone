@@ -22,6 +22,7 @@ import {
   setServicioVisible,
   deleteServicio,
   listAdminUsers,
+  resetAdminPassword,
   addAdminUser,
   removeAdminUser,
 } from "@/lib/viewone-content-store";
@@ -133,11 +134,12 @@ const patchSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("deleteServicio"), id: z.string().min(1) }),
   z.object({ action: z.literal("addAdminUser"), email: z.string().email(), role: z.enum(["admin", "staff"]) }),
   z.object({ action: z.literal("removeAdminUser"), email: z.string().email() }),
+  z.object({ action: z.literal("resetAdminPassword"), email: z.string().email() }),
 ]);
 
 // Acciones que tocan datos de negocio/acceso — exigen rol "admin" puntual,
 // no basta con estar logueado como "staff".
-const ADMIN_ONLY_ACTIONS = new Set(["setContactoOverride", "addAdminUser", "removeAdminUser"]);
+const ADMIN_ONLY_ACTIONS = new Set(["setContactoOverride", "addAdminUser", "removeAdminUser", "resetAdminPassword"]);
 
 export async function PATCH(req: Request) {
   const clave = claveFromRequest(req);
@@ -195,5 +197,8 @@ export async function PATCH(req: Request) {
       if (!result.ok) return Response.json({ error: result.error }, { status: 400 });
       return Response.json({ ok: true, adminUsers: await listAdminUsers() });
     }
+    case "resetAdminPassword":
+      await resetAdminPassword(data.email);
+      return Response.json({ ok: true, adminUsers: await listAdminUsers() });
   }
 }

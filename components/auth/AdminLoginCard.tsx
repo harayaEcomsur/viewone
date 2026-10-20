@@ -1,5 +1,6 @@
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { ClaveLoginForm } from "@/components/auth/ClaveLoginForm";
+import { PasswordLoginForm } from "@/components/auth/PasswordLoginForm";
 
 // Pantalla de login del panel — reemplaza el viejo párrafo + <code>?clave=…</code>
 // por una tarjeta con la marca real del negocio. Server component: usa las
@@ -14,6 +15,7 @@ export function AdminLoginCard({
   googleEnabled,
   claveEnabled,
   claveEndpoint = "/api/auth/clave",
+  passwordEnabled = false,
 }: {
   businessName: string;
   logoUrl: string;
@@ -21,7 +23,17 @@ export function AdminLoginCard({
   googleEnabled: boolean;
   claveEnabled: boolean;
   claveEndpoint?: string;
+  // Correo + contraseña (primer acceso crea la contraseña). Opt-in: hoy solo
+  // /viewone-admin lo activa, porque la allowlist con contraseñas vive en
+  // viewone_admin_users.
+  passwordEnabled?: boolean;
 }) {
+  const metodos = [googleEnabled, passwordEnabled, claveEnabled].filter(Boolean).length;
+  const separador = (
+    <div className="flex w-full items-center gap-3 text-xs uppercase tracking-wider text-foreground/40">
+      <span className="h-px flex-1 bg-foreground/10" /> o <span className="h-px flex-1 bg-foreground/10" />
+    </div>
+  );
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-6 rounded-2xl border border-foreground/10 bg-background px-6 py-10 text-center shadow-sm sm:px-10">
       {/* eslint-disable-next-line @next/next/no-img-element -- logoUrl varía en formato (svg/png) entre clientes, mismo patrón que Header.tsx */}
@@ -34,13 +46,11 @@ export function AdminLoginCard({
         </p>
       </div>
       {googleEnabled && <GoogleLoginButton clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!} />}
-      {googleEnabled && claveEnabled && (
-        <div className="flex w-full items-center gap-3 text-xs uppercase tracking-wider text-foreground/40">
-          <span className="h-px flex-1 bg-foreground/10" /> o <span className="h-px flex-1 bg-foreground/10" />
-        </div>
-      )}
+      {googleEnabled && passwordEnabled && separador}
+      {passwordEnabled && <PasswordLoginForm />}
+      {(googleEnabled || passwordEnabled) && claveEnabled && separador}
       {claveEnabled && <ClaveLoginForm endpoint={claveEndpoint} />}
-      {!googleEnabled && !claveEnabled && (
+      {metodos === 0 && (
         <p className="text-sm text-foreground/60">
           El acceso al panel no está configurado todavía — contacta a HarayaDev para activarlo.
         </p>

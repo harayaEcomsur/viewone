@@ -438,6 +438,14 @@ export function ensureSchema(): Promise<void> {
           created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
       `;
+      // Login con correo + contraseña (alternativa a Google). Crear la
+      // contraseña "en el primer acceso" solo vale si invite_pending = true:
+      // sin eso, cualquiera que conociera el correo de un admin existente
+      // (que entra con Google o clave y nunca tuvo contraseña) podría
+      // fijársela y tomar la cuenta. Default false = las filas que ya
+      // existían quedan protegidas.
+      await sql`ALTER TABLE viewone_admin_users ADD COLUMN IF NOT EXISTS password_hash TEXT`;
+      await sql`ALTER TABLE viewone_admin_users ADD COLUMN IF NOT EXISTS invite_pending BOOLEAN NOT NULL DEFAULT false`;
     })().catch((error) => {
       // Si falla la creación, no cachear el fallo: el próximo request reintenta.
       schemaReady = null;
