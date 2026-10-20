@@ -71,10 +71,11 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
 
   return (
     <>
-      {/* Centinela de 1px: cuando sale del viewport, ya se hizo scroll más
-          allá de la franja superior. No es sticky ni se renderiza como caja
-          visible — solo marca el umbral para el observer de arriba. */}
-      <div ref={sentinelRef} aria-hidden="true" />
+      {/* Centinela de 1px a 80px del tope de la página: el header solo se
+          compacta cuando ya se bajó ese alto completo (feedback: achicarlo
+          apenas se empieza a bajar se veía mal). No es sticky ni se
+          renderiza como caja visible — solo marca el umbral del observer. */}
+      <div ref={sentinelRef} aria-hidden="true" className="pointer-events-none absolute left-0 top-20 h-px w-px" />
       <header className="contents">
         {/* Franja superior: teléfono/correo/dirección a la izquierda, redes a
             la derecha. Vive en el flujo normal (no sticky) — se va con el

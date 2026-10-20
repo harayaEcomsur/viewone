@@ -230,7 +230,7 @@ export const SERVICIOS: Servicio[] = [
     textoCorto: "Producimos señalética y elementos gráficos corporativos.",
     textoCompleto: "Producimos señalética y elementos gráficos corporativos para identificar, informar, orientar y comunicar una marca en oficinas, puntos de venta, salas de venta y otros espacios.",
     cta: "Cotizar proyecto",
-    foto: ASSET_BASE + "servicios/senaletica-hospital.jpeg",
+    foto: ASSET_BASE + "servicios/senaletica-y-grafica-corporativa.jpeg",
   },
   {
     nombre: "Estructuras Publicitarias",
@@ -238,7 +238,7 @@ export const SERVICIOS: Servicio[] = [
     textoCorto: "Fabricamos estructuras y soportes publicitarios.",
     textoCompleto: "Fabricamos estructuras y soportes publicitarios que combinan una solución gráfica con una estructura física, adaptados a proyectos de distintas escalas y ubicaciones.",
     cta: "Cotizar estructura",
-    foto: ASSET_BASE + "servicios/estructuras-volumetrico.jpeg",
+    foto: ASSET_BASE + "servicios/estructuras-publicitarias.jpeg",
   },
   {
     nombre: "Instalación y Montaje",
@@ -246,7 +246,7 @@ export const SERVICIOS: Servicio[] = [
     textoCorto: "Instalamos y montamos las soluciones gráficas y publicitarias producidas por ViewOne.",
     textoCompleto: "Instalamos y montamos las soluciones gráficas y publicitarias producidas por ViewOne en oficinas, puntos de venta, eventos, espacios de marca y stands, coordinando su correcta implementación en terreno.",
     cta: "Solicitar cotización",
-    foto: ASSET_BASE + "servicios/instalacion-espacio-riesco.jpeg",
+    foto: ASSET_BASE + "servicios/instalacion-y-montaje.jpeg",
   },
   {
     nombre: "Proyectos Integrales",
