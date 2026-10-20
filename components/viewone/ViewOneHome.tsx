@@ -353,23 +353,24 @@ export function ViewOneHome({
           1448×1086; a 5:2 se recorta verticalmente, el letrero "VIEWONE"
           queda centrado igual). También faltaba el botón "Conoce más sobre
           nosotros" que la referencia sí tiene bajo el párrafo. */}
-      <section id="nosotros" className="py-10 sm:py-12">
-        <Container className="grid grid-cols-1 items-center gap-8 sm:grid-cols-2">
-          <div className="relative aspect-[5/2] overflow-hidden rounded-2xl">
-            <Image
-              src={content.nosotrosFotoUrl}
-              alt="Plotter de impresión digital y muestras de gráfica en el taller de ViewOne"
-              fill
-              sizes="(max-width: 640px) 100vw, 50vw"
-              className="object-cover"
-            />
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{content.nosotrosEyebrow}</p>
-            <h2 className="mt-3 font-heading text-3xl font-extrabold text-primary sm:text-4xl">{content.nosotrosTitulo}</h2>
-            <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
-          </div>
-        </Container>
+      <section id="nosotros" className="grid grid-cols-1 items-stretch sm:grid-cols-2">
+        {/* Foto a sangre (feedback: sin padding de la sección a izquierda,
+            arriba ni abajo): ocupa todo el alto de la fila, el padding vive
+            solo en la columna de texto. */}
+        <div className="relative aspect-[4/3] overflow-hidden sm:aspect-auto sm:min-h-[340px]">
+          <Image
+            src={content.nosotrosFotoUrl}
+            alt="Plotter de impresión digital y muestras de gráfica en el taller de ViewOne"
+            fill
+            sizes="(max-width: 640px) 100vw, 50vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="flex flex-col justify-center px-4 py-10 sm:px-12 sm:py-12 lg:max-w-xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{content.nosotrosEyebrow}</p>
+          <h2 className="mt-3 font-heading text-3xl font-extrabold text-primary sm:text-4xl">{content.nosotrosTitulo}</h2>
+          <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
+        </div>
       </section>
 
       {/* 07 Clientes (20, en 2 filas estáticas — ver nota de diseño en
