@@ -100,7 +100,7 @@ export function ViewOneHome({
             derecha), no vertical: la referencia oscurece la zona del texto
             (izquierda) y deja la foto más visible hacia la derecha, en vez
             de oscurecer parejo de abajo hacia arriba. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/75 to-primary/15" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 from-30% via-primary/70 via-55% to-transparent" />
         {/* Miras de registro en las esquinas: firma del rubro (ver
             RegisterMark.tsx), no decoración genérica. */}
         <RegisterMark className="absolute left-5 top-5 h-6 w-6 text-background/50 sm:left-8 sm:top-8" />
@@ -187,7 +187,7 @@ export function ViewOneHome({
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Nuestros servicios</p>
               {/* Título del feedback real ("Dirección visual · cambios
                   concretos"): "Soluciones gráficas de alto impacto". */}
-              <h2 className="mt-2 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
+              <h2 className="mt-2 font-heading text-3xl font-extrabold text-primary sm:text-4xl">
                 Soluciones gráficas de alto impacto
               </h2>
             </div>
@@ -316,7 +316,7 @@ export function ViewOneHome({
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">Proyectos destacados</p>
               {/* Título del feedback real: "Resultados que hablan por sí solos". */}
-              <h2 className="mt-2 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">
+              <h2 className="mt-2 font-heading text-3xl font-extrabold text-primary sm:text-4xl">
                 Resultados que hablan por sí solos
               </h2>
             </div>
@@ -358,7 +358,7 @@ export function ViewOneHome({
           <div className="relative aspect-[5/2] overflow-hidden rounded-2xl">
             <Image
               src={content.nosotrosFotoUrl}
-              alt="Letrero de ViewOne sobre pared de madera en nuestras oficinas"
+              alt="Plotter de impresión digital y muestras de gráfica en el taller de ViewOne"
               fill
               sizes="(max-width: 640px) 100vw, 50vw"
               className="object-cover"
@@ -366,15 +366,8 @@ export function ViewOneHome({
           </div>
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">{content.nosotrosEyebrow}</p>
-            <h2 className="mt-3 font-heading text-3xl font-extrabold text-foreground sm:text-4xl">{content.nosotrosTitulo}</h2>
+            <h2 className="mt-3 font-heading text-3xl font-extrabold text-primary sm:text-4xl">{content.nosotrosTitulo}</h2>
             <p className="mt-5 text-base leading-relaxed text-foreground/70">{content.nosotrosTexto}</p>
-            <a
-              href="/contacto"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-bold text-background shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
-            >
-              Conoce más sobre nosotros
-              <ArrowRight size={16} />
-            </a>
           </div>
         </Container>
       </section>

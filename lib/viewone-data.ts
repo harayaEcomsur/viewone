@@ -230,7 +230,7 @@ export const SERVICIOS: Servicio[] = [
     textoCorto: "Producimos señalética y elementos gráficos corporativos.",
     textoCompleto: "Producimos señalética y elementos gráficos corporativos para identificar, informar, orientar y comunicar una marca en oficinas, puntos de venta, salas de venta y otros espacios.",
     cta: "Cotizar proyecto",
-    foto: ASSET_BASE + "servicios/senaletica-y-grafica-corporativa.jpeg",
+    foto: ASSET_BASE + "servicios/senaletica-hospital.jpeg",
   },
   {
     nombre: "Estructuras Publicitarias",
@@ -238,7 +238,7 @@ export const SERVICIOS: Servicio[] = [
     textoCorto: "Fabricamos estructuras y soportes publicitarios.",
     textoCompleto: "Fabricamos estructuras y soportes publicitarios que combinan una solución gráfica con una estructura física, adaptados a proyectos de distintas escalas y ubicaciones.",
     cta: "Cotizar estructura",
-    foto: ASSET_BASE + "servicios/estructuras-publicitarias.jpeg",
+    foto: ASSET_BASE + "servicios/estructuras-volumetrico.jpeg",
   },
   {
     nombre: "Instalación y Montaje",
@@ -246,7 +246,7 @@ export const SERVICIOS: Servicio[] = [
     textoCorto: "Instalamos y montamos las soluciones gráficas y publicitarias producidas por ViewOne.",
     textoCompleto: "Instalamos y montamos las soluciones gráficas y publicitarias producidas por ViewOne en oficinas, puntos de venta, eventos, espacios de marca y stands, coordinando su correcta implementación en terreno.",
     cta: "Solicitar cotización",
-    foto: ASSET_BASE + "servicios/instalacion-y-montaje.jpeg",
+    foto: ASSET_BASE + "servicios/instalacion-espacio-riesco.jpeg",
   },
   {
     nombre: "Proyectos Integrales",
@@ -259,8 +259,8 @@ export const SERVICIOS: Servicio[] = [
 ];
 
 export const HOME_PROYECTOS_DESTACADOS = [
-  { nombre: "HEAD", foto: ASSET_BASE + "home/destacado-head.jpeg" },
-  { nombre: "Aconcagua", foto: ASSET_BASE + "home/destacado-aconcagua.jpeg" },
+  { nombre: "Scalpers", foto: ASSET_BASE + "home/destacado-scalpers.jpeg" },
+  { nombre: "Radial / Peugeot New Landtrek", foto: ASSET_BASE + "home/destacado-radial-peugeot.jpeg" },
   { nombre: "Koyam", foto: ASSET_BASE + "home/destacado-koyam.jpeg" },
   { nombre: "LarrainVial", foto: ASSET_BASE + "home/destacado-larrainvial.jpeg" },
 ];
@@ -271,7 +271,7 @@ export const HOME_HERO_FOTO = ASSET_BASE + "home/hero-andacor.jpeg";
 // queda en ~437KB, mismo contenido visual, sin pérdida perceptible. Se deja
 // el .png viejo en el repo sin borrar por si un registro ya guardado en la
 // tabla `settings` (vía /viewone-admin) todavía apunta a esa ruta.
-export const HOME_NOSOTROS_FOTO = ASSET_BASE + "home/nosotros-letrero-madera.jpg";
+export const HOME_NOSOTROS_FOTO = ASSET_BASE + "home/nosotros-nueva.jpg";
 
 // 20 clientes del handoff (slide 09) — placeholders de texto a propósito:
 // son la lista NUEVA que ViewOne quiere mostrar, distinta a los logos reales

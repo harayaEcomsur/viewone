@@ -34,7 +34,7 @@ export default async function ServiciosPage() {
           pero debe sentirse del mismo sitio. */}
       <main className="py-14 sm:py-16">
         <Container>
-          <h1 className="max-w-2xl font-heading text-3xl font-extrabold text-foreground sm:text-5xl">
+          <h1 className="max-w-2xl font-heading text-3xl font-extrabold text-primary sm:text-5xl">
             Servicios de impresión y soluciones gráficas
           </h1>
         </Container>

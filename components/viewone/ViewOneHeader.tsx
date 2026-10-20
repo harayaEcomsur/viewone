@@ -75,7 +75,7 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
           allá de la franja superior. No es sticky ni se renderiza como caja
           visible — solo marca el umbral para el observer de arriba. */}
       <div ref={sentinelRef} aria-hidden="true" />
-      <header className="relative z-40">
+      <header className="contents">
         {/* Franja superior: teléfono/correo/dirección a la izquierda, redes a
             la derecha. Vive en el flujo normal (no sticky) — se va con el
             scroll, nunca anima su alto. `min-w-0`/`truncate` por ítem, no en
@@ -128,19 +128,20 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
             presencia (feedback: "mayor presencia al wordmark VIEWONE") pero
             constante, sin resize animado. Solo el fondo/sombra reacciona al
             scroll, vía opacity — no dispara layout. */}
+        <div className="sticky top-0 z-40 h-20">
         <div
-          className={`sticky top-0 bg-background transition-[box-shadow,background-color] duration-200 ${
-            scrolled ? "shadow-[0_1px_0_0_rgb(var(--color-foreground)/0.08)]" : ""
+          className={`bg-background transition-[box-shadow] duration-200 ${
+            scrolled ? "shadow-[0_1px_0_0_rgb(var(--color-foreground)/0.08),0_6px_16px_-8px_rgb(var(--color-foreground)/0.18)]" : ""
           }`}
         >
-          <Container className="flex h-20 items-center justify-between">
+          <Container className={`flex items-center justify-between transition-[height] duration-200 ${scrolled ? "h-14" : "h-20"}`}>
             {/* Wordmark en texto, no branding.logoUrl: ese archivo es un
                 placeholder (badge circular) que no es el logotipo real de la
                 referencia ("VIEW" + "ONE" en dos tonos, sans bold, sin
                 círculo) — en cuanto ViewOne entregue el archivo real del
                 isotipo, esto vuelve a ser <img>. */}
             <a href="/" className="flex min-w-0 items-center" onClick={() => setOpen(false)} aria-label={meta.businessName}>
-              <span className="font-heading text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+              <span className={`font-heading font-extrabold uppercase tracking-tight transition-[font-size] duration-200 ${scrolled ? "text-xl sm:text-2xl" : "text-2xl sm:text-3xl"}`}>
                 <span className="text-primary">View</span>
                 <span className="text-accent">One</span>
               </span>
@@ -217,6 +218,7 @@ export function ViewOneHeader({ contact: contactOverride }: { contact?: ContactI
           </Container>
         </nav>
       )}
+        </div>
       </header>
     </>
   );

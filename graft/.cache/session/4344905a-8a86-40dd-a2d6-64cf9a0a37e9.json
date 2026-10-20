@@ -1,0 +1,9 @@
+{
+  "lastQuery": "<task-notification>\n<task-id>boa3ttl1s</task-id>\n<tool-use-id>toolu_01HGvupcQXdyX2ifZZUi5DpQ</tool-use-id>\n<output-file>/private/tmp/claude-501/-Users-bctecnologia-Dev-Personal-viewone/4344905a-8a86-40dd-a2d6-64cf9a0a37e9/tasks/boa3ttl1s.output</output-file>\n<status>completed</status>\n<summary>Background command \"ls _incoming 2&gt;&amp;1 | head; (npm run dev -- -p 3914 &gt; /private/tmp/claude-501/-Users-bctecnologia-Dev-Personal-viewone/4344905a-8a86-40dd-a2d6-64cf9a0a37e9/scratchpad/dev.log 2&gt;&amp;1 &amp;); sleep 8; tail -3 /private/tmp/claude-501/-Users-bctecnologia-Dev-Personal-viewone/4344905a-8a86-40dd-a2d6-64cf9a0a37e9/scratchpad/dev.log\" completed (exit code 0)</summary>\n</task-notification>",
+  "perAgentQuery": {},
+  "graftReads": 0,
+  "sourceReads": 0,
+  "savedTokens": 0,
+  "injectedPointers": [],
+  "nudges": 0
+}

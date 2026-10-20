@@ -102,7 +102,7 @@ export function ProyectosClient({
           </button>
         ) : null}
 
-        <h1 className="font-heading text-3xl font-extrabold text-foreground sm:text-5xl">Proyectos</h1>
+        <h1 className="font-heading text-3xl font-extrabold text-primary sm:text-5xl">Proyectos</h1>
 
         {categoria && (
           <h2 className="mt-2 font-heading text-xl font-bold text-foreground/70 sm:text-2xl">{categoria}</h2>
