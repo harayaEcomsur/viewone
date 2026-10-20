@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { seccionesSchema } from "@/lib/viewone-home-sections";
 import { currentAdminUser, currentAgendaUser } from "@/lib/auth";
 import {
   listCategorias,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/viewone-store";
 import {
   getHomeContent,
-  setHomeContent,
+  setHomeSecciones,
   getClientesContent,
   setClientesContent,
   getContacto,
@@ -96,19 +97,7 @@ const patchSchema = z.discriminatedUnion("action", [
   }),
   z.object({ action: z.literal("setProyectoVisible"), id: z.string().min(1), visible: z.boolean() }),
   z.object({ action: z.literal("deleteProyecto"), id: z.string().min(1) }),
-  z.object({
-    action: z.literal("setHomeContent"),
-    heroTitulo: z.string().min(1).optional(),
-    heroBajada: z.string().min(1).optional(),
-    heroFotoUrl: z.string().url().optional(),
-    nosotrosEyebrow: z.string().min(1).optional(),
-    nosotrosTitulo: z.string().min(1).optional(),
-    nosotrosTexto: z.string().min(1).optional(),
-    nosotrosFotoUrl: z.string().url().optional(),
-    badges: z.array(z.string().min(1)).optional(),
-    proyectosDestacados: z.array(z.object({ nombre: z.string().min(1), foto: z.string().url() })).optional(),
-    cierreTitulo: z.string().min(1).optional(),
-  }),
+  z.object({ action: z.literal("setHomeSecciones"), secciones: seccionesSchema }),
   z.object({ action: z.literal("setClientesContent"), nombres: z.array(z.string().min(1)) }),
   z.object({
     action: z.literal("setContactoOverride"),
@@ -170,10 +159,8 @@ export async function PATCH(req: Request) {
     case "deleteProyecto":
       await deleteProyecto(data.id);
       return Response.json({ ok: true });
-    case "setHomeContent": {
-      const { action, ...partial } = data;
-      return Response.json({ ok: true, homeContent: await setHomeContent(partial) });
-    }
+    case "setHomeSecciones":
+      return Response.json({ ok: true, homeContent: await setHomeSecciones(data.secciones) });
     case "setClientesContent":
       return Response.json({ ok: true, clientes: await setClientesContent(data.nombres) });
     case "setContactoOverride": {

@@ -9,6 +9,7 @@ import {
   type Servicio as ServicioSeed,
 } from "@/lib/viewone-data";
 import { slugifyServicio } from "@/lib/viewone-slug";
+import { seccionesDesdeLegacy, seccionesSchema, type HomeLegacy, type HomeSeccion } from "@/lib/viewone-home-sections";
 
 // CMS completo (pedido explícito: "todo el contenido editable en el admin,
 // imágenes, texto"). Los bloques singleton (Home, Clientes, Contacto) usan
@@ -21,20 +22,15 @@ import { slugifyServicio } from "@/lib/viewone-slug";
 // 2026-10-05): un panel donde cualquiera cambia el color primario rompe la
 // consistencia de marca que cuidamos en los pases de diseño anteriores.
 
+// Home por secciones (ver lib/viewone-home-sections.ts). Lo guardado antes
+// en `viewone_home_content` eran campos sueltos; si todavía no hay
+// `secciones`, se arman desde esos campos (mezclados con los defaults) —
+// el Home se ve igual hasta que alguien guarde desde el panel nuevo.
 export interface HomeContent {
-  heroTitulo: string;
-  heroBajada: string;
-  heroFotoUrl: string;
-  nosotrosEyebrow: string;
-  nosotrosTitulo: string;
-  nosotrosTexto: string;
-  nosotrosFotoUrl: string;
-  badges: string[];
-  proyectosDestacados: { nombre: string; foto: string }[];
-  cierreTitulo: string;
+  secciones: HomeSeccion[];
 }
 
-const HOME_CONTENT_DEFAULT: HomeContent = {
+const HOME_LEGACY_DEFAULT: HomeLegacy = {
   heroTitulo: "Impresión digital y soluciones gráficas para empresas",
   heroBajada:
     "Desarrollamos, producimos e instalamos soluciones gráficas para marcas, empresas y proyectos, desde impresión digital hasta implementaciones integrales.",
@@ -49,31 +45,37 @@ const HOME_CONTENT_DEFAULT: HomeContent = {
   cierreTitulo: "Cuéntanos qué necesitas",
 };
 
+function homeDesdeGuardado(stored: (Partial<HomeLegacy> & { secciones?: unknown }) | undefined): HomeContent {
+  const parsed = seccionesSchema.safeParse(stored?.secciones);
+  if (parsed.success) return { secciones: parsed.data };
+  return { secciones: seccionesDesdeLegacy({ ...HOME_LEGACY_DEFAULT, ...stored }) };
+}
+
 export async function getHomeContent(): Promise<HomeContent> {
   return withDb(
     async () => {
       const sql = db();
       const rows = await sql`SELECT value FROM settings WHERE key = 'viewone_home_content' LIMIT 1`;
-      const stored = rows[0]?.value as Partial<HomeContent> | undefined;
-      return { ...HOME_CONTENT_DEFAULT, ...stored };
+      return homeDesdeGuardado(rows[0]?.value as Partial<HomeLegacy> | undefined);
     },
-    () => HOME_CONTENT_DEFAULT
+    () => homeDesdeGuardado(undefined)
   );
 }
 
-export async function setHomeContent(partial: Partial<HomeContent>): Promise<HomeContent> {
+// Reemplaza la lista completa (el panel siempre manda todas las secciones,
+// en su orden). Los campos sueltos viejos se descartan al primer guardado.
+export async function setHomeSecciones(secciones: HomeSeccion[]): Promise<HomeContent> {
+  const next: HomeContent = { secciones };
   return withDb(
     async () => {
       const sql = db();
-      const current = await getHomeContent();
-      const next = { ...current, ...partial };
       await sql`
         INSERT INTO settings (key, value) VALUES ('viewone_home_content', ${jsonb(next)})
         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
       `;
       return next;
     },
-    () => ({ ...HOME_CONTENT_DEFAULT, ...partial })
+    () => next
   );
 }
 

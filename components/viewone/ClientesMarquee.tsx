@@ -15,7 +15,13 @@ import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 // flechas aparecen solas.
 const PAGE_SIZE = 20;
 
-export function ClientesMarquee({ clientes }: { clientes: string[] }) {
+export function ClientesMarquee({
+  clientes,
+  eyebrow = "Experiencia con empresas de distintos rubros",
+}: {
+  clientes: string[];
+  eyebrow?: string;
+}) {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(clientes.length / PAGE_SIZE);
   const paginado = totalPages > 1;
@@ -24,9 +30,7 @@ export function ClientesMarquee({ clientes }: { clientes: string[] }) {
   return (
     <div>
       <div className="flex items-center justify-between gap-4">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">
-          Experiencia con empresas de distintos rubros
-        </p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-foreground/40">{eyebrow}</p>
         {paginado && (
           <div className="flex shrink-0 items-center gap-2">
             <button

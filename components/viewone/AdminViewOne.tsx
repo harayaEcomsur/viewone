@@ -2,8 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import {
+  ArrowDown,
+  ArrowUp,
+  Briefcase,
+  FolderTree,
+  Home,
+  Images,
+  Lock,
+  Phone,
+  Plus,
+  Trash2,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import type { Categoria, Proyecto } from "@/lib/viewone-store";
 import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
+import { AdminHomeSecciones } from "@/components/viewone/AdminHomeSecciones";
+import {
+  ImagePicker,
+  authHeaders,
+  btnPrimary,
+  inputClass,
+  labelClass,
+  patch,
+  setSessionAdminKey,
+  uploadFile,
+} from "@/components/viewone/admin-ui";
 
 type Contacto = {
   phone?: string;
@@ -28,43 +53,39 @@ type Data = {
   adminUsers: AdminUser[];
 };
 
-// Sesión por clave compartida (sin cookie, ej. abriendo /viewone-admin?clave=…
-// directo en el celular en vez de pasar por el formulario de login): el SSR
-// de page.tsx autoriza esa carga de página, pero un fetch del cliente a
-// /api/* no lleva ni cookie ni ?clave=, así que caía en 401 ("No se pudo
-// cargar el catálogo"). Mismo arreglo que ya usa AdminAgenda: el server le
-// pasa la clave real solo cuando la sesión actual YA es por clave (nunca a
-// una sesión de Google), y el cliente la reenvía en el header x-viewone-key
-// en cada request — variable de módulo porque solo existe una instancia de
-// este panel a la vez, evita hilar el prop por cada sub-formulario.
-let sessionAdminKey: string | undefined;
+// Panel separado por tipo de contenido (pedido 2026-10-20: "no me gusta que
+// esté todo en una sola página"): barra lateral con una pestaña por tipo,
+// y solo la pestaña activa en pantalla. La pestaña vive en el hash de la URL
+// (#inicio, #proyectos…) para que recargar o compartir el link no pierda
+// dónde estabas.
+type Tab = "inicio" | "servicios" | "proyectos" | "categorias" | "clientes" | "contacto" | "usuarios";
 
-function authHeaders(extra?: Record<string, string>): Record<string, string> {
-  return { ...extra, ...(sessionAdminKey ? { "x-viewone-key": sessionAdminKey } : {}) };
-}
-
-async function uploadFile(file: File): Promise<string> {
-  const form = new FormData();
-  form.set("file", file);
-  const res = await fetch("/api/viewone-admin/upload", { method: "POST", headers: authHeaders(), body: form });
-  const data = await res.json().catch(() => null);
-  if (!res.ok || !data?.url) throw new Error(data?.error ?? "No se pudo subir la imagen.");
-  return data.url as string;
-}
+const TABS: { id: Tab; label: string; icon: LucideIcon; grupo: "Sitio" | "Catálogo" | "Configuración"; soloAdmin?: boolean }[] = [
+  { id: "inicio", label: "Inicio", icon: Home, grupo: "Sitio" },
+  { id: "servicios", label: "Servicios", icon: Briefcase, grupo: "Sitio" },
+  { id: "clientes", label: "Clientes", icon: Users, grupo: "Sitio" },
+  { id: "proyectos", label: "Proyectos", icon: Images, grupo: "Catálogo" },
+  { id: "categorias", label: "Categorías", icon: FolderTree, grupo: "Catálogo" },
+  { id: "contacto", label: "Contacto", icon: Phone, grupo: "Configuración", soloAdmin: true },
+  { id: "usuarios", label: "Usuarios", icon: Lock, grupo: "Configuración", soloAdmin: true },
+];
 
 export function AdminViewOne({
   adminKey,
   role,
   currentEmail,
 }: { adminKey?: string; role?: AdminRole; currentEmail?: string } = {}) {
-  sessionAdminKey = adminKey;
+  setSessionAdminKey(adminKey);
   const [data, setData] = useState<Data | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("inicio");
+  const isAdmin = role !== "staff"; // clave compartida y Google admin → true; solo "staff" explícito lo baja.
+  const tabs = TABS.filter((t) => isAdmin || !t.soloAdmin);
 
   async function reload() {
     const res = await fetch("/api/viewone-admin", { headers: authHeaders() });
     if (!res.ok) {
-      setError("No se pudo cargar el catálogo.");
+      setError("No se pudo cargar el panel.");
       return;
     }
     setData(await res.json());
@@ -75,42 +96,97 @@ export function AdminViewOne({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminKey]);
 
+  useEffect(() => {
+    const leer = () => {
+      const h = window.location.hash.slice(1) as Tab;
+      if (tabs.some((t) => t.id === h)) setTab(h);
+    };
+    leer();
+    window.addEventListener("hashchange", leer);
+    return () => window.removeEventListener("hashchange", leer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin]);
+
+  function irA(t: Tab) {
+    setTab(t);
+    history.replaceState(null, "", `#${t}`);
+    window.scrollTo({ top: 0 });
+  }
+
   if (error) return <p className="text-sm font-semibold text-red-600">{error}</p>;
   if (!data) return <p className="text-sm text-foreground/60">Cargando…</p>;
 
-  const isAdmin = role !== "staff"; // clave compartida y Google admin → true; solo "staff" explícito lo baja.
+  const grupos = Array.from(new Set(tabs.map((t) => t.grupo)));
 
   return (
-    <div className="flex flex-col gap-10">
-      <HomeContentSection content={data.homeContent} onChange={reload} />
-      <ServiciosSection servicios={data.servicios} onChange={reload} />
-      <CategoriasSection categorias={data.categorias} onChange={reload} />
-      <ProyectosSection categorias={data.categorias} proyectos={data.proyectos} onChange={reload} />
-      <ClientesSection clientes={data.clientes} onChange={reload} />
-      {isAdmin && <ContactoSection contacto={data.contacto} onChange={reload} />}
-      {isAdmin && <UsuariosSection adminUsers={data.adminUsers} currentEmail={currentEmail} onChange={reload} />}
-      {!isAdmin && (
-        <p className="text-xs text-foreground/40">
-          Contacto y Usuarios son solo para administradores — tu cuenta tiene acceso de staff.
-        </p>
-      )}
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[200px_1fr] lg:gap-10">
+      <nav aria-label="Secciones del panel" className="lg:sticky lg:top-20 lg:self-start">
+        {/* Mobile: fila horizontal deslizable; desktop: lista agrupada. */}
+        <div className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:gap-5 lg:overflow-visible lg:px-0">
+          {grupos.map((g) => (
+            <div key={g} className="flex gap-1 lg:flex-col">
+              <p className="hidden px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-foreground/40 lg:block">{g}</p>
+              {tabs
+                .filter((t) => t.grupo === g)
+                .map((t) => {
+                  const Icon = t.icon;
+                  const activo = tab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => irA(t.id)}
+                      aria-current={activo ? "page" : undefined}
+                      className={`flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                        activo ? "bg-primary text-white" : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                      }`}
+                    >
+                      <Icon size={16} className="shrink-0" />
+                      {t.label}
+                    </button>
+                  );
+                })}
+            </div>
+          ))}
+        </div>
+        {!isAdmin && (
+          <p className="mt-4 hidden px-3 text-xs text-foreground/40 lg:block">
+            Contacto y Usuarios son solo para administradores — tu cuenta tiene acceso de staff.
+          </p>
+        )}
+      </nav>
+
+      <div className="min-w-0">
+        {tab === "inicio" && <AdminHomeSecciones secciones={data.homeContent.secciones} onSaved={reload} />}
+        {tab === "servicios" && <ServiciosSection servicios={data.servicios} onChange={reload} />}
+        {tab === "clientes" && <ClientesSection clientes={data.clientes} onChange={reload} />}
+        {tab === "proyectos" && <ProyectosSection categorias={data.categorias} proyectos={data.proyectos} onChange={reload} />}
+        {tab === "categorias" && <CategoriasSection categorias={data.categorias} onChange={reload} />}
+        {tab === "contacto" && isAdmin && <ContactoSection contacto={data.contacto} onChange={reload} />}
+        {tab === "usuarios" && isAdmin && <UsuariosSection adminUsers={data.adminUsers} currentEmail={currentEmail} onChange={reload} />}
+      </div>
     </div>
   );
 }
 
-const inputClass =
-  "rounded-lg border border-foreground/20 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary";
-const labelClass = "text-xs font-bold uppercase tracking-wide text-foreground/50";
-
-async function patch(body: unknown) {
-  const res = await fetch("/api/viewone-admin", {
-    method: "PATCH",
-    headers: authHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error ?? "No se pudo guardar.");
-  return data;
+// "Agregar …" plegado detrás de un botón: el formulario vacío ya no ocupa
+// media pestaña debajo de la lista.
+function AgregarPlegable({ label, children }: { label: string; children: (cerrar: () => void) => React.ReactNode }) {
+  const [abierto, setAbierto] = useState(false);
+  return abierto ? (
+    <div className="mt-4">
+      <h3 className="text-sm font-semibold text-foreground">{label}</h3>
+      <div className="mt-2">{children(() => setAbierto(false))}</div>
+    </div>
+  ) : (
+    <button
+      type="button"
+      onClick={() => setAbierto(true)}
+      className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-foreground/25 px-4 py-3 text-sm font-semibold text-foreground/60 hover:border-primary hover:text-primary"
+    >
+      <Plus size={16} /> {label}
+    </button>
+  );
 }
 
 function CategoriasSection({ categorias, onChange }: { categorias: Categoria[]; onChange: () => void }) {
@@ -456,194 +532,18 @@ function ProyectosSection({
         )}
       </div>
 
-      <div className="mt-6">
-        <h3 className="text-sm font-semibold text-foreground">Agregar proyecto</h3>
-        <div className="mt-2">
-          <ProyectoForm categorias={categorias} onSaved={onChange} />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ImagePicker({
-  url,
-  onUploaded,
-  label,
-}: {
-  url: string;
-  onUploaded: (url: string) => void;
-  label: string;
-}) {
-  const [uploading, setUploading] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      onUploaded(await uploadFile(file));
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Error al subir");
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-        className="rounded-lg border border-foreground/20 px-3 py-1.5 text-xs font-semibold text-foreground hover:border-primary disabled:opacity-50"
-      >
-        {uploading ? "Subiendo…" : url ? `Cambiar ${label}` : `Subir ${label}`}
-      </button>
-      {url && <Image src={url} alt={label} width={64} height={48} className="rounded object-cover" />}
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
-    </div>
-  );
-}
-
-function HomeContentSection({ content, onChange }: { content: HomeContent; onChange: () => void }) {
-  const [form, setForm] = useState(content);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => setForm(content), [content]);
-
-  function updateDestacado(i: number, patchPart: Partial<{ nombre: string; foto: string }>) {
-    setForm((f) => ({
-      ...f,
-      proyectosDestacados: f.proyectosDestacados.map((p, idx) => (idx === i ? { ...p, ...patchPart } : p)),
-    }));
-  }
-
-  async function guardar() {
-    setSaving(true);
-    try {
-      await patch({ action: "setHomeContent", ...form });
-      onChange();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <section>
-      <h2 className="font-heading text-xl font-bold text-foreground">Contenido del Home</h2>
-      <div className="mt-4 flex flex-col gap-5 rounded-xl border border-foreground/10 p-4">
-        <div>
-          <p className={labelClass}>Titular del hero</p>
-          <input
-            value={form.heroTitulo}
-            onChange={(e) => setForm((f) => ({ ...f, heroTitulo: e.target.value }))}
-            className={`mt-1 w-full ${inputClass}`}
+      <AgregarPlegable label="Agregar proyecto">
+        {(cerrar) => (
+          <ProyectoForm
+            categorias={categorias}
+            onSaved={() => {
+              cerrar();
+              onChange();
+            }}
+            onCancel={cerrar}
           />
-        </div>
-        <div>
-          <p className={labelClass}>Bajada del hero</p>
-          <textarea
-            value={form.heroBajada}
-            onChange={(e) => setForm((f) => ({ ...f, heroBajada: e.target.value }))}
-            rows={3}
-            className={`mt-1 w-full ${inputClass}`}
-          />
-        </div>
-        <div>
-          <p className={labelClass}>Foto del hero</p>
-          <div className="mt-1">
-            <ImagePicker url={form.heroFotoUrl} label="foto" onUploaded={(url) => setForm((f) => ({ ...f, heroFotoUrl: url }))} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 border-t border-foreground/10 pt-5 sm:grid-cols-2">
-          <div>
-            <p className={labelClass}>Etiqueta "Nosotros"</p>
-            <input
-              value={form.nosotrosEyebrow}
-              onChange={(e) => setForm((f) => ({ ...f, nosotrosEyebrow: e.target.value }))}
-              className={`mt-1 w-full ${inputClass}`}
-            />
-          </div>
-          <div>
-            <p className={labelClass}>Título "Nosotros"</p>
-            <input
-              value={form.nosotrosTitulo}
-              onChange={(e) => setForm((f) => ({ ...f, nosotrosTitulo: e.target.value }))}
-              className={`mt-1 w-full ${inputClass}`}
-            />
-          </div>
-        </div>
-        <div>
-          <p className={labelClass}>Texto "Nosotros"</p>
-          <textarea
-            value={form.nosotrosTexto}
-            onChange={(e) => setForm((f) => ({ ...f, nosotrosTexto: e.target.value }))}
-            rows={3}
-            className={`mt-1 w-full ${inputClass}`}
-          />
-        </div>
-        <div>
-          <p className={labelClass}>Foto "Nosotros"</p>
-          <div className="mt-1">
-            <ImagePicker
-              url={form.nosotrosFotoUrl}
-              label="foto"
-              onUploaded={(url) => setForm((f) => ({ ...f, nosotrosFotoUrl: url }))}
-            />
-          </div>
-        </div>
-        <div>
-          <p className={labelClass}>Badges (uno por línea)</p>
-          <textarea
-            value={form.badges.join("\n")}
-            onChange={(e) => setForm((f) => ({ ...f, badges: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean) }))}
-            rows={3}
-            className={`mt-1 w-full ${inputClass}`}
-          />
-        </div>
-
-        <div className="border-t border-foreground/10 pt-5">
-          <p className={labelClass}>Proyectos destacados (Home)</p>
-          <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {form.proyectosDestacados.map((p, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-lg border border-foreground/10 p-2">
-                <input
-                  value={p.nombre}
-                  onChange={(e) => updateDestacado(i, { nombre: e.target.value })}
-                  placeholder="Nombre"
-                  className={`min-w-0 flex-1 ${inputClass}`}
-                />
-                <ImagePicker url={p.foto} label="foto" onUploaded={(url) => updateDestacado(i, { foto: url })} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className={labelClass}>Título del cierre</p>
-          <input
-            value={form.cierreTitulo}
-            onChange={(e) => setForm((f) => ({ ...f, cierreTitulo: e.target.value }))}
-            className={`mt-1 w-full ${inputClass}`}
-          />
-        </div>
-
-        <div>
-          <button
-            type="button"
-            onClick={guardar}
-            disabled={saving}
-            className="rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {saving ? "Guardando…" : "Guardar cambios"}
-          </button>
-        </div>
-      </div>
+        )}
+      </AgregarPlegable>
     </section>
   );
 }
@@ -784,30 +684,46 @@ function ServiciosSection({ servicios, onChange }: { servicios: Servicio[]; onCh
           )
         )}
       </div>
-      <div className="mt-6">
-        <h3 className="text-sm font-semibold text-foreground">Agregar servicio</h3>
-        <div className="mt-2">
-          <ServicioForm onSaved={onChange} />
-        </div>
-      </div>
+      <AgregarPlegable label="Agregar servicio">
+        {(cerrar) => (
+          <ServicioForm
+            onSaved={() => {
+              cerrar();
+              onChange();
+            }}
+            onCancel={cerrar}
+          />
+        )}
+      </AgregarPlegable>
     </section>
   );
 }
 
+// Clientes como lista de elementos (agregar, mover, quitar) en vez de un
+// textarea. El logo sale del mapa CLIENTE_LOGO del código: un nombre nuevo
+// sin logo ahí se muestra como texto — subir el logo es un pedido a
+// HarayaDev, porque cada logo se reprocesa a mano (silueta con alfa real
+// para la técnica de máscara, ver ClienteLogoMark.tsx).
 function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange: () => void }) {
-  const [text, setText] = useState(clientes.join("\n"));
+  const [lista, setLista] = useState(clientes);
+  const [nuevo, setNuevo] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => setText(clientes.join("\n")), [clientes]);
+  useEffect(() => setLista(clientes), [clientes]);
+  const dirty = JSON.stringify(lista) !== JSON.stringify(clientes);
+
+  function mover(i: number, delta: number) {
+    const j = i + delta;
+    if (j < 0 || j >= lista.length) return;
+    const copia = [...lista];
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+    setLista(copia);
+  }
 
   async function guardar() {
-    const nombres = text
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
     setSaving(true);
     try {
-      await patch({ action: "setClientesContent", nombres });
+      await patch({ action: "setClientesContent", nombres: lista.map((n) => n.trim()).filter(Boolean) });
       onChange();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Error");
@@ -819,16 +735,65 @@ function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange:
   return (
     <section>
       <h2 className="font-heading text-xl font-bold text-foreground">Clientes</h2>
-      <p className="mt-1 text-xs text-foreground/50">Un nombre por línea. Se muestran en el Home, en el orden que los escribas.</p>
-      <textarea value={text} onChange={(e) => setText(e.target.value)} rows={8} className={`mt-3 w-full ${inputClass}`} />
-      <button
-        type="button"
-        onClick={guardar}
-        disabled={saving}
-        className="mt-3 rounded-lg bg-primary px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+      <p className="mt-1 max-w-2xl text-xs text-foreground/50">
+        Se muestran en el Home en este orden: los primeros en la fila de logos destacados y todos en el carrusel. Un
+        cliente nuevo aparece como texto hasta que HarayaDev cargue su logo.
+      </p>
+      <div className="mt-4 flex flex-col gap-1.5">
+        {lista.map((nombre, i) => (
+          <div key={`${nombre}-${i}`} className="flex items-center gap-2 rounded-lg border border-foreground/10 px-3 py-1.5">
+            <span className="w-6 shrink-0 text-xs font-bold text-foreground/30">{i + 1}</span>
+            <span className="min-w-0 flex-1 truncate text-sm text-foreground">{nombre}</span>
+            <button type="button" aria-label="Subir" title="Subir" disabled={i === 0} onClick={() => mover(i, -1)} className="rounded-md p-1.5 text-foreground/50 hover:bg-foreground/5 disabled:opacity-25">
+              <ArrowUp size={14} />
+            </button>
+            <button type="button" aria-label="Bajar" title="Bajar" disabled={i === lista.length - 1} onClick={() => mover(i, 1)} className="rounded-md p-1.5 text-foreground/50 hover:bg-foreground/5 disabled:opacity-25">
+              <ArrowDown size={14} />
+            </button>
+            <button
+              type="button"
+              aria-label="Quitar"
+              title="Quitar"
+              onClick={() => setLista((l) => l.filter((_, idx) => idx !== i))}
+              className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const n = nuevo.trim();
+          if (!n) return;
+          if (lista.some((x) => x.toLowerCase() === n.toLowerCase())) {
+            alert(`"${n}" ya está en la lista.`);
+            return;
+          }
+          setLista((l) => [...l, n]);
+          setNuevo("");
+        }}
+        className="mt-3 flex gap-2"
       >
-        {saving ? "Guardando…" : "Guardar cambios"}
-      </button>
+        <input value={nuevo} onChange={(e) => setNuevo(e.target.value)} placeholder="Nombre del nuevo cliente" className={`min-w-0 flex-1 ${inputClass}`} />
+        <button type="submit" disabled={!nuevo.trim()} className={`shrink-0 ${btnPrimary}`}>
+          Agregar
+        </button>
+      </form>
+      {dirty && (
+        <div className="sticky bottom-4 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-background px-4 py-3 shadow-lg">
+          <p className="text-sm font-semibold text-foreground">Tienes cambios sin guardar</p>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setLista(clientes)} className="rounded-lg px-4 py-2 text-xs font-semibold text-foreground/60 hover:underline">
+              Descartar
+            </button>
+            <button type="button" onClick={guardar} disabled={saving} className={btnPrimary}>
+              {saving ? "Guardando…" : "Guardar cambios"}
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

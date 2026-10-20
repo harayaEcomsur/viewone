@@ -10,7 +10,7 @@ import { currentAgendaUser, googleLoginEnabled, claveLoginEnabled, isClaveSessio
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: `Panel de catálogo — ${clientConfig.meta.businessName}`,
+  title: `Panel de contenido — ${clientConfig.meta.businessName}`,
   robots: { index: false, follow: false },
 };
 
@@ -48,7 +48,7 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
               <AdminLoginCard
                 businessName={clientConfig.meta.businessName}
                 logoUrl={clientConfig.branding.logoUrl}
-                description="Administra las categorías y proyectos que se muestran en viewone.cl — sin tocar código."
+                description="Administra el contenido de viewone.cl — sin tocar código."
                 googleEnabled={googleEnabled}
                 claveEnabled={claveEnabled}
                 passwordEnabled={passwordEnabled}
@@ -57,10 +57,9 @@ export default async function ViewOneAdminPage({ searchParams }: { searchParams:
           ) : (
             <>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Panel del negocio</p>
-              <h1 className="mt-3 font-heading text-3xl font-bold text-foreground">Catálogo</h1>
+              <h1 className="mt-3 font-heading text-3xl font-bold text-foreground">Contenido del sitio</h1>
               <p className="mt-2 text-sm text-foreground/60">
-                Edita el contenido del Home, Servicios, el catálogo de Proyectos, la lista de Clientes y los datos de
-                Contacto. Los cambios se reflejan de inmediato en el sitio.
+                Elige qué editar en el menú. Los cambios se reflejan de inmediato en el sitio al guardar.
               </p>
               <div className="mt-8">
                 <AdminViewOne adminKey={adminKey} role={user?.role} currentEmail={user?.email} />
