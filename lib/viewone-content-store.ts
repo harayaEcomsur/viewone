@@ -300,10 +300,14 @@ const SUPERADMIN_SEED: AdminUser = { email: "hector.tazdevil@gmail.com", role: "
 // sola vez (marca en `settings`): si después alguien los quita desde el
 // panel, no reaparecen solos en el próximo request.
 const INVITES_2026_10_20: AdminUser[] = [
-  { email: "constanza@viewone.cl", role: "staff" },
-  { email: "mgl@viewone.cl", role: "staff" },
+  { email: "constanza@viewone.cl", role: "admin" },
+  { email: "mgl@viewone.cl", role: "admin" },
 ];
 const INVITES_FLAG = "viewone_admin_invites_2026_10_20";
+// Producción ya sembró las 2 invitaciones como staff; después se pidió que
+// fueran admin. Se promueven UNA vez (con su propia marca) para que, si
+// luego alguien les cambia el rol desde el panel, no se pise en cada request.
+const PROMOTE_FLAG = "viewone_admin_promote_2026_10_20";
 
 async function seedAdminUsersIfEmpty(): Promise<void> {
   const sql = db();
@@ -323,6 +327,13 @@ async function seedAdminUsersIfEmpty(): Promise<void> {
       `;
     }
     await sql`INSERT INTO settings (key, value) VALUES (${INVITES_FLAG}, ${jsonb({ done: true })}) ON CONFLICT (key) DO NOTHING`;
+  }
+  const promoted = await sql`SELECT 1 FROM settings WHERE key = ${PROMOTE_FLAG} LIMIT 1`;
+  if (promoted.length === 0) {
+    for (const u of INVITES_2026_10_20) {
+      await sql`UPDATE viewone_admin_users SET role = 'admin' WHERE email = ${u.email}`;
+    }
+    await sql`INSERT INTO settings (key, value) VALUES (${PROMOTE_FLAG}, ${jsonb({ done: true })}) ON CONFLICT (key) DO NOTHING`;
   }
 }
 
