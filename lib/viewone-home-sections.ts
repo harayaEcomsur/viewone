@@ -47,7 +47,15 @@ export const seccionSchema = z.discriminatedUnion("tipo", [
     boton2Texto: texto,
     boton2Href: url,
   }),
-  z.object({ ...base, tipo: z.literal("logos"), eyebrow: texto, cantidad: z.number().int().min(1).max(40) }),
+  // `clientes`: ids elegidos en el panel. Sin elegir (guardado antes de
+  // que existiera la selección) = los primeros `cantidad` de la lista.
+  z.object({
+    ...base,
+    tipo: z.literal("logos"),
+    eyebrow: texto,
+    cantidad: z.number().int().min(1).max(40),
+    clientes: z.array(z.string()).max(200).optional(),
+  }),
   z.object({ ...base, tipo: z.literal("servicios"), eyebrow: texto, titulo: texto, linkTexto: texto }),
   z.object({
     ...base,
@@ -89,7 +97,9 @@ export const seccionSchema = z.discriminatedUnion("tipo", [
     botonHref: url,
     fondo: z.enum(["claro", "blanco"]),
   }),
-  z.object({ ...base, tipo: z.literal("clientes"), eyebrow: texto }),
+  // `clientes` sin definir = todos los de la lista (también los que se
+  // agreguen después); con lista = solo esos.
+  z.object({ ...base, tipo: z.literal("clientes"), eyebrow: texto, clientes: z.array(z.string()).max(200).optional() }),
   z.object({
     ...base,
     tipo: z.literal("cta"),
@@ -110,15 +120,28 @@ export type SeccionDe<T extends TipoSeccion> = Extract<HomeSeccion, { tipo: T }>
 
 export const TIPOS_SECCION: Record<TipoSeccion, { nombre: string; descripcion: string }> = {
   hero: { nombre: "Portada (hero)", descripcion: "Foto grande con titular, bajada y dos botones." },
-  logos: { nombre: "Logos destacados", descripcion: "Una fila con los primeros logos de la lista de Clientes." },
+  logos: { nombre: "Logos destacados", descripcion: "Una fila con los logos de clientes que elijas." },
   servicios: { nombre: "Servicios", descripcion: "Tarjetas con los servicios visibles (se editan en Servicios)." },
   atributos: { nombre: "Atributos", descripcion: "Banda con un dato grande y atributos con ícono (ej. +20 años)." },
   galeria: { nombre: "Galería de proyectos", descripcion: "Grilla de fotos con nombre, cada una con su link." },
   textoImagen: { nombre: "Texto + imagen", descripcion: "Foto a sangre a un lado y texto al otro (ej. Nosotros)." },
   texto: { nombre: "Texto", descripcion: "Bloque de texto centrado con botón opcional." },
-  clientes: { nombre: "Clientes (carrusel)", descripcion: "Todos los logos de Clientes, paginados de a 20." },
+  clientes: { nombre: "Clientes (carrusel)", descripcion: "Logos de clientes (todos o los que elijas), de a 20." },
   cta: { nombre: "Llamado a la acción", descripcion: "Banda azul con título, datos de contacto y botón." },
 };
+
+// Qué clientes muestra una sección de logos o de carrusel, en el orden de
+// la lista maestra (pestaña Clientes).
+export function clientesDeSeccion<C extends { id: string }>(
+  s: Extract<HomeSeccion, { tipo: "logos" | "clientes" }>,
+  todos: C[]
+): C[] {
+  if (s.clientes) {
+    const elegidos = new Set(s.clientes);
+    return todos.filter((c) => elegidos.has(c.id));
+  }
+  return s.tipo === "logos" ? todos.slice(0, s.cantidad) : todos;
+}
 
 export function nuevoId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();

@@ -5,10 +5,11 @@ import {
   HOME_PROYECTOS_DESTACADOS,
   HOME_HERO_FOTO,
   HOME_NOSOTROS_FOTO,
-  CLIENTES_TODOS,
+  CLIENTES_TODOS as CLIENTES_TODOS_RO,
   type Servicio as ServicioSeed,
 } from "@/lib/viewone-data";
 import { slugifyServicio } from "@/lib/viewone-slug";
+import { clientesDesdeNombres, clientesSchema, type Cliente } from "@/lib/viewone-clientes";
 import { seccionesDesdeLegacy, seccionesSchema, type HomeLegacy, type HomeSeccion } from "@/lib/viewone-home-sections";
 
 // CMS completo (pedido explícito: "todo el contenido editable en el admin,
@@ -79,29 +80,38 @@ export async function setHomeSecciones(secciones: HomeSeccion[]): Promise<HomeCo
   );
 }
 
-export async function getClientesContent(): Promise<string[]> {
+// Guardado como { clientes: Cliente[] }; el formato anterior era
+// { nombres: string[] } y se convierte al leer (logo desde el código).
+const CLIENTES_TODOS: string[] = [...CLIENTES_TODOS_RO];
+
+function clientesDesdeGuardado(stored: { clientes?: unknown; nombres?: string[] } | undefined): Cliente[] {
+  const parsed = clientesSchema.safeParse(stored?.clientes);
+  if (parsed.success) return parsed.data;
+  return clientesDesdeNombres(stored?.nombres ?? CLIENTES_TODOS);
+}
+
+export async function getClientesContent(): Promise<Cliente[]> {
   return withDb(
     async () => {
       const sql = db();
       const rows = await sql`SELECT value FROM settings WHERE key = 'viewone_clientes' LIMIT 1`;
-      const stored = rows[0]?.value as { nombres?: string[] } | undefined;
-      return stored?.nombres ?? CLIENTES_TODOS;
+      return clientesDesdeGuardado(rows[0]?.value as { clientes?: unknown; nombres?: string[] } | undefined);
     },
-    () => CLIENTES_TODOS
+    () => clientesDesdeGuardado(undefined)
   );
 }
 
-export async function setClientesContent(nombres: string[]): Promise<string[]> {
+export async function setClientesContent(clientes: Cliente[]): Promise<Cliente[]> {
   return withDb(
     async () => {
       const sql = db();
       await sql`
-        INSERT INTO settings (key, value) VALUES ('viewone_clientes', ${jsonb({ nombres })})
+        INSERT INTO settings (key, value) VALUES ('viewone_clientes', ${jsonb({ clientes })})
         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
       `;
-      return nombres;
+      return clientes;
     },
-    () => nombres
+    () => clientes
   );
 }
 

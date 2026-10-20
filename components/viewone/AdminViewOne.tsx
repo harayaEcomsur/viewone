@@ -19,6 +19,9 @@ import {
 import type { Categoria, Proyecto } from "@/lib/viewone-store";
 import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
 import { AdminHomeSecciones } from "@/components/viewone/AdminHomeSecciones";
+import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
+import { idCliente, type Cliente } from "@/lib/viewone-clientes";
+import { mismoOrigen } from "@/lib/viewone-media";
 import {
   ImagePicker,
   authHeaders,
@@ -26,6 +29,7 @@ import {
   inputClass,
   labelClass,
   patch,
+  procesarLogo,
   setSessionAdminKey,
   uploadFile,
 } from "@/components/viewone/admin-ui";
@@ -47,7 +51,7 @@ type Data = {
   categorias: Categoria[];
   proyectos: Proyecto[];
   homeContent: HomeContent;
-  clientes: string[];
+  clientes: Cliente[];
   contacto: Contacto;
   servicios: Servicio[];
   adminUsers: AdminUser[];
@@ -157,7 +161,7 @@ export function AdminViewOne({
       </nav>
 
       <div className="min-w-0">
-        {tab === "inicio" && <AdminHomeSecciones secciones={data.homeContent.secciones} onSaved={reload} />}
+        {tab === "inicio" && <AdminHomeSecciones secciones={data.homeContent.secciones} clientes={data.clientes} onSaved={reload} />}
         {tab === "servicios" && <ServiciosSection servicios={data.servicios} onChange={reload} />}
         {tab === "clientes" && <ClientesSection clientes={data.clientes} onChange={reload} />}
         {tab === "proyectos" && <ProyectosSection categorias={data.categorias} proyectos={data.proyectos} onChange={reload} />}
@@ -699,12 +703,10 @@ function ServiciosSection({ servicios, onChange }: { servicios: Servicio[]; onCh
   );
 }
 
-// Clientes como lista de elementos (agregar, mover, quitar) en vez de un
-// textarea. El logo sale del mapa CLIENTE_LOGO del código: un nombre nuevo
-// sin logo ahí se muestra como texto — subir el logo es un pedido a
-// HarayaDev, porque cada logo se reprocesa a mano (silueta con alfa real
-// para la técnica de máscara, ver ClienteLogoMark.tsx).
-function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange: () => void }) {
+// Clientes: lista maestra editable (nombre + logo). El orden de acá es el
+// orden en que aparecen en el Home; qué secciones muestran a cuál se elige
+// en Inicio (secciones "Logos destacados" y "Clientes (carrusel)").
+function ClientesSection({ clientes, onChange }: { clientes: Cliente[]; onChange: () => void }) {
   const [lista, setLista] = useState(clientes);
   const [nuevo, setNuevo] = useState("");
   const [saving, setSaving] = useState(false);
@@ -720,10 +722,18 @@ function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange:
     setLista(copia);
   }
 
+  function actualizar(id: string, cambio: Partial<Cliente>) {
+    setLista((l) => l.map((c) => (c.id === id ? { ...c, ...cambio } : c)));
+  }
+
   async function guardar() {
+    if (lista.some((c) => !c.nombre.trim())) {
+      alert("Hay un cliente sin nombre.");
+      return;
+    }
     setSaving(true);
     try {
-      await patch({ action: "setClientesContent", nombres: lista.map((n) => n.trim()).filter(Boolean) });
+      await patch({ action: "setClientesContent", clientes: lista.map((c) => ({ ...c, nombre: c.nombre.trim() })) });
       onChange();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Error");
@@ -736,30 +746,28 @@ function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange:
     <section>
       <h2 className="font-heading text-xl font-bold text-foreground">Clientes</h2>
       <p className="mt-1 max-w-2xl text-xs text-foreground/50">
-        Se muestran en el Home en este orden: los primeros en la fila de logos destacados y todos en el carrusel. Un
-        cliente nuevo aparece como texto hasta que HarayaDev cargue su logo.
+        La lista completa de clientes, en el orden en que aparecen en el sitio. Cuáles se muestran en &quot;Empresas que
+        han confiado&quot; y en el carrusel se elige en Inicio, abriendo esas secciones. Un cliente sin logo se muestra con
+        su nombre en texto.
+      </p>
+      <p className="mt-2 max-w-2xl text-xs text-foreground/50">
+        Logos: mejor PNG con fondo transparente o SVG. Si el archivo trae fondo blanco o de color, se quita al subirlo —
+        revisa la vista previa.
       </p>
       <div className="mt-4 flex flex-col gap-1.5">
-        {lista.map((nombre, i) => (
-          <div key={`${nombre}-${i}`} className="flex items-center gap-2 rounded-lg border border-foreground/10 px-3 py-1.5">
-            <span className="w-6 shrink-0 text-xs font-bold text-foreground/30">{i + 1}</span>
-            <span className="min-w-0 flex-1 truncate text-sm text-foreground">{nombre}</span>
-            <button type="button" aria-label="Subir" title="Subir" disabled={i === 0} onClick={() => mover(i, -1)} className="rounded-md p-1.5 text-foreground/50 hover:bg-foreground/5 disabled:opacity-25">
-              <ArrowUp size={14} />
-            </button>
-            <button type="button" aria-label="Bajar" title="Bajar" disabled={i === lista.length - 1} onClick={() => mover(i, 1)} className="rounded-md p-1.5 text-foreground/50 hover:bg-foreground/5 disabled:opacity-25">
-              <ArrowDown size={14} />
-            </button>
-            <button
-              type="button"
-              aria-label="Quitar"
-              title="Quitar"
-              onClick={() => setLista((l) => l.filter((_, idx) => idx !== i))}
-              className="rounded-md p-1.5 text-red-600 hover:bg-red-50"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
+        {lista.map((c, i) => (
+          <ClienteFila
+            key={c.id}
+            cliente={c}
+            i={i}
+            total={lista.length}
+            onCambio={(cambio) => actualizar(c.id, cambio)}
+            onMover={(d) => mover(i, d)}
+            onQuitar={() => {
+              if (!confirm(`¿Quitar a "${c.nombre}" de la lista? También deja de mostrarse en las secciones del Home.`)) return;
+              setLista((l) => l.filter((x) => x.id !== c.id));
+            }}
+          />
         ))}
       </div>
       <form
@@ -767,11 +775,11 @@ function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange:
           e.preventDefault();
           const n = nuevo.trim();
           if (!n) return;
-          if (lista.some((x) => x.toLowerCase() === n.toLowerCase())) {
+          if (lista.some((x) => x.nombre.toLowerCase() === n.toLowerCase())) {
             alert(`"${n}" ya está en la lista.`);
             return;
           }
-          setLista((l) => [...l, n]);
+          setLista((l) => [...l, { id: idCliente(n, l.map((x) => x.id)), nombre: n, logo: "" }]);
           setNuevo("");
         }}
         className="mt-3 flex gap-2"
@@ -781,6 +789,9 @@ function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange:
           Agregar
         </button>
       </form>
+      <p className="mt-1.5 text-xs text-foreground/40">
+        Un cliente nuevo aparece en el carrusel si está en &quot;todos los clientes&quot;; en Logos destacados hay que marcarlo.
+      </p>
       {dirty && (
         <div className="sticky bottom-4 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-background px-4 py-3 shadow-lg">
           <p className="text-sm font-semibold text-foreground">Tienes cambios sin guardar</p>
@@ -795,6 +806,80 @@ function ClientesSection({ clientes, onChange }: { clientes: string[]; onChange:
         </div>
       )}
     </section>
+  );
+}
+
+function ClienteFila({
+  cliente,
+  i,
+  total,
+  onCambio,
+  onMover,
+  onQuitar,
+}: {
+  cliente: Cliente;
+  i: number;
+  total: number;
+  onCambio: (cambio: Partial<Cliente>) => void;
+  onMover: (delta: number) => void;
+  onQuitar: () => void;
+}) {
+  const [subiendo, setSubiendo] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const iconBtn = "rounded-md p-1.5 text-foreground/50 hover:bg-foreground/5 disabled:opacity-25";
+
+  async function subir(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setSubiendo(true);
+    try {
+      onCambio({ logo: await uploadFile(await procesarLogo(file)) });
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Error al subir");
+    } finally {
+      setSubiendo(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-foreground/10 px-3 py-2 sm:flex-nowrap">
+      <span className="w-6 shrink-0 text-xs font-bold text-foreground/30">{i + 1}</span>
+      {/* Vista previa tal como se ve en el Home (silueta en azul; color real al pasar el mouse). */}
+      <span className="flex h-9 w-28 shrink-0 items-center justify-center rounded bg-white px-2">
+        {cliente.logo ? (
+          <ClienteLogoMark logo={mismoOrigen(cliente.logo)} nombre={cliente.nombre} className="h-6 w-full" />
+        ) : (
+          <span className="text-[10px] font-bold uppercase text-foreground/30">Sin logo</span>
+        )}
+      </span>
+      <input
+        value={cliente.nombre}
+        onChange={(e) => onCambio({ nombre: e.target.value })}
+        aria-label="Nombre del cliente"
+        className={`min-w-0 flex-1 ${inputClass}`}
+      />
+      <div className="flex shrink-0 items-center gap-1">
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={subiendo} className="rounded-lg border border-foreground/20 px-2.5 py-1.5 text-xs font-semibold text-foreground hover:border-primary disabled:opacity-50">
+          {subiendo ? "Subiendo…" : cliente.logo ? "Cambiar logo" : "Subir logo"}
+        </button>
+        <input ref={inputRef} type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" className="hidden" onChange={subir} />
+        {cliente.logo && (
+          <button type="button" onClick={() => onCambio({ logo: "" })} className="px-1.5 text-xs font-semibold text-foreground/50 hover:underline">
+            Quitar logo
+          </button>
+        )}
+        <button type="button" aria-label="Subir" title="Subir" disabled={i === 0} onClick={() => onMover(-1)} className={iconBtn}>
+          <ArrowUp size={14} />
+        </button>
+        <button type="button" aria-label="Bajar" title="Bajar" disabled={i === total - 1} onClick={() => onMover(1)} className={iconBtn}>
+          <ArrowDown size={14} />
+        </button>
+        <button type="button" aria-label="Quitar" title="Quitar cliente" onClick={onQuitar} className="rounded-md p-1.5 text-red-600 hover:bg-red-50">
+          <Trash2 size={14} />
+        </button>
+      </div>
+    </div>
   );
 }
 

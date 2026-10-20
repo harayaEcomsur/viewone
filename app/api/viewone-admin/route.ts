@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { seccionesSchema } from "@/lib/viewone-home-sections";
+import { clientesSchema } from "@/lib/viewone-clientes";
 import { currentAdminUser, currentAgendaUser } from "@/lib/auth";
 import {
   listCategorias,
@@ -98,7 +99,7 @@ const patchSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("setProyectoVisible"), id: z.string().min(1), visible: z.boolean() }),
   z.object({ action: z.literal("deleteProyecto"), id: z.string().min(1) }),
   z.object({ action: z.literal("setHomeSecciones"), secciones: seccionesSchema }),
-  z.object({ action: z.literal("setClientesContent"), nombres: z.array(z.string().min(1)) }),
+  z.object({ action: z.literal("setClientesContent"), clientes: clientesSchema }),
   z.object({
     action: z.literal("setContactoOverride"),
     phone: z.string().optional(),
@@ -162,7 +163,7 @@ export async function PATCH(req: Request) {
     case "setHomeSecciones":
       return Response.json({ ok: true, homeContent: await setHomeSecciones(data.secciones) });
     case "setClientesContent":
-      return Response.json({ ok: true, clientes: await setClientesContent(data.nombres) });
+      return Response.json({ ok: true, clientes: await setClientesContent(data.clientes) });
     case "setContactoOverride": {
       const { action, ...partial } = data;
       await setContactoOverride(partial);

@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronDown, Copy, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
+import type { Cliente } from "@/lib/viewone-clientes";
 import {
   ICONOS,
+  clientesDeSeccion,
   TIPOS_SECCION,
   nuevoId,
   seccionNueva,
@@ -46,7 +48,15 @@ function validar(secciones: HomeSeccion[]): string | null {
   return null;
 }
 
-export function AdminHomeSecciones({ secciones, onSaved }: { secciones: HomeSeccion[]; onSaved: () => void }) {
+export function AdminHomeSecciones({
+  secciones,
+  clientes,
+  onSaved,
+}: {
+  secciones: HomeSeccion[];
+  clientes: Cliente[];
+  onSaved: () => void;
+}) {
   const [lista, setLista] = useState(secciones);
   const [abierta, setAbierta] = useState<string | null>(null);
   const [agregando, setAgregando] = useState(false);
@@ -168,7 +178,7 @@ export function AdminHomeSecciones({ secciones, onSaved }: { secciones: HomeSecc
               </div>
               {open && (
                 <div className="border-t border-foreground/10 px-3 py-4 sm:px-4">
-                  <EditorSeccion s={s} onChange={(cambio) => actualizar(s.id, cambio)} />
+                  <EditorSeccion s={s} clientes={clientes} onChange={(cambio) => actualizar(s.id, cambio)} />
                 </div>
               )}
             </div>
@@ -361,7 +371,15 @@ function Boton({
   );
 }
 
-function EditorSeccion({ s, onChange }: { s: HomeSeccion; onChange: (cambio: Partial<HomeSeccion>) => void }) {
+function EditorSeccion({
+  s,
+  clientes,
+  onChange,
+}: {
+  s: HomeSeccion;
+  clientes: Cliente[];
+  onChange: (cambio: Partial<HomeSeccion>) => void;
+}) {
   const set = (cambio: Record<string, unknown>) => onChange(cambio as Partial<HomeSeccion>);
   const grid = "grid grid-cols-1 gap-3 sm:grid-cols-2";
 
@@ -381,20 +399,14 @@ function EditorSeccion({ s, onChange }: { s: HomeSeccion; onChange: (cambio: Par
       );
     case "logos":
       return (
-        <div className={grid}>
+        <div className="flex flex-col gap-4">
           <Campo label="Etiqueta" value={s.eyebrow} onChange={(v) => set({ eyebrow: v })} />
-          <label className="block">
-            <span className={labelClass}>Cantidad de logos</span>
-            <input
-              type="number"
-              min={1}
-              max={40}
-              value={s.cantidad}
-              onChange={(e) => set({ cantidad: Math.max(1, Math.min(40, Number(e.target.value) || 1)) })}
-              className={`mt-1 w-full ${inputClass}`}
-            />
-          </label>
-          <p className="text-xs text-foreground/50 sm:col-span-2">Muestra los primeros de la lista de la pestaña Clientes, en ese orden.</p>
+          <SelectorClientes
+            clientes={clientes}
+            elegidos={clientesDeSeccion(s, clientes).map((c) => c.id)}
+            onChange={(ids) => set({ clientes: ids })}
+            ayuda="Se ven en una sola fila; con más de 8 pasan a una segunda fila."
+          />
         </div>
       );
     case "servicios":
@@ -462,9 +474,26 @@ function EditorSeccion({ s, onChange }: { s: HomeSeccion; onChange: (cambio: Par
       );
     case "clientes":
       return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           <Campo label="Etiqueta" value={s.eyebrow} onChange={(v) => set({ eyebrow: v })} />
-          <p className="text-xs text-foreground/50">Los logos son la lista completa de la pestaña Clientes.</p>
+          <div className="flex flex-col gap-1.5 text-sm text-foreground/80">
+            <label className="flex items-center gap-2">
+              <input type="radio" checked={!s.clientes} onChange={() => set({ clientes: undefined })} />
+              Todos los clientes (incluye los que se agreguen después)
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="radio" checked={!!s.clientes} onChange={() => set({ clientes: clientes.map((c) => c.id) })} />
+              Solo los que elija
+            </label>
+          </div>
+          {s.clientes && (
+            <SelectorClientes
+              clientes={clientes}
+              elegidos={clientesDeSeccion(s, clientes).map((c) => c.id)}
+              onChange={(ids) => set({ clientes: ids })}
+              ayuda="Se muestran de a 20 (2 filas de 10), con flechas si son más."
+            />
+          )}
         </div>
       );
     case "cta":
@@ -610,6 +639,60 @@ function EditorGaleria({ s, set }: { s: SeccionDe<"galeria">; set: (c: Record<st
         >
           <Plus size={14} /> Agregar foto
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Checklist de clientes para las secciones de logos/carrusel. El orden es
+// siempre el de la pestaña Clientes (acá solo se elige cuáles).
+function SelectorClientes({
+  clientes,
+  elegidos,
+  onChange,
+  ayuda,
+}: {
+  clientes: Cliente[];
+  elegidos: string[];
+  onChange: (ids: string[]) => void;
+  ayuda: string;
+}) {
+  const set = new Set(elegidos);
+  const toggle = (id: string) => {
+    const next = new Set(set);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onChange(clientes.filter((c) => next.has(c.id)).map((c) => c.id));
+  };
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className={labelClass}>
+          Clientes que se muestran ({set.size} de {clientes.length})
+        </p>
+        <div className="flex gap-3 text-xs font-semibold">
+          <button type="button" className="text-accent hover:underline" onClick={() => onChange(clientes.map((c) => c.id))}>
+            Marcar todos
+          </button>
+          <button type="button" className="text-foreground/50 hover:underline" onClick={() => onChange([])}>
+            Ninguno
+          </button>
+        </div>
+      </div>
+      <p className="mt-0.5 text-xs text-foreground/50">{ayuda} El orden se cambia en la pestaña Clientes.</p>
+      <div className="mt-2 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
+        {clientes.map((c) => (
+          <label
+            key={c.id}
+            className={`flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm ${
+              set.has(c.id) ? "border-primary/40 bg-primary/5 text-foreground" : "border-foreground/10 text-foreground/60"
+            }`}
+          >
+            <input type="checkbox" checked={set.has(c.id)} onChange={() => toggle(c.id)} />
+            <span className="truncate">{c.nombre}</span>
+            {!c.logo && <span className="ml-auto shrink-0 text-[10px] uppercase text-foreground/35">sin logo</span>}
+          </label>
+        ))}
       </div>
     </div>
   );

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { CLIENTE_LOGO } from "@/lib/viewone-data";
+import type { Cliente } from "@/lib/viewone-clientes";
+import { mismoOrigen } from "@/lib/viewone-media";
 import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 
 // Pase de fidelidad a la referencia (17-oct-2026, reemplaza el carrusel
@@ -19,7 +20,7 @@ export function ClientesMarquee({
   clientes,
   eyebrow = "Experiencia con empresas de distintos rubros",
 }: {
-  clientes: string[];
+  clientes: Cliente[];
   eyebrow?: string;
 }) {
   const [page, setPage] = useState(0);
@@ -51,13 +52,12 @@ export function ClientesMarquee({
         )}
       </div>
       <div className="mt-5 grid grid-cols-3 items-center gap-x-6 gap-y-6 sm:grid-cols-5 sm:gap-x-8 lg:grid-cols-10">
-        {visibles.map((nombre) => {
-          const logo = CLIENTE_LOGO[nombre];
+        {visibles.map(({ id, nombre, logo }) => {
           return logo ? (
-            <ClienteLogoMark key={nombre} logo={logo} nombre={nombre} className="h-6 w-full sm:h-7" />
+            <ClienteLogoMark key={id} logo={mismoOrigen(logo)} nombre={nombre} className="h-6 w-full sm:h-7" />
           ) : (
             <span
-              key={nombre}
+              key={id}
               className="shrink-0 text-center font-heading text-sm font-extrabold uppercase tracking-wide text-foreground/35 sm:text-base"
             >
               {nombre}

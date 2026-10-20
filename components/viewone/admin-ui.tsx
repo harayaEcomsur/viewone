@@ -94,3 +94,5 @@ export function ImagePicker({
   );
 }
 
+
+export { procesarLogo } from "@/lib/procesar-logo";

@@ -22,9 +22,10 @@ import { RegisterMark } from "@/components/viewone/RegisterMark";
 import { ClientesMarquee } from "@/components/viewone/ClientesMarquee";
 import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 import { slugifyServicio } from "@/lib/viewone-slug";
-import { CLIENTE_LOGO } from "@/lib/viewone-data";
+import type { Cliente } from "@/lib/viewone-clientes";
+import { mismoOrigen } from "@/lib/viewone-media";
 import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
-import type { IconoKey, SeccionDe } from "@/lib/viewone-home-sections";
+import { clientesDeSeccion, type IconoKey, type SeccionDe } from "@/lib/viewone-home-sections";
 
 // Home a medida (handoff sección 07-10, con el pase de diseño del feedback
 // real de ViewOne del 15-oct-2026 aplicado): Hero → 8 clientes destacados →
@@ -80,7 +81,7 @@ export function ViewOneHome({
   contact,
 }: {
   content: HomeContent;
-  clientes: string[];
+  clientes: Cliente[];
   servicios: Servicio[];
   contact: Contact;
 }) {
@@ -190,19 +191,18 @@ function HeroSeccion({ s, primera }: { s: SeccionDe<"hero">; primera: boolean })
 // `background` es el celeste de marca y la referencia alterna celeste con
 // bandas blancas puras. gap-x-8 + logos w-24: con 8 logos entran en una
 // sola fila a 1440px, como en la referencia.
-function LogosSeccion({ s, clientes }: { s: SeccionDe<"logos">; clientes: string[] }) {
+function LogosSeccion({ s, clientes }: { s: SeccionDe<"logos">; clientes: Cliente[] }) {
   return (
     <section className="border-b border-foreground/10 bg-white py-10">
       <Container>
         <Eyebrow className="text-center text-foreground/40">{s.eyebrow}</Eyebrow>
         <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-6">
-          {clientes.slice(0, s.cantidad).map((nombre) => {
-            const logo = CLIENTE_LOGO[nombre];
+          {clientesDeSeccion(s, clientes).map(({ id, nombre, logo }) => {
             return logo ? (
-              <ClienteLogoMark key={nombre} logo={logo} nombre={nombre} />
+              <ClienteLogoMark key={id} logo={mismoOrigen(logo)} nombre={nombre} />
             ) : (
               <span
-                key={nombre}
+                key={id}
                 className="font-heading text-base font-extrabold uppercase tracking-wide text-foreground/35 transition-colors hover:text-foreground/70 sm:text-lg"
               >
                 {nombre}
@@ -392,11 +392,11 @@ function TextoSeccion({ s }: { s: SeccionDe<"texto"> }) {
 }
 
 // Clientes: 2 filas estáticas paginadas de a 20 (ver ClientesMarquee.tsx).
-function ClientesSeccion({ s, clientes }: { s: SeccionDe<"clientes">; clientes: string[] }) {
+function ClientesSeccion({ s, clientes }: { s: SeccionDe<"clientes">; clientes: Cliente[] }) {
   return (
     <section className="border-y border-foreground/10 bg-white py-10">
       <Container>
-        <ClientesMarquee clientes={clientes} eyebrow={s.eyebrow} />
+        <ClientesMarquee clientes={clientesDeSeccion(s, clientes)} eyebrow={s.eyebrow} />
       </Container>
     </section>
   );

@@ -9,6 +9,18 @@ const nextConfig = {
     // aparte en el plan de Vercel) y sirve directo el archivo ya optimizado.
     unoptimized: true,
   },
+  // Logos de clientes subidos desde el panel (Vercel Blob, otro dominio):
+  // la fila de logos los recolorea con CSS mask-image, y una máscara de otro
+  // origen exige CORS — servirlos por el mismo dominio (/media/…, proxy de
+  // Vercel) evita depender de eso. Ver lib/viewone-media.ts.
+  async rewrites() {
+    return [
+      {
+        source: "/media/:store([a-z0-9]+)/:path*",
+        destination: "https://:store.public.blob.vercel-storage.com/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
