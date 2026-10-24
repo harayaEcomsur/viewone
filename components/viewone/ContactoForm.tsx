@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { CLAVE_COTIZACION } from "@/components/viewone/visualizador/productos";
 
 // Formulario exacto del handoff (sección 21): Nombre, Empresa, Teléfono,
 // Correo, "¿Qué necesitas?" (con texto de ayuda — el cliente no necesita
@@ -19,6 +20,37 @@ const MAX_ADJUNTO_MB = 8;
 export function ContactoForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [desdeVisualizador, setDesdeVisualizador] = useState<{ adjunto: string | null } | null>(null);
+  const necesidadRef = useRef<HTMLTextAreaElement>(null);
+  const medidasRef = useRef<HTMLInputElement>(null);
+  const adjuntoRef = useRef<HTMLInputElement>(null);
+
+  // Viniendo del visualizador 3D (?desde=visualizador) el formulario llega
+  // con el producto y la medida ya escritos, y el diseño ya adjunto: el
+  // cliente no tiene que repetir lo que acaba de elegir.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get("desde") !== "visualizador") return;
+    if (necesidadRef.current && !necesidadRef.current.value) necesidadRef.current.value = q.get("necesidad") ?? "";
+    if (medidasRef.current && !medidasRef.current.value) medidasRef.current.value = q.get("medidas") ?? "";
+    let adjunto: string | null = null;
+    try {
+      const raw = sessionStorage.getItem(CLAVE_COTIZACION);
+      if (raw && adjuntoRef.current) {
+        const { nombre, tipo, dataUrl } = JSON.parse(raw) as { nombre: string; tipo: string; dataUrl: string };
+        const bin = atob(dataUrl.split(",")[1] ?? "");
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const dt = new DataTransfer();
+        dt.items.add(new File([bytes], nombre, { type: tipo }));
+        adjuntoRef.current.files = dt.files;
+        adjunto = nombre;
+      }
+    } catch {
+      // Si no se puede reconstruir el archivo, el cliente lo adjunta a mano.
+    }
+    setDesdeVisualizador({ adjunto });
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,6 +83,9 @@ export function ContactoForm() {
       }
       setStatus("ok");
       form.reset();
+      try {
+        sessionStorage.removeItem(CLAVE_COTIZACION);
+      } catch {}
     } catch {
       setError("No se pudo contactar al servidor. Revisa tu conexión e intenta de nuevo.");
       setStatus("error");
@@ -108,13 +143,13 @@ export function ContactoForm() {
           <p className="mt-1 text-xs text-foreground/50">
             No es necesario que conozcas el material o nombre técnico. Cuéntanos tu idea o describe lo que necesitas.
           </p>
-          <textarea name="necesidad" required rows={4} className={inputClass} />
+          <textarea ref={necesidadRef} name="necesidad" required rows={4} className={inputClass} />
         </label>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
             <span className={labelClass}>Medidas aproximadas (si conoce)</span>
-            <input name="medidas" className={inputClass} />
+            <input ref={medidasRef} name="medidas" className={inputClass} />
           </label>
           <label className="block">
             <span className={labelClass}>Lugar de uso/instalación</span>
@@ -125,7 +160,14 @@ export function ContactoForm() {
         <label className="block">
           <span className={labelClass}>Adjuntar foto/diseño/referencia</span>
           <p className="mt-1 text-xs text-foreground/50">Opcional. Imagen o PDF, máx. {MAX_ADJUNTO_MB} MB.</p>
-          <input type="file" name="adjunto" accept="image/*,.pdf" className={`${inputClass} py-2`} />
+          <input ref={adjuntoRef} type="file" name="adjunto" accept="image/*,.pdf" className={`${inputClass} py-2`} />
+          {desdeVisualizador && (
+            <p className="mt-1 text-xs font-semibold text-accent">
+              {desdeVisualizador.adjunto
+                ? `Adjuntamos el diseño que usaste en el visualizador (${desdeVisualizador.adjunto}).`
+                : "Si tienes el archivo de tu diseño, adjúntalo aquí."}
+            </p>
+          )}
         </label>
 
         <label className="block">
