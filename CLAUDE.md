@@ -228,14 +228,16 @@ Patrón usado en todo este pase, repetirlo para cualquier cambio futuro:
 @viewone.cl es Google Workspace — los registros MX/SPF viven en el DNS de
 Vercel, no borrarlos). Por eso los cambios ya NO van directo a `master`:
 
-- **`prueba`** → `viewone-prueba.vercel.app`. Todo cambio para el sitio va
-  primero acá. ViewOne lo revisa y aprueba.
+- **`staging`** → `viewone-prueba.vercel.app` (el ambiente de prueba).
+  Todo cambio para el sitio va primero acá. ViewOne lo revisa y aprueba.
+  (Hasta el 2026-10-24 la rama se llamó `prueba`; se renombró a `staging`
+  a pedido de Hector. La URL y la base `viewone_prueba` no cambiaron.)
 - **`master`** → producción (`www.viewone.cl`). Solo se actualiza haciendo
-  merge de `prueba` (o del cambio ya aprobado) cuando hay aprobación
+  merge de `staging` (o del cambio ya aprobado) cuando hay aprobación
   explícita. Excepción: arreglos urgentes de producción, avisando.
 - **`demo/<idea>`** → ideas y desarrollos para mostrar. Vercel da un link
   propio por rama (`viewone-git-demo-<idea>-harayaecomsurs-projects.vercel.app`).
-  Si la idea se aprueba, se mergea a `prueba`; si no, la rama queda ahí.
+  Si la idea se aprueba, se mergea a `staging`; si no, la rama queda ahí.
 
 Qué está separado de producción (variables "Preview" en Vercel, comparten
 prueba y demos):
