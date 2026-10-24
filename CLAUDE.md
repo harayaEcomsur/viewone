@@ -240,9 +240,12 @@ Vercel, no borrarlos). Por eso los cambios ya NO van directo a `master`:
 Qué está separado de producción (variables "Preview" en Vercel, comparten
 prueba y demos):
 
-- `DATABASE_URL`: base propia de prueba (contenido del panel, usuarios,
-  leads). Sin ella, el preview cae a memoria (`withDb`) — funciona pero no
-  guarda nada.
+- `DATABASE_URL`: base `viewone_prueba`, en el mismo proyecto/servidor
+  Neon que producción (`neondb`), creada el 2026-10-24 como copia completa
+  de producción (esquema + contenido + usuarios del panel). No se
+  resincroniza sola: lo que se edita en producción después no aparece en
+  prueba. Si alguna vez falta, el preview cae a memoria (`withDb`) —
+  funciona pero no guarda nada.
 - `SESSION_SECRET`: distinto, una sesión de prueba no sirve en producción.
 - `NEXT_PUBLIC_SITE_URL`: `https://viewone-prueba.vercel.app`.
 - `CONTACTO_CORREO_PRUEBA`: el formulario de contacto va a ese correo con
