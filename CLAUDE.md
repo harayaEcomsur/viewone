@@ -214,10 +214,41 @@ Patrón usado en todo este pase, repetirlo para cualquier cambio futuro:
    Claro solo se vieron haciendo zoom).
 4. `git add -A`, commit descriptivo en español explicando el PORQUÉ (no
    solo el qué — los mensajes de commit de este repo son la bitácora real
-   de decisiones, leerlos con `git log` antes de asumir algo), push a
-   `origin master` (repo propio, sin PR).
+   de decisiones, leerlos con `git log` antes de asumir algo), push a la
+   rama que corresponda según "Ambientes" abajo (repo propio, sin PR).
 5. Confirmar el deploy de Vercel llega a **Ready** antes de reportar
-   terminado — usar el MCP de Vercel (`list_deployments`, `target:
-   "production"`) para el id del último deploy, luego `vercel inspect
-   <id> --wait` (por Bash o envuelto en el tool `Monitor`) para esperar
-   el resultado real, nunca asumir que el build local = producción.
+   terminado — usar el MCP de Vercel (`list_deployments`, con `branch`
+   o `target: "production"`) para el id del último deploy, luego `vercel
+   inspect <id> --wait` (por Bash o envuelto en el tool `Monitor`) para
+   esperar el resultado real, nunca asumir que el build local = producción.
+
+## Ambientes: prueba → aprobación → producción (desde 2026-10-24)
+
+`www.viewone.cl` ya es el dominio real (DNS en Vercel; el correo
+@viewone.cl es Google Workspace — los registros MX/SPF viven en el DNS de
+Vercel, no borrarlos). Por eso los cambios ya NO van directo a `master`:
+
+- **`prueba`** → `viewone-prueba.vercel.app`. Todo cambio para el sitio va
+  primero acá. ViewOne lo revisa y aprueba.
+- **`master`** → producción (`www.viewone.cl`). Solo se actualiza haciendo
+  merge de `prueba` (o del cambio ya aprobado) cuando hay aprobación
+  explícita. Excepción: arreglos urgentes de producción, avisando.
+- **`demo/<idea>`** → ideas y desarrollos para mostrar. Vercel da un link
+  propio por rama (`viewone-git-demo-<idea>-harayaecomsurs-projects.vercel.app`).
+  Si la idea se aprueba, se mergea a `prueba`; si no, la rama queda ahí.
+
+Qué está separado de producción (variables "Preview" en Vercel, comparten
+prueba y demos):
+
+- `DATABASE_URL`: base propia de prueba (contenido del panel, usuarios,
+  leads). Sin ella, el preview cae a memoria (`withDb`) — funciona pero no
+  guarda nada.
+- `SESSION_SECRET`: distinto, una sesión de prueba no sirve en producción.
+- `NEXT_PUBLIC_SITE_URL`: `https://viewone-prueba.vercel.app`.
+- `CONTACTO_CORREO_PRUEBA`: el formulario de contacto va a ese correo con
+  "[PRUEBA]" en el asunto, nunca a ventas@viewone.cl.
+- `robots.ts` bloquea la indexación fuera de producción.
+- Lo que SÍ se comparte: el Blob store (las fotos que se suben desde prueba
+  se agregan con nombre único y el código nunca borra blobs, así que no
+  pisan las de producción) y `RESEND_API_KEY`. Los crons de `vercel.json`
+  solo corren en producción.

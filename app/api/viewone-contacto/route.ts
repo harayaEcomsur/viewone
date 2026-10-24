@@ -35,7 +35,11 @@ export async function POST(req: Request) {
   });
   if (!parsed.success) return Response.json({ error: "Revisa los datos del formulario." }, { status: 400 });
 
-  const { email: destination } = await getContacto();
+  // En el ambiente de prueba y en las demos (CONTACTO_CORREO_PRUEBA solo
+  // existe fuera de producción) el formulario nunca le llega a ViewOne: va a
+  // quien está probando, con "[PRUEBA]" en el asunto.
+  const correoPrueba = process.env.CONTACTO_CORREO_PRUEBA;
+  const destination = correoPrueba || (await getContacto()).email;
   const apiKey = process.env.RESEND_API_KEY;
   if (!destination || !apiKey) {
     console.error("[viewone-contacto] falta RESEND_API_KEY o contact.email");
@@ -82,7 +86,7 @@ export async function POST(req: Request) {
       from: "Sitio web ViewOne <formulario@haraya.dev>",
       to: destination,
       reply_to: correo,
-      subject: `Nueva cotización de ${nombre}${empresa ? ` (${empresa})` : ""}`,
+      subject: `${correoPrueba ? "[PRUEBA] " : ""}Nueva cotización de ${nombre}${empresa ? ` (${empresa})` : ""}`,
       text: lineas,
       attachments: attachments.length ? attachments : undefined,
     }),
