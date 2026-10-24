@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, Moon, Sun, Upload, User, X } from "lucide-react";
+import { ArrowRight, Camera, Moon, Sun, Upload, User, X } from "lucide-react";
 import {
   AJUSTES,
+  CATEGORIAS_VISUALIZADOR,
   CLAVE_COTIZACION,
   PRODUCTOS,
   calidadImpresion,
@@ -15,6 +16,7 @@ import {
   type ProductoId,
 } from "./productos";
 import type { Acabado } from "./Escena";
+import { mismoOrigen } from "@/lib/viewone-media";
 
 // three.js solo existe en el navegador y pesa: se carga aparte, únicamente
 // en esta página, y el resto del sitio no paga ese costo.
@@ -38,8 +40,18 @@ interface Imagen {
 // origen; en base64 pesa un tercio más).
 const MAX_ADJUNTO_BYTES = 3.5 * 1024 * 1024;
 
-export function Visualizador() {
-  const [productoId, setProductoId] = useState<ProductoId>("pendon");
+/** Lo mínimo de un proyecto del catálogo para mostrarlo como ejemplo real. */
+export interface ProyectoEjemplo {
+  cliente: string;
+  trabajo: string;
+  portada: string;
+  categorias: string[];
+}
+
+type Vinilo = "color" | "esmerilado";
+
+export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
+  const [productoId, setProductoId] = useState<ProductoId>("fachada");
   const producto = productoPorId(productoId);
   const [ancho, setAncho] = useState(producto.ancho);
   const [alto, setAlto] = useState(producto.alto);
@@ -49,6 +61,7 @@ export function Visualizador() {
   const [fondo, setFondo] = useState("#ffffff");
   const [fondoTransparente, setFondoTransparente] = useState(false);
   const [acabado, setAcabado] = useState<Acabado>("mate");
+  const [vinilo, setVinilo] = useState<Vinilo>("color");
   const [noche, setNoche] = useState(false);
   const [escalaHumana, setEscalaHumana] = useState(true);
   const [imagen, setImagen] = useState<Imagen | null>(null);
@@ -65,19 +78,36 @@ export function Visualizador() {
     setAncho(p.ancho);
     setAlto(p.alto);
     setFondoTransparente(Boolean(p.admiteTransparencia));
+    if (!p.admiteEsmerilado) setVinilo("color");
     if (p.luminoso) setNoche(true);
   }
 
   // Medidas válidas para la escena aunque el input esté a medio escribir.
-  const anchoOk = clamp(ancho, producto.min, producto.max);
-  const altoOk = clamp(alto, producto.min, producto.max);
+  // Un soporte de medida fija (vehículo) usa siempre la suya.
+  const anchoOk = producto.fijo ? producto.ancho : clamp(ancho, producto.min, producto.max);
+  const altoOk = producto.fijo ? producto.alto : clamp(alto, producto.min, producto.max);
 
   const cara = useMemo(() => {
     if (!montado) return null;
-    if (!imagen) return disenoEjemplo(anchoOk, altoOk);
-    const bg = fondoTransparente && producto.admiteTransparencia ? null : fondo;
-    return componerCara(imagen.el, imagen.ancho, imagen.alto, anchoOk, altoOk, ajuste, bg);
-  }, [montado, imagen, anchoOk, altoOk, ajuste, fondo, fondoTransparente, producto.admiteTransparencia]);
+    const esmerilado = vinilo === "esmerilado" && Boolean(producto.admiteEsmerilado);
+    const sinFondo = producto.soloSilueta || (fondoTransparente && producto.admiteTransparencia);
+    const base = imagen
+      ? { el: imagen.el as CanvasImageSource, ancho: imagen.ancho, alto: imagen.alto, ajuste }
+      : { el: disenoEjemplo(anchoOk, altoOk, Boolean(producto.soloSilueta || producto.admiteTransparencia)), ancho: 0, alto: 0, ajuste: "estirar" as Ajuste };
+    if (!imagen) {
+      const c = base.el as HTMLCanvasElement;
+      base.ancho = c.width;
+      base.alto = c.height;
+    }
+    return componerCara(base.el, base.ancho, base.alto, anchoOk, altoOk, base.ajuste, sinFondo ? null : fondo, esmerilado);
+  }, [montado, imagen, anchoOk, altoOk, ajuste, fondo, fondoTransparente, vinilo, producto]);
+
+  // Trabajos reales de ViewOne en la misma categoría del catálogo: el
+  // cliente ve que esto ya se hizo, no solo una maqueta.
+  const ejemplos = useMemo(
+    () => proyectos.filter((p) => p.categorias.includes(producto.categoria)).slice(0, 3),
+    [proyectos, producto.categoria]
+  );
 
   const calidad = calidadImpresion(imagen, anchoOk, altoOk, ajuste);
 
@@ -121,10 +151,12 @@ export function Visualizador() {
   }
 
   async function cotizar() {
-    const necesidad = `${producto.nombre} de ${anchoOk} × ${altoOk} cm (acabado ${acabado}).${
+    const tipo = producto.admiteEsmerilado ? `, vinilo ${vinilo}` : "";
+    const medidaTxt = producto.fijo ? "medida según el vehículo" : `${anchoOk} × ${altoOk} cm`;
+    const necesidad = `${producto.nombre}, ${medidaTxt} (acabado ${acabado}${tipo}).${
       imagen ? ` Diseño: ${imagen.nombre}.` : ""
     } Lo vi en el visualizador 3D.`;
-    const medidas = `${anchoOk} × ${altoOk} cm`;
+    const medidas = producto.fijo ? "" : `${anchoOk} × ${altoOk} cm`;
     try {
       sessionStorage.removeItem(CLAVE_COTIZACION);
       if (imagen && imagen.archivo.size <= MAX_ADJUNTO_BYTES) {
@@ -168,7 +200,7 @@ export function Visualizador() {
             />
           )}
           <div className="pointer-events-none absolute left-3 top-3 rounded-md bg-background/85 px-2.5 py-1 text-xs font-semibold text-foreground/70 backdrop-blur">
-            {producto.nombre} · {anchoOk} × {altoOk} cm
+            {producto.nombre} · {anchoOk} × {altoOk} cm{producto.fijo ? " aprox." : ""}
           </div>
           <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-1 rounded-lg bg-background/90 p-1 shadow backdrop-blur">
@@ -208,8 +240,27 @@ export function Visualizador() {
       <div className="space-y-7">
         <section>
           <p className={paso}>1 · ¿Qué quieres hacer?</p>
+          {/* Mismas categorías que el catálogo de /proyectos. */}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {CATEGORIAS_VISUALIZADOR.map((cat) => {
+              const activa = cat === producto.categoria;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => elegirProducto(PRODUCTOS.find((p) => p.categoria === cat)!.id)}
+                  aria-pressed={activa}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    activa ? "border-accent bg-accent text-background" : "border-foreground/15 text-foreground/65 hover:border-accent hover:text-accent"
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
           <div className="mt-3 grid grid-cols-1 gap-2">
-            {PRODUCTOS.map((p) => (
+            {PRODUCTOS.filter((p) => p.categoria === producto.categoria).map((p) => (
               <button
                 key={p.id}
                 type="button"
@@ -224,6 +275,31 @@ export function Visualizador() {
               </button>
             ))}
           </div>
+
+          {ejemplos.length > 0 && (
+            <div className="mt-4">
+              <p className={labelClass}>Trabajos reales en esta categoría</p>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {ejemplos.map((e) => (
+                  <a key={`${e.cliente}-${e.trabajo}`} href="/proyectos" className="group block" title={`${e.cliente} · ${e.trabajo}`}>
+                    <span className="block aspect-[4/3] overflow-hidden rounded-lg bg-foreground/5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={mismoOrigen(e.portada)}
+                        alt={`${e.cliente} — ${e.trabajo}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </span>
+                    <span className="mt-1 block truncate text-[11px] font-semibold text-foreground/70">{e.cliente}</span>
+                  </a>
+                ))}
+              </div>
+              <a href="/proyectos" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline">
+                Ver todos los proyectos <ArrowRight size={12} />
+              </a>
+            </div>
+          )}
         </section>
 
         <section className="border-t border-foreground/10 pt-6">
@@ -267,7 +343,7 @@ export function Visualizador() {
                 </div>
                 <p className="mt-1 text-xs text-foreground/50">{AJUSTES.find((a) => a.id === ajuste)?.ayuda}</p>
               </div>
-              {ajuste === "ajustar" && (
+              {ajuste === "ajustar" && !producto.soloSilueta && (
                 <div className="mt-3 flex items-center gap-3">
                   {producto.admiteTransparencia && (
                     <label className="flex items-center gap-2 text-xs font-semibold text-foreground/70">
@@ -289,54 +365,64 @@ export function Visualizador() {
 
         <section className="border-t border-foreground/10 pt-6">
           <p className={paso}>3 · Medidas del área impresa</p>
+          {producto.fijo ? (
+            <p className="mt-3 rounded-lg bg-foreground/[0.04] px-3 py-2.5 text-xs leading-snug text-foreground/70">
+              Área de impresión aproximada por costado: <span className="font-bold">{producto.ancho} × {producto.alto} cm</span>. La
+              medida exacta depende del modelo de vehículo; la confirmamos al cotizar.
+            </p>
+          ) : (
+            <>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <label className="block">
-              <span className={labelClass}>Ancho (cm)</span>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={producto.min}
-                max={producto.max}
-                value={ancho}
-                onChange={(e) => setAncho(Number(e.target.value))}
-                onBlur={() => setAncho(anchoOk)}
-                className={inputClass}
-              />
-            </label>
-            <label className="block">
-              <span className={labelClass}>Alto (cm)</span>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={producto.min}
-                max={producto.max}
-                value={alto}
-                onChange={(e) => setAlto(Number(e.target.value))}
-                onBlur={() => setAlto(altoOk)}
-                className={inputClass}
-              />
-            </label>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {producto.presets.map((p) => {
-              const activo = p.ancho === anchoOk && p.alto === altoOk;
-              return (
-                <button
-                  key={`${p.ancho}x${p.alto}`}
-                  type="button"
-                  onClick={() => {
-                    setAncho(p.ancho);
-                    setAlto(p.alto);
-                  }}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
-                    activo ? "border-accent bg-accent text-background" : "border-foreground/15 text-foreground/60 hover:border-accent hover:text-accent"
-                  }`}
-                >
-                  {p.ancho}×{p.alto}
-                </button>
-              );
-            })}
-          </div>
+              <label className="block">
+                <span className={labelClass}>Ancho (cm)</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={producto.min}
+                  max={producto.max}
+                  value={ancho}
+                  onChange={(e) => setAncho(Number(e.target.value))}
+                  onBlur={() => setAncho(anchoOk)}
+                  className={inputClass}
+                />
+              </label>
+              <label className="block">
+                <span className={labelClass}>Alto (cm)</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={producto.min}
+                  max={producto.max}
+                  value={alto}
+                  onChange={(e) => setAlto(Number(e.target.value))}
+                  onBlur={() => setAlto(altoOk)}
+                  className={inputClass}
+                />
+              </label>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {producto.presets.map((p) => {
+                const activo = p.ancho === anchoOk && p.alto === altoOk;
+                return (
+                  <button
+                    key={`${p.ancho}x${p.alto}`}
+                    type="button"
+                    onClick={() => {
+                      setAncho(p.ancho);
+                      setAlto(p.alto);
+                    }}
+                    className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                      activo ? "border-accent bg-accent text-background" : "border-foreground/15 text-foreground/60 hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    {p.ancho}×{p.alto}
+                  </button>
+                );
+              })}
+            </div>
+
+            </>
+          )}
 
           {calidad && (
             <div
@@ -352,6 +438,25 @@ export function Visualizador() {
                 {calidad.dpi !== null ? `Resolución a esta medida: ${calidad.dpi} dpi. ` : ""}
               </span>
               {calidad.texto}
+            </div>
+          )}
+
+          {producto.admiteEsmerilado && (
+            <div className="mt-4">
+              <span className={labelClass}>Tipo de vinilo</span>
+              <div className="mt-1 flex gap-1 rounded-lg bg-foreground/[0.05] p-1">
+                <button type="button" onClick={() => setVinilo("color")} className={btnSeg(vinilo === "color")} aria-pressed={vinilo === "color"}>
+                  Color
+                </button>
+                <button type="button" onClick={() => setVinilo("esmerilado")} className={btnSeg(vinilo === "esmerilado")} aria-pressed={vinilo === "esmerilado"}>
+                  Esmerilado
+                </button>
+              </div>
+              {vinilo === "esmerilado" && (
+                <p className="mt-1 text-xs text-foreground/50">
+                  Imita vidrio arenado: da privacidad sin tapar la luz. Se usa la silueta del diseño, sin sus colores.
+                </p>
+              )}
             </div>
           )}
 

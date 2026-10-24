@@ -4,6 +4,7 @@ import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { Container } from "@/components/ui/Container";
 import { Visualizador } from "@/components/viewone/visualizador/Visualizador";
 import { getContacto } from "@/lib/viewone-content-store";
+import { listProyectosVisibles } from "@/lib/viewone-store";
 import { pageCanonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +13,16 @@ export const dynamic = "force-dynamic";
 // indexa. Cuando ViewOne lo apruebe, sacar el `robots` y sumarlo al NAV.
 export const metadata: Metadata = {
   title: "Visualizador 3D — ViewOne",
-  description: "Sube tu diseño y míralo en 3D sobre un pendón, letrero, caja de luz, tótem o vidriera, a escala real.",
+  description:
+    "Sube tu diseño y míralo en 3D, a escala real: señalética, gráfica de muro y piso, vinilo en vidrio, vehículos, letreros, letras corpóreas, stands y letreros carreteros.",
   robots: { index: false, follow: false },
   ...pageCanonical("/visualizador"),
 };
 
 export default async function VisualizadorPage() {
-  const contact = await getContacto();
+  const [contact, proyectos] = await Promise.all([getContacto(), listProyectosVisibles()]);
+  // Solo lo que el visualizador necesita para mostrar trabajos reales por categoría.
+  const ejemplos = proyectos.map(({ cliente, trabajo, portada, categorias }) => ({ cliente, trabajo, portada, categorias }));
   return (
     <>
       <ViewOneHeader contact={contact} />
@@ -29,10 +33,11 @@ export default async function VisualizadorPage() {
             Mira tu diseño antes de imprimirlo
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-foreground/60">
-            Elige el soporte, sube tu diseño y ajusta la medida. Lo verás en 3D, a escala real, de día y de noche.
+            Elige qué quieres hacer, sube tu diseño y ajusta la medida. Lo verás en 3D, a escala real, de día y de noche, junto
+            a trabajos que ya hicimos en esa categoría.
           </p>
           <div className="mt-8">
-            <Visualizador />
+            <Visualizador proyectos={ejemplos} />
           </div>
         </Container>
       </main>

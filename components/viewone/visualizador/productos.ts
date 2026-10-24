@@ -4,17 +4,34 @@
 // Los modelos son geometría procedural (cajas, planos, cilindros), no
 // archivos .glb: se adaptan a cualquier medida que escriba el cliente sin
 // deformar marcos ni bases, pesan cero y no dependen de modelar en Blender.
-// Un modelo .glb solo vale la pena para formas que no se arman con cajas
-// (vehículos, figuras corpóreas) — ver el informe del concepto.
+// Un .glb solo vale la pena para formas libres (un modelo de vehículo
+// real); el furgón de acá es una aproximación de cajas, suficiente para
+// ubicar el diseño en el costado.
 
 // sessionStorage: el visualizador deja aquí el diseño para que
 // ContactoForm lo adjunte solo (sin dependencias de three en /contacto).
 export const CLAVE_COTIZACION = "viewone-visualizador";
 
-export type ProductoId = "pendon" | "fachada" | "cajaLuz" | "totem" | "vidriera";
+export type ProductoId =
+  | "senalPoste"
+  | "placaMuro"
+  | "totem"
+  | "graficaMuro"
+  | "vinilPiso"
+  | "vidriera"
+  | "furgon"
+  | "fachada"
+  | "cajaLuz"
+  | "cierre"
+  | "corporeo"
+  | "pendon"
+  | "backing"
+  | "carretero";
 
 export interface Producto {
   id: ProductoId;
+  /** Categoría del catálogo de /proyectos (mismo nombre, para mostrar trabajos reales). */
+  categoria: string;
   nombre: string;
   descripcion: string;
   /** Medidas por defecto del área impresa, en cm. */
@@ -24,15 +41,198 @@ export interface Producto {
   max: number;
   /** Medidas típicas para elegir con un clic. */
   presets: { ancho: number; alto: number }[];
+  /** Medida fija del soporte (vehículo): no se edita, solo informa. */
+  fijo?: boolean;
   /** Se ilumina de noche (caja de luz). */
   luminoso?: boolean;
-  /** Vinilo sobre vidrio: el fondo puede ser transparente. */
+  /** El fondo puede quedar transparente (vinilo de corte, esmerilado). */
   admiteTransparencia?: boolean;
+  /** Solo existe la silueta del diseño (letras corpóreas): nunca lleva fondo. */
+  soloSilueta?: boolean;
+  /** Admite vinilo esmerilado además del de color. */
+  admiteEsmerilado?: boolean;
 }
 
+// Ordenado y agrupado igual que el catálogo de /proyectos (CATEGORIAS_ORDEN
+// en lib/viewone-data.ts): cada categoría de trabajos reales de ViewOne
+// tiene al menos un soporte para previsualizar.
 export const PRODUCTOS: Producto[] = [
+  // Señalética y letreros
+  {
+    id: "senalPoste",
+    categoria: "Señalética y letreros",
+    nombre: "Señalética direccional",
+    descripcion: "Placa a dos caras en poste, para orientar en recintos, viñedos, parques y estacionamientos.",
+    ancho: 80,
+    alto: 30,
+    min: 20,
+    max: 200,
+    presets: [
+      { ancho: 60, alto: 20 },
+      { ancho: 80, alto: 30 },
+      { ancho: 120, alto: 40 },
+    ],
+  },
+  {
+    id: "placaMuro",
+    categoria: "Señalética y letreros",
+    nombre: "Señalética de muro",
+    descripcion: "Placa en muro con separadores: oficinas, recepciones, salas y accesos.",
+    ancho: 60,
+    alto: 40,
+    min: 10,
+    max: 300,
+    presets: [
+      { ancho: 30, alto: 20 },
+      { ancho: 60, alto: 40 },
+      { ancho: 100, alto: 70 },
+    ],
+  },
+  {
+    id: "totem",
+    categoria: "Señalética y letreros",
+    nombre: "Tótem o directorio",
+    descripcion: "Estructura de pie a dos caras para accesos, directorios de edificios y estacionamientos.",
+    ancho: 80,
+    alto: 220,
+    min: 40,
+    max: 600,
+    presets: [
+      { ancho: 60, alto: 180 },
+      { ancho: 80, alto: 220 },
+      { ancho: 120, alto: 300 },
+    ],
+  },
+  // Muros, pisos y superficies
+  {
+    id: "graficaMuro",
+    categoria: "Muros, pisos y superficies",
+    nombre: "Gráfica de muro",
+    descripcion: "Vinilo o papel mural impreso, de muro completo, para oficinas, tiendas y salas.",
+    ancho: 400,
+    alto: 250,
+    min: 50,
+    max: 2000,
+    presets: [
+      { ancho: 300, alto: 240 },
+      { ancho: 400, alto: 250 },
+      { ancho: 600, alto: 280 },
+    ],
+  },
+  {
+    id: "vinilPiso",
+    categoria: "Muros, pisos y superficies",
+    nombre: "Vinilo de piso",
+    descripcion: "Gráfica antideslizante para piso: señalización, promociones y circulación.",
+    ancho: 100,
+    alto: 100,
+    min: 20,
+    max: 600,
+    presets: [
+      { ancho: 60, alto: 60 },
+      { ancho: 100, alto: 100 },
+      { ancho: 200, alto: 100 },
+    ],
+  },
+  // Vidrios y vitrinas
+  {
+    id: "vidriera",
+    categoria: "Vidrios y vitrinas",
+    nombre: "Vinilo en vidrio",
+    descripcion: "Vinilo de color o esmerilado sobre vidrio de local u oficina. Usa un PNG con fondo transparente para ver el recorte.",
+    ancho: 200,
+    alto: 220,
+    min: 30,
+    max: 800,
+    presets: [
+      { ancho: 120, alto: 200 },
+      { ancho: 200, alto: 220 },
+      { ancho: 300, alto: 250 },
+    ],
+    admiteTransparencia: true,
+    admiteEsmerilado: true,
+  },
+  // Vehículos
+  {
+    id: "furgon",
+    categoria: "Vehículos",
+    nombre: "Gráfica vehicular",
+    descripcion: "Ploteo de furgón: el diseño va en los dos costados del área de carga. La medida final depende del modelo.",
+    ancho: 300,
+    alto: 160,
+    min: 300,
+    max: 300,
+    presets: [],
+    fijo: true,
+  },
+  // Fachadas, cierres y exteriores
+  {
+    id: "fachada",
+    categoria: "Fachadas, cierres y exteriores",
+    nombre: "Letrero de fachada",
+    descripcion: "Panel rígido (ACM o PVC) instalado en muro, sobre el acceso.",
+    ancho: 300,
+    alto: 80,
+    min: 30,
+    max: 1200,
+    presets: [
+      { ancho: 200, alto: 60 },
+      { ancho: 300, alto: 80 },
+      { ancho: 500, alto: 100 },
+    ],
+  },
+  {
+    id: "cajaLuz",
+    categoria: "Fachadas, cierres y exteriores",
+    nombre: "Letrero luminoso",
+    descripcion: "Caja de luz con tela o acrílico retroiluminado. Cambia a modo noche para verla encendida.",
+    ancho: 200,
+    alto: 60,
+    min: 30,
+    max: 800,
+    presets: [
+      { ancho: 120, alto: 40 },
+      { ancho: 200, alto: 60 },
+      { ancho: 300, alto: 100 },
+    ],
+    luminoso: true,
+  },
+  {
+    id: "cierre",
+    categoria: "Fachadas, cierres y exteriores",
+    nombre: "Cierre perimetral",
+    descripcion: "Gráfica continua sobre cierre de obra o recinto, con pilares cada 2,4 m.",
+    ancho: 1000,
+    alto: 220,
+    min: 240,
+    max: 4000,
+    presets: [
+      { ancho: 720, alto: 200 },
+      { ancho: 1000, alto: 220 },
+      { ancho: 2000, alto: 240 },
+    ],
+  },
+  // Mobiliario, exhibidores y elementos especiales
+  {
+    id: "corporeo",
+    categoria: "Mobiliario, exhibidores y elementos especiales",
+    nombre: "Letras o logo corpóreo",
+    descripcion: "Logo o letras con volumen, separados del muro. Sube un PNG con fondo transparente: se recorta la silueta.",
+    ancho: 150,
+    alto: 50,
+    min: 20,
+    max: 800,
+    presets: [
+      { ancho: 80, alto: 30 },
+      { ancho: 150, alto: 50 },
+      { ancho: 300, alto: 100 },
+    ],
+    soloSilueta: true,
+  },
+  // Eventos, stands y montajes
   {
     id: "pendon",
+    categoria: "Eventos, stands y montajes",
     nombre: "Pendón roller",
     descripcion: "Pendón enrollable con base de aluminio, para eventos y puntos de venta.",
     ancho: 85,
@@ -47,64 +247,40 @@ export const PRODUCTOS: Producto[] = [
     ],
   },
   {
-    id: "fachada",
-    nombre: "Letrero en fachada",
-    descripcion: "Panel rígido (ACM o PVC) instalado en muro, sobre el acceso.",
+    id: "backing",
+    categoria: "Eventos, stands y montajes",
+    nombre: "Backing o muro de prensa",
+    descripcion: "Tela tensada en marco de aluminio, para fondos de evento, stands y photocalls.",
     ancho: 300,
-    alto: 80,
-    min: 30,
-    max: 1200,
-    presets: [
-      { ancho: 200, alto: 60 },
-      { ancho: 300, alto: 80 },
-      { ancho: 500, alto: 100 },
-    ],
-  },
-  {
-    id: "cajaLuz",
-    nombre: "Caja de luz",
-    descripcion: "Letrero luminoso con tela o acrílico retroiluminado. Cambia a modo noche para verlo encendido.",
-    ancho: 200,
-    alto: 60,
-    min: 30,
+    alto: 230,
+    min: 100,
     max: 800,
     presets: [
-      { ancho: 120, alto: 40 },
-      { ancho: 200, alto: 60 },
-      { ancho: 300, alto: 100 },
-    ],
-    luminoso: true,
-  },
-  {
-    id: "totem",
-    nombre: "Tótem",
-    descripcion: "Estructura de pie a dos caras, para accesos, estacionamientos y recintos.",
-    ancho: 80,
-    alto: 220,
-    min: 40,
-    max: 600,
-    presets: [
-      { ancho: 60, alto: 180 },
-      { ancho: 80, alto: 220 },
-      { ancho: 120, alto: 300 },
+      { ancho: 240, alto: 230 },
+      { ancho: 300, alto: 230 },
+      { ancho: 450, alto: 250 },
     ],
   },
+  // Vía pública y gran formato
   {
-    id: "vidriera",
-    nombre: "Vinilo en vidriera",
-    descripcion: "Vinilo adhesivo sobre vidrio de local. Usa un PNG con fondo transparente para ver el recorte.",
-    ancho: 200,
-    alto: 220,
-    min: 30,
-    max: 800,
+    id: "carretero",
+    categoria: "Vía pública y gran formato",
+    nombre: "Letrero carretero",
+    descripcion: "Valla de gran formato sobre monoposte, para carreteras y accesos.",
+    ancho: 1200,
+    alto: 400,
+    min: 300,
+    max: 1500,
     presets: [
-      { ancho: 120, alto: 200 },
-      { ancho: 200, alto: 220 },
-      { ancho: 300, alto: 250 },
+      { ancho: 800, alto: 300 },
+      { ancho: 1200, alto: 400 },
+      { ancho: 1500, alto: 500 },
     ],
-    admiteTransparencia: true,
   },
 ];
+
+/** Categorías en el orden del catálogo, solo las que tienen soporte. */
+export const CATEGORIAS_VISUALIZADOR: string[] = Array.from(new Set(PRODUCTOS.map((p) => p.categoria)));
 
 export function productoPorId(id: ProductoId): Producto {
   return PRODUCTOS.find((p) => p.id === id) ?? PRODUCTOS[0];
@@ -153,7 +329,8 @@ export function componerCara(
   anchoCm: number,
   altoCm: number,
   ajuste: Ajuste,
-  fondo: string | null
+  fondo: string | null,
+  esmerilado = false
 ): HTMLCanvasElement {
   const LADO_MAX = 2048;
   const escala = LADO_MAX / Math.max(anchoCm, altoCm);
@@ -170,18 +347,26 @@ export function componerCara(
   if (!img) return canvas;
   if (ajuste === "estirar") {
     ctx.drawImage(img, 0, 0, w, h);
-    return canvas;
+  } else {
+    const s = ajuste === "cubrir" ? Math.max(w / imgAncho, h / imgAlto) : Math.min(w / imgAncho, h / imgAlto);
+    const dw = imgAncho * s;
+    const dh = imgAlto * s;
+    ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
   }
-  const s = ajuste === "cubrir" ? Math.max(w / imgAncho, h / imgAlto) : Math.min(w / imgAncho, h / imgAlto);
-  const dw = imgAncho * s;
-  const dh = imgAlto * s;
-  ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  if (esmerilado) {
+    // El esmerilado no tiene color: es vidrio "arenado" blanco translúcido
+    // con la forma del diseño. Se conserva solo la silueta (alfa).
+    ctx.globalCompositeOperation = "source-in";
+    ctx.fillStyle = "rgba(244,247,249,0.82)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = "source-over";
+  }
   return canvas;
 }
 
 // Diseño de ejemplo mientras el cliente no sube el suyo: muestra la medida
 // real, para que se entienda que el modelo está a escala.
-export function disenoEjemplo(anchoCm: number, altoCm: number): HTMLCanvasElement {
+export function disenoEjemplo(anchoCm: number, altoCm: number, transparente = false): HTMLCanvasElement {
   const escala = 1024 / Math.max(anchoCm, altoCm);
   const w = Math.max(64, Math.round(anchoCm * escala));
   const h = Math.max(64, Math.round(altoCm * escala));
@@ -189,6 +374,16 @@ export function disenoEjemplo(anchoCm: number, altoCm: number): HTMLCanvasElemen
   c.width = w;
   c.height = h;
   const ctx = c.getContext("2d")!;
+  if (transparente) {
+    // Corpóreo / vinilo de corte: solo el texto, sin placa de fondo.
+    ctx.fillStyle = "#1668E3";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const t = Math.min(w / 7, h / 1.6);
+    ctx.font = `900 ${t}px system-ui, sans-serif`;
+    ctx.fillText("TU LOGO", w / 2, h / 2);
+    return c;
+  }
   const grad = ctx.createLinearGradient(0, 0, w, h);
   grad.addColorStop(0, "#0A2F57");
   grad.addColorStop(1, "#1668E3");
