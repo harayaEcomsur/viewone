@@ -257,3 +257,16 @@ prueba y demos):
   se agregan con nombre único y el código nunca borra blobs, así que no
   pisan las de producción) y `RESEND_API_KEY`. Los crons de `vercel.json`
   solo corren en producción.
+
+## Analítica (desde 2026-10-26)
+
+`components/viewone/Analitica.tsx`, montado en `app/layout.tsx`:
+- **Vercel Web Analytics** (`@vercel/analytics`, sin cookies). Solo cuenta
+  producción. Se activa además en el panel de Vercel (proyecto → Analytics).
+- **GA4** `G-2E2767Y3CS` (propiedad de ViewOne), cargado SOLO cuando
+  `VERCEL_ENV === "production"` para que staging/demos no ensucien los datos.
+- Conversión: `generate_lead` (vía `lib/analitica.ts`) cuando el formulario
+  de contacto se envía bien. Para marcarla como conversión: GA4 → Admin →
+  Eventos clave.
+- Nota: `npm install <paquete>` falla en este repo con "reading 'edgesOut'"
+  (bug de npm 10 con peers); usar `--legacy-peer-deps` al agregar paquetes.

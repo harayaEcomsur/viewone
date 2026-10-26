@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CLAVE_COTIZACION } from "@/components/viewone/visualizador/productos";
+import { registrarEvento } from "@/lib/analitica";
 
 // Formulario exacto del handoff (sección 21): Nombre, Empresa, Teléfono,
 // Correo, "¿Qué necesitas?" (con texto de ayuda — el cliente no necesita
@@ -81,6 +82,8 @@ export function ContactoForm() {
         setStatus("error");
         return;
       }
+      // La conversión que importa: una solicitud de cotización que llegó.
+      registrarEvento("generate_lead", { formulario: "contacto" });
       setStatus("ok");
       form.reset();
       try {
