@@ -264,7 +264,10 @@ prueba y demos):
 - **Vercel Web Analytics** (`@vercel/analytics`, sin cookies). Solo cuenta
   producción. Se activa además en el panel de Vercel (proyecto → Analytics).
 - **GA4** `G-2E2767Y3CS` (propiedad de ViewOne), cargado SOLO cuando
-  `VERCEL_ENV === "production"` para que staging/demos no ensucien los datos.
+  `VERCEL_ENV === "production"` para que staging/demos no ensucien los datos,
+  y SOLO si la persona acepta el aviso de cookies
+  (`components/viewone/AvisoCookies.tsx`, Ley 21.719; elección en
+  localStorage `viewone-cookies`, reabrible desde el footer y /privacidad).
 - Conversión: `generate_lead` (vía `lib/analitica.ts`) cuando el formulario
   de contacto se envía bien. Para marcarla como conversión: GA4 → Admin →
   Eventos clave.

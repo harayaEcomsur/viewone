@@ -6,6 +6,7 @@ import { buildPrivacySections } from "@/lib/privacy-content";
 import { ArcoRequestForm } from "@/components/privacy/ArcoRequestForm";
 import { getContacto } from "@/lib/viewone-content-store";
 import { pageCanonical } from "@/lib/seo";
+import { BotonPreferenciasCookies } from "@/components/viewone/AvisoCookies";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,7 @@ export default async function PrivacidadPage() {
                 </div>
               </section>
             ))}
+            <BotonPreferenciasCookies className="self-start rounded-lg border border-accent/40 px-4 py-2 text-sm font-bold text-accent transition-colors hover:bg-accent/5" />
           </div>
 
           <div className="mt-10">

@@ -1,6 +1,7 @@
 import { Instagram, Facebook, Linkedin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
+import { BotonPreferenciasCookies } from "@/components/viewone/AvisoCookies";
 
 // Footer del handoff (sección 10), ampliado en el pase "pixel perfect" al
 // mockup azul (feedback real, imagen de referencia enviada 16-oct-2026):
@@ -46,6 +47,14 @@ export function ViewOneFooter({ contact: contactOverride }: { contact?: ContactI
           <p className="mt-1.5 text-xs leading-relaxed text-background/60">Soluciones gráficas para empresas</p>
           <p className="mt-1 text-xs text-background/50">
             {meta.businessName} Chile © {year}. Todos los derechos reservados.
+          </p>
+          {/* Privacidad y cookies: el aviso de cookies tiene que poder reabrirse
+              desde cualquier página para cambiar la elección. */}
+          <p className="mt-1 flex gap-3 text-xs text-background/50">
+            <a href="/privacidad" className="transition-colors hover:text-background">
+              Privacidad
+            </a>
+            <BotonPreferenciasCookies className="transition-colors hover:text-background" />
           </p>
         </div>
 
