@@ -4,6 +4,7 @@ import { getFontVariables } from "@/lib/fonts";
 import { paletteToCssVars } from "@/lib/theme";
 import { buildMetadata, buildLocalBusinessJsonLd } from "@/lib/seo";
 import { PaperGrain } from "@/components/viewone/PaperGrain";
+import { Analitica } from "@/components/viewone/Analitica";
 import "./globals.css";
 
 export const metadata: Metadata = buildMetadata(clientConfig);
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <Analitica />
       </body>
     </html>
   );
