@@ -47,7 +47,22 @@ export function buildPrivacySections(): PrivacySection[] {
   if (c.modules.tienda) destinatarios.push("El pago lo procesa directamente Transbank (Webpay) — no almacenamos el número completo de tu tarjeta.");
   if (c.modules.agenda && c.booking?.depositAmount) destinatarios.push("El abono de tu reserva, si aplica, también lo procesa Transbank (Webpay).");
   destinatarios.push("Algunos de estos proveedores procesan datos en servidores fuera de Chile (EE.UU., típicamente) — cuentan con estándares de seguridad reconocidos internacionalmente (cifrado en tránsito y en reposo).");
+  destinatarios.push("Para medir el uso del sitio usamos Google Analytics (Google) y Vercel Web Analytics (Vercel) — ver la sección 5.");
   sections.push({ title: "4. Con quién se comparten", body: destinatarios });
+
+  // Agregado 2026-10-26 junto con la analítica (components/viewone/Analitica.tsx):
+  // GA4 deja cookies propias, así que la política tiene que decirlo.
+  sections.push({
+    title: "5. Cookies y medición del sitio",
+    body: [
+      "Usamos Google Analytics 4 para saber, de forma agregada, cuántas personas visitan el sitio, qué páginas ven, desde dónde llegan (por ejemplo, un buscador), en qué país o ciudad aproximada están y qué tipo de dispositivo usan. Con eso mejoramos el sitio y sabemos qué funciona. Google Analytics guarda cookies propias en tu navegador (como _ga) que duran hasta 2 años, y no nos entrega tu nombre, correo ni teléfono.",
+      "También usamos Vercel Web Analytics, que mide visitas de forma anónima y no usa cookies.",
+      "Cuando envías el formulario de contacto, registramos en Google Analytics solo que se envió una solicitud — no su contenido ni tus datos.",
+      "No usamos estas herramientas para mostrarte publicidad ni vendemos esta información.",
+      "Si no quieres que se mida tu visita, puedes bloquear o borrar las cookies desde la configuración de tu navegador, o instalar el complemento de inhabilitación de Google Analytics (tools.google.com/dlpage/gaoptout). El sitio sigue funcionando igual.",
+      "Las únicas otras cookies son técnicas: la que mantiene abierta la sesión de quienes ingresan al panel interno del negocio.",
+    ],
+  });
 
   const retencion: string[] = [];
   if (c.modules.agenda) retencion.push(`Reservas: ${retentionMonths("bookings")} meses desde la fecha de la reserva.`);
@@ -60,10 +75,10 @@ export function buildPrivacySections(): PrivacySection[] {
     retencion.push(`Contratos generados: ${retentionMonths("realEstateContracts")} meses.`);
   }
   retencion.push("Pasado ese plazo, tus datos se eliminan o anonimizan automáticamente — no los guardamos indefinidamente.");
-  sections.push({ title: "5. Cuánto tiempo guardamos tus datos", body: retencion });
+  sections.push({ title: "6. Cuánto tiempo guardamos tus datos", body: retencion });
 
   sections.push({
-    title: "6. Tus derechos (ARCO+)",
+    title: "7. Tus derechos (ARCO+)",
     body: [
       "Puedes pedirnos en cualquier momento: acceder a tus datos, corregirlos, eliminarlos, oponerte a su tratamiento, pedir una copia portable, o bloquearlos temporalmente.",
       `Escríbenos a ${arcoEmail() ?? "el contacto de este sitio"} o completa el formulario de solicitud en esta misma página — respondemos dentro de 30 días.`,
@@ -71,7 +86,7 @@ export function buildPrivacySections(): PrivacySection[] {
   });
 
   sections.push({
-    title: "7. Seguridad",
+    title: "8. Seguridad",
     body: [
       "Tus datos viajan cifrados (HTTPS) y se guardan en una base de datos con acceso restringido. Las contraseñas o claves de acceso a los paneles nunca se comparten en texto plano ni se guardan en el código del sitio.",
       "Si ocurriera una brecha de seguridad que afecte tus datos, lo notificaremos a la autoridad y, si corresponde, a ti directamente, dentro de los plazos que exige la ley.",
