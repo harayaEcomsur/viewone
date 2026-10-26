@@ -99,11 +99,11 @@ export const clientConfig = defineClientConfig({
   },
 
   seo: {
-    title: "ViewOne — Impresión digital y publicidad exterior para empresas",
+    title: "Letreros, señalética e impresión digital para empresas | ViewOne",
     description:
-      "Impresión digital, señalética, estructuras publicitarias e instalación para empresas en Chile. Más de 20 años de experiencia. Cotiza tu proyecto.",
+      "Desarrollamos, producimos e instalamos letreros publicitarios, señalética, estructuras e impresión digital para empresas en Chile. Más de 20 años. Cotiza.",
     ogImageUrl: "/clients/viewone/home/hero-andacor.jpeg",
-    businessType: "Organization",
+    businessType: "LocalBusiness",
     keywords: [
       "impresion digital empresas",
       "publicidad exterior chile",

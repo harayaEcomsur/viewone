@@ -48,18 +48,34 @@ export function buildMetadata(config: ClientConfig): Metadata {
   };
 }
 
+// Pase SEO 2026-10-26: Google necesita URLs absolutas (la imagen iba relativa)
+// y la dirección desglosada (calle / comuna / país) para asociar el negocio a
+// una ubicación; antes era un Organization con la dirección en un solo string.
 export function buildLocalBusinessJsonLd(config: ClientConfig) {
+  const base = getSiteUrl();
+  const abs = (u?: string) => (u ? new URL(u, base).toString() : undefined);
+  const [calle, comuna] = (config.contact.address ?? "").split(/,\s*/);
+  const pais = config.meta.locale.split("-")[1];
   return {
     "@context": "https://schema.org",
     "@type": config.seo.businessType,
+    "@id": `${base}/#negocio`,
     name: config.meta.businessName,
+    url: base,
     description: config.seo.description,
-    image: config.seo.ogImageUrl,
+    image: abs(config.seo.ogImageUrl),
+    logo: abs(config.branding.logoUrl),
     telephone: config.contact.phone,
     email: config.contact.email,
     address: config.contact.address
-      ? { "@type": "PostalAddress", streetAddress: config.contact.address }
+      ? {
+          "@type": "PostalAddress",
+          streetAddress: calle,
+          addressLocality: comuna,
+          addressCountry: pais,
+        }
       : undefined,
+    areaServed: pais ? { "@type": "Country", name: pais === "CL" ? "Chile" : pais } : undefined,
     priceRange: config.seo.priceRange,
     openingHoursSpecification: config.contact.hours
       ?.filter((h) => !h.closed)

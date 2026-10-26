@@ -12,9 +12,9 @@ import { pageCanonical } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Servicios — ViewOne",
+  title: "Servicios de impresión digital, señalética y letreros | ViewOne",
   description:
-    "Impresión digital, señalética y gráfica corporativa, estructuras publicitarias, instalación y montaje, y proyectos integrales para empresas.",
+    "Impresión digital, señalética y letreros, estructuras publicitarias, instalación y montaje, y proyectos integrales para empresas en Chile. Cotiza tu proyecto.",
   ...pageCanonical("/servicios"),
 };
 
@@ -37,6 +37,13 @@ export default async function ServiciosPage() {
           <h1 className="max-w-2xl font-heading text-3xl font-extrabold text-primary sm:text-5xl">
             Servicios de impresión y soluciones gráficas
           </h1>
+          <p className="mt-4 max-w-2xl text-base text-foreground/70">
+            ¿Buscas un letrero para tu empresa?{" "}
+            <a href="/letreros-publicitarios" className="font-semibold text-accent underline-offset-2 hover:underline">
+              Mira los tipos de letreros publicitarios que hacemos
+            </a>
+            .
+          </p>
         </Container>
 
         <div className="mt-12 space-y-16 sm:mt-14 sm:space-y-20">

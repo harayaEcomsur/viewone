@@ -11,8 +11,9 @@ import { pageCanonical } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Contacto — ViewOne",
-  description: "Cuéntanos qué necesitas y te ayudamos a definir la solución adecuada para tu proyecto.",
+  title: "Contacto y cotizaciones | ViewOne",
+  description:
+    "Cotiza tu letrero, señalética o proyecto de impresión digital. Cuéntanos qué necesitas y te ayudamos a definir la solución adecuada. Recoleta, Santiago.",
   ...pageCanonical("/contacto"),
 };
 

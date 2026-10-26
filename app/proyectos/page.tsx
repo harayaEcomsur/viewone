@@ -11,8 +11,9 @@ import { pageCanonical } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Proyectos — ViewOne",
-  description: "Proyectos reales de impresión digital, señalética y publicidad exterior para empresas, organizados por categoría.",
+  title: "Proyectos de letreros, señalética y gráfica para empresas | ViewOne",
+  description:
+    "Proyectos reales para empresas: letreros, señalética, gráfica de muros y vidrios, vehículos, fachadas, eventos y vía pública. Míralos por categoría.",
   ...pageCanonical("/proyectos"),
 };
 
