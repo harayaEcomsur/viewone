@@ -1,10 +1,11 @@
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
+import { AvisoCookies } from "@/components/viewone/AvisoCookies";
 
 // Medición del sitio (desde 2026-10-26): Vercel Web Analytics (sin cookies) y
 // Google Analytics 4 (propiedad de ViewOne). GA4 se carga SOLO en producción
-// (www.viewone.cl): las visitas a staging, demos y local no deben ensuciar los
-// números reales. Vercel Analytics ya ignora solo lo que no es producción.
+// (www.viewone.cl) y SOLO si la persona acepta cookies (ver AvisoCookies): las
+// visitas a staging, demos y local no deben ensuciar los números reales. El
+// aviso sí se muestra en todos lados, para poder revisarlo en staging.
 export const GA4_ID = "G-2E2767Y3CS";
 
 export function Analitica() {
@@ -12,17 +13,7 @@ export function Analitica() {
   return (
     <>
       <Analytics />
-      {esProduccion && (
-        <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
-          <Script id="ga4" strategy="afterInteractive">
-            {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${GA4_ID}');`}
-          </Script>
-        </>
-      )}
+      <AvisoCookies ga4Id={esProduccion ? GA4_ID : null} />
     </>
   );
 }

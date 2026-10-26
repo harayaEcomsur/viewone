@@ -55,11 +55,11 @@ export function buildPrivacySections(): PrivacySection[] {
   sections.push({
     title: "5. Cookies y medición del sitio",
     body: [
-      "Usamos Google Analytics 4 para saber, de forma agregada, cuántas personas visitan el sitio, qué páginas ven, desde dónde llegan (por ejemplo, un buscador), en qué país o ciudad aproximada están y qué tipo de dispositivo usan. Con eso mejoramos el sitio y sabemos qué funciona. Google Analytics guarda cookies propias en tu navegador (como _ga) que duran hasta 2 años, y no nos entrega tu nombre, correo ni teléfono.",
+      "Solo si aceptas en el aviso de cookies, usamos Google Analytics 4 para saber, de forma agregada, cuántas personas visitan el sitio, qué páginas ven, desde dónde llegan (por ejemplo, un buscador), en qué país o ciudad aproximada están y qué tipo de dispositivo usan. Con eso mejoramos el sitio y sabemos qué funciona. Google Analytics guarda cookies propias en tu navegador (como _ga) que duran hasta 2 años, y no nos entrega tu nombre, correo ni teléfono.",
       "También usamos Vercel Web Analytics, que mide visitas de forma anónima y no usa cookies.",
       "Cuando envías el formulario de contacto, registramos en Google Analytics solo que se envió una solicitud — no su contenido ni tus datos.",
       "No usamos estas herramientas para mostrarte publicidad ni vendemos esta información.",
-      "Si no quieres que se mida tu visita, puedes bloquear o borrar las cookies desde la configuración de tu navegador, o instalar el complemento de inhabilitación de Google Analytics (tools.google.com/dlpage/gaoptout). El sitio sigue funcionando igual.",
+      "Si rechazas, Google Analytics no se carga. Puedes cambiar tu elección cuando quieras con el botón \"Preferencias de cookies\" al final de esta página o en el pie del sitio. También puedes bloquear o borrar las cookies desde la configuración de tu navegador, o instalar el complemento de inhabilitación de Google Analytics (tools.google.com/dlpage/gaoptout). El sitio sigue funcionando igual.",
       "Las únicas otras cookies son técnicas: la que mantiene abierta la sesión de quienes ingresan al panel interno del negocio.",
     ],
   });
