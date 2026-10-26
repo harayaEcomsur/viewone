@@ -17,6 +17,7 @@ import {
 } from "./productos";
 import type { Acabado } from "./Escena";
 import { mismoOrigen } from "@/lib/viewone-media";
+import { registrarEvento } from "@/lib/analitica";
 
 // three.js solo existe en el navegador y pesa: se carga aparte, únicamente
 // en esta página, y el resto del sitio no paga ese costo.
@@ -75,6 +76,7 @@ export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
   function elegirProducto(id: ProductoId) {
     const p = productoPorId(id);
     setProductoId(id);
+    registrarEvento("visualizer_product_select", { producto: id, categoria: p.categoria });
     setAncho(p.ancho);
     setAlto(p.alto);
     setFondoTransparente(Boolean(p.admiteTransparencia));
@@ -119,6 +121,7 @@ export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
     setErrorImagen(null);
     if (!/^image\/(png|jpeg|webp|svg\+xml)$/.test(file.type)) {
       setErrorImagen("Sube una imagen PNG, JPG, WEBP o SVG. Si tu diseño está en PDF o AI, adjúntalo en la cotización.");
+      registrarEvento("visualizer_upload_error", { producto: productoId, motivo: "formato" });
       return;
     }
     const url = URL.createObjectURL(file);
@@ -129,6 +132,7 @@ export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
     } catch {
       URL.revokeObjectURL(url);
       setErrorImagen("No pudimos leer esa imagen. Prueba exportándola de nuevo como PNG o JPG.");
+      registrarEvento("visualizer_upload_error", { producto: productoId, motivo: "lectura" });
       return;
     }
     const vectorial = file.type === "image/svg+xml";
@@ -137,6 +141,7 @@ export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
     const ancho = el.naturalWidth || 2048;
     const alto = el.naturalHeight || 2048;
     setImagen({ el, ancho, alto, vectorial, nombre: file.name, archivo: file });
+    registrarEvento("visualizer_upload", { producto: productoId, formato: file.type.replace("image/", ""), vectorial });
   }
 
   function descargarImagen() {
@@ -145,6 +150,7 @@ export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = `viewone-${productoId}-${anchoOk}x${altoOk}cm.png`;
+      registrarEvento("visualizer_download", { producto: productoId });
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }, "image/png");
@@ -169,6 +175,13 @@ export function Visualizador({ proyectos }: { proyectos: ProyectoEjemplo[] }) {
     } catch {
       // Sin sessionStorage (modo privado, cuota llena): se cotiza igual, sin adjunto.
     }
+    registrarEvento("visualizer_quote", {
+      producto: productoId,
+      con_diseno: Boolean(imagen),
+      calidad: calidad?.nivel ?? "sin_diseno",
+      ancho_cm: producto.fijo ? undefined : anchoOk,
+      alto_cm: producto.fijo ? undefined : altoOk,
+    });
     const q = new URLSearchParams({ necesidad, medidas, desde: "visualizador" });
     window.location.href = `/contacto?${q.toString()}`;
   }
