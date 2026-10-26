@@ -144,7 +144,9 @@ function EncabezadoSeccion({ eyebrow, titulo, linkTexto, linkHref }: { eyebrow: 
 function HeroSeccion({ s, primera }: { s: SeccionDe<"hero">; primera: boolean }) {
   return (
     <section className="relative overflow-hidden py-16 sm:py-20">
-      <Image src={s.fotoUrl} alt="" fill priority={primera} sizes="100vw" className="object-cover" />
+      {/* La foto es editable desde el panel: alt genérico pero descriptivo
+          (las otras dos fotos de fondo sí son decorativas, aria-hidden). */}
+      <Image src={s.fotoUrl} alt="Proyecto de señalética y letreros realizado por ViewOne" fill priority={primera} sizes="100vw" className="object-cover" />
       <div className="absolute inset-0 bg-gradient-to-r from-primary/95 from-30% via-primary/70 via-55% to-transparent" />
       <RegisterMark className="absolute left-5 top-5 h-6 w-6 text-background/50 sm:left-8 sm:top-8" />
       <RegisterMark className="absolute bottom-5 right-5 h-6 w-6 text-background/50 sm:bottom-8 sm:right-8" />

@@ -18,6 +18,8 @@ const SOCIAL_ICON = { instagram: Instagram, facebook: Facebook, linkedin: Linked
 const NAV = [
   { href: "/", label: "Inicio" },
   { href: "/servicios", label: "Servicios" },
+  // Enlace interno a la landing SEO de letreros (desde todas las páginas).
+  { href: "/letreros-publicitarios", label: "Letreros" },
   { href: "/proyectos", label: "Proyectos" },
   { href: "/#nosotros", label: "Nosotros" },
   { href: "/contacto", label: "Contacto" },
