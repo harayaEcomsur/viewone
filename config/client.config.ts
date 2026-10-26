@@ -76,7 +76,8 @@ export const clientConfig = defineClientConfig({
     address: "La Montaña 3150, Recoleta",
     mapQuery: "La Montaña 3150, Recoleta, Chile",
     socials: [
-      { platform: "instagram", url: "https://instagram.com/viewone.cl" },
+      // Cuenta real confirmada por ViewOne (2026-10-26): la que muestra Google.
+      { platform: "instagram", url: "https://www.instagram.com/viewone_publicidad/" },
       { platform: "facebook", url: "https://facebook.com/viewone.cl" },
       { platform: "linkedin", url: "https://linkedin.com/company/viewone" },
     ],
