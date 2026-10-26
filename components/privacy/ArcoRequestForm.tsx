@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { registrarEvento } from "@/lib/analitica";
 
 const TIPOS = [
   { value: "acceso", label: "Acceso a mis datos" },
@@ -29,6 +30,7 @@ export function ArcoRequestForm() {
       });
       if (!res.ok) throw new Error();
       setStatus("sent");
+      registrarEvento("privacy_request", { tipo });
       setNombre("");
       setContacto("");
       setDetalle("");

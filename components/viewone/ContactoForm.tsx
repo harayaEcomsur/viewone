@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { registrarEvento } from "@/lib/analitica";
 
 // Formulario exacto del handoff (sección 21): Nombre, Empresa, Teléfono,
@@ -20,6 +20,23 @@ const MAX_ADJUNTO_MB = 8;
 export function ContactoForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const inicioMedido = useRef(false);
+
+  // De dónde llegó la persona al formulario (?desde=… en el link), para
+  // separar en GA4 los leads directos de los que vienen de otra herramienta.
+  function origen() {
+    try {
+      return new URLSearchParams(location.search).get("desde") ?? "directo";
+    } catch {
+      return "directo";
+    }
+  }
+
+  function alEmpezar() {
+    if (inicioMedido.current) return;
+    inicioMedido.current = true;
+    registrarEvento("contact_form_start", { form_name: "contacto", origen: origen() });
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -38,6 +55,7 @@ export function ContactoForm() {
     if (adjunto instanceof File && adjunto.size > MAX_ADJUNTO_MB * 1024 * 1024) {
       setError(`El archivo adjunto pesa demasiado (máx. ${MAX_ADJUNTO_MB} MB). Prueba con una foto más liviana.`);
       setStatus("error");
+      registrarEvento("contact_form_error", { form_name: "contacto", motivo: "archivo_grande" });
       return;
     }
 
@@ -48,15 +66,26 @@ export function ContactoForm() {
         const body = await res.json().catch(() => null);
         setError(body?.error ?? "No se pudo enviar la solicitud. Intenta de nuevo o escríbenos directo por WhatsApp.");
         setStatus("error");
+        registrarEvento("contact_form_error", { form_name: "contacto", motivo: "servidor" });
         return;
       }
       // La conversión que importa: una solicitud de cotización que llegó.
-      registrarEvento("generate_lead", { formulario: "contacto" });
+      // Solo flags: nunca el texto ni los datos de la persona.
+      const medidas = data.get("medidas");
+      const lugar = data.get("lugar");
+      registrarEvento("generate_lead", {
+        form_name: "contacto",
+        origen: origen(),
+        tiene_adjunto: adjunto instanceof File && adjunto.size > 0,
+        tiene_medidas: typeof medidas === "string" && medidas.trim() !== "",
+        tiene_lugar: typeof lugar === "string" && lugar.trim() !== "",
+      });
       setStatus("ok");
       form.reset();
     } catch {
       setError("No se pudo contactar al servidor. Revisa tu conexión e intenta de nuevo.");
       setStatus("error");
+      registrarEvento("contact_form_error", { form_name: "contacto", motivo: "red" });
     }
   }
 
@@ -75,7 +104,7 @@ export function ContactoForm() {
   const groupLabelClass = "text-xs font-bold uppercase tracking-[0.2em] text-accent";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
+    <form onSubmit={handleSubmit} onFocusCapture={alEmpezar} className="space-y-7">
       <input type="text" name="empresa_web" className="hidden" tabIndex={-1} autoComplete="off" />
 
       <fieldset className="space-y-4">

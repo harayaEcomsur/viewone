@@ -268,8 +268,10 @@ prueba y demos):
   y SOLO si la persona acepta el aviso de cookies
   (`components/viewone/AvisoCookies.tsx`, Ley 21.719; elección en
   localStorage `viewone-cookies`, reabrible desde el footer y /privacidad).
-- Conversión: `generate_lead` (vía `lib/analitica.ts`) cuando el formulario
-  de contacto se envía bien. Para marcarla como conversión: GA4 → Admin →
-  Eventos clave.
+- Eventos: el catálogo completo (nombres, cuándo, parámetros) está en el
+  comentario de `lib/analitica.ts` — mantenerlo al día si se agrega uno.
+  Clics a WhatsApp/tel/mailto/redes/`/contacto` se miden con un listener
+  global (`MedicionClics.tsx`), no botón por botón. Nunca mandar datos
+  personales ni texto libre del formulario a GA4.
 - Nota: `npm install <paquete>` falla en este repo con "reading 'edgesOut'"
   (bug de npm 10 con peers); usar `--legacy-peer-deps` al agregar paquetes.

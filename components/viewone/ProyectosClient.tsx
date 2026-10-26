@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { registrarEvento } from "@/lib/analitica";
 import { Container } from "@/components/ui/Container";
 import { clientConfig } from "@/config/client.config";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -58,6 +59,7 @@ export function ProyectosClient({
 
   function abrirProyecto(p: Proyecto) {
     setProyecto(p);
+    registrarEvento("project_view", { cliente: p.cliente, trabajo: p.trabajo, categoria: categoria ?? undefined });
     setGalIndex(0);
   }
 
@@ -127,7 +129,10 @@ export function ProyectosClient({
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setCategoria(cat.nombre)}
+                  onClick={() => {
+                    setCategoria(cat.nombre);
+                    registrarEvento("project_filter", { categoria: cat.nombre });
+                  }}
                   className="group overflow-hidden rounded-2xl text-left"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-foreground/5">
