@@ -99,7 +99,7 @@ export const clientConfig = defineClientConfig({
   },
 
   seo: {
-    title: "Letreros, señalética e impresión digital para empresas | ViewOne",
+    title: "Letreros, señalética e impresión digital | ViewOne",
     description:
       "Desarrollamos, producimos e instalamos letreros publicitarios, señalética, estructuras e impresión digital para empresas en Chile. Más de 20 años. Cotiza.",
     ogImageUrl: "/clients/viewone/home/hero-andacor.jpeg",

@@ -275,3 +275,14 @@ prueba y demos):
   personales ni texto libre del formulario a GA4.
 - Nota: `npm install <paquete>` falla en este repo con "reading 'edgesOut'"
   (bug de npm 10 con peers); usar `--legacy-peer-deps` al agregar paquetes.
+
+## SEO editable (desde 2026-10-27)
+
+Pestaña **SEO** del panel (solo admin): título y descripción de Google para
+Inicio, Letreros, Servicios, Proyectos y Contacto. Se guarda en `settings`
+(`viewone_seo`) y solo lo que difiere del texto por defecto
+(`lib/viewone-seo-paginas.ts`); campo vacío = vuelve al por defecto. Cada
+página usa `generateMetadata` → `seoMetadata(id)` (`lib/viewone-seo.ts`), que
+además arma el openGraph por página. Canonical, schema y sitemap siguen en
+código a propósito. Para sumar una página: agregarla a `PAGINAS_SEO` y usar
+`seoMetadata` en su `page.tsx`.

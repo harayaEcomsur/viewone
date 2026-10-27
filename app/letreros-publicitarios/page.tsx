@@ -8,7 +8,7 @@ import { getContacto } from "@/lib/viewone-content-store";
 import { listProyectosVisibles } from "@/lib/viewone-store";
 import { mismoOrigen } from "@/lib/viewone-media";
 import { clientConfig } from "@/config/client.config";
-import { pageCanonical } from "@/lib/seo";
+import { seoMetadata } from "@/lib/viewone-seo";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +21,10 @@ export const dynamic = "force-dynamic";
 // Regla: solo afirmaciones que ViewOne ya hace en el sitio ("desarrollamos,
 // producimos e instalamos", +20 años, proyectos reales). Nada de plazos,
 // precios, garantías ni taller propio sin confirmarlo con ellos.
-export const metadata: Metadata = {
-  title: "Letreros y carteles publicitarios para empresas | ViewOne",
-  description:
-    "Letreros de fachada, luminosos, letras corpóreas, tótems y letreros carreteros para empresas. Desarrollamos, producimos e instalamos. Más de 20 años. Cotiza.",
-  ...pageCanonical("/letreros-publicitarios"),
-};
+// Título y descripción editables desde el panel (pestaña SEO).
+export async function generateMetadata(): Promise<Metadata> {
+  return seoMetadata("letreros");
+}
 
 const TIPOS = [
   {
