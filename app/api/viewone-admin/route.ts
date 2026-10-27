@@ -28,6 +28,7 @@ import {
   addAdminUser,
   removeAdminUser,
 } from "@/lib/viewone-content-store";
+import { getSeoOverrides, setSeoOverrides, seoOverridesSchema } from "@/lib/viewone-seo";
 
 export const runtime = "nodejs";
 
@@ -54,7 +55,7 @@ export async function GET(req: Request) {
   const user = await currentAgendaUser(claveFromRequest(req));
   if (!user) return Response.json({ error: "No autorizado" }, { status: 401 });
 
-  const [categorias, proyectos, homeContent, clientes, contacto, servicios, adminUsers] = await Promise.all([
+  const [categorias, proyectos, homeContent, clientes, contacto, servicios, adminUsers, seo] = await Promise.all([
     listCategorias(),
     listProyectos(),
     getHomeContent(),
@@ -62,6 +63,7 @@ export async function GET(req: Request) {
     getContacto(),
     listServicios(),
     listAdminUsers(),
+    getSeoOverrides(),
   ]);
   return Response.json({
     categorias,
@@ -71,6 +73,7 @@ export async function GET(req: Request) {
     contacto,
     servicios,
     adminUsers,
+    seo,
     currentUser: user,
   });
 }
@@ -125,11 +128,13 @@ const patchSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("addAdminUser"), email: z.string().email(), role: z.enum(["admin", "staff"]) }),
   z.object({ action: z.literal("removeAdminUser"), email: z.string().email() }),
   z.object({ action: z.literal("resetAdminPassword"), email: z.string().email() }),
+  z.object({ action: z.literal("setSeo"), seo: seoOverridesSchema }),
 ]);
 
 // Acciones que tocan datos de negocio/acceso — exigen rol "admin" puntual,
 // no basta con estar logueado como "staff".
-const ADMIN_ONLY_ACTIONS = new Set(["setContactoOverride", "addAdminUser", "removeAdminUser", "resetAdminPassword"]);
+// SEO también: un título mal puesto se nota en Google por semanas.
+const ADMIN_ONLY_ACTIONS = new Set(["setContactoOverride", "addAdminUser", "removeAdminUser", "resetAdminPassword", "setSeo"]);
 
 export async function PATCH(req: Request) {
   const clave = claveFromRequest(req);
@@ -188,5 +193,7 @@ export async function PATCH(req: Request) {
     case "resetAdminPassword":
       await resetAdminPassword(data.email);
       return Response.json({ ok: true, adminUsers: await listAdminUsers() });
+    case "setSeo":
+      return Response.json({ ok: true, seo: await setSeoOverrides(data.seo) });
   }
 }

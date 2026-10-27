@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { seoMetadata } from "@/lib/viewone-seo";
 import { ViewOneHeader } from "@/components/viewone/ViewOneHeader";
 import { ViewOneFooter } from "@/components/viewone/ViewOneFooter";
 import { ViewOneHome } from "@/components/viewone/ViewOneHome";
@@ -6,6 +8,11 @@ import { clientConfig } from "@/config/client.config";
 import { getHomeContent, getClientesContent, listServiciosVisibles, getContacto } from "@/lib/viewone-content-store";
 
 export const dynamic = "force-dynamic";
+
+// Título y descripción editables desde el panel (pestaña SEO).
+export async function generateMetadata(): Promise<Metadata> {
+  return seoMetadata("inicio");
+}
 
 // Home a medida del handoff aprobado por ViewOne — ver components/viewone/*.
 export default async function HomePage() {

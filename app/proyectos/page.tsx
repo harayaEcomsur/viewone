@@ -6,16 +6,14 @@ import { listCategoriasVisibles, listProyectosVisibles } from "@/lib/viewone-sto
 import { getContacto } from "@/lib/viewone-content-store";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { clientConfig } from "@/config/client.config";
-import { pageCanonical } from "@/lib/seo";
+import { seoMetadata } from "@/lib/viewone-seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Proyectos de letreros, señalética y gráfica para empresas | ViewOne",
-  description:
-    "Proyectos reales para empresas: letreros, señalética, gráfica de muros y vidrios, vehículos, fachadas, eventos y vía pública. Míralos por categoría.",
-  ...pageCanonical("/proyectos"),
-};
+// Título y descripción editables desde el panel (pestaña SEO).
+export async function generateMetadata(): Promise<Metadata> {
+  return seoMetadata("proyectos");
+}
 
 export default async function ProyectosPage() {
   const [categorias, proyectos, contact] = await Promise.all([

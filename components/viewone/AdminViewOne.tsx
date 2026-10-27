@@ -12,6 +12,7 @@ import {
   Lock,
   Phone,
   Plus,
+  Search,
   Trash2,
   Users,
   type LucideIcon,
@@ -19,6 +20,8 @@ import {
 import type { Categoria, Proyecto } from "@/lib/viewone-store";
 import type { HomeContent, Servicio } from "@/lib/viewone-content-store";
 import { AdminHomeSecciones } from "@/components/viewone/AdminHomeSecciones";
+import { AdminSeo } from "@/components/viewone/AdminSeo";
+import type { SeoOverrides } from "@/lib/viewone-seo-paginas";
 import { ClienteLogoMark } from "@/components/viewone/ClienteLogoMark";
 import { idCliente, type Cliente } from "@/lib/viewone-clientes";
 import { mismoOrigen } from "@/lib/viewone-media";
@@ -55,6 +58,7 @@ type Data = {
   contacto: Contacto;
   servicios: Servicio[];
   adminUsers: AdminUser[];
+  seo: SeoOverrides;
 };
 
 // Panel separado por tipo de contenido (pedido 2026-10-20: "no me gusta que
@@ -62,7 +66,7 @@ type Data = {
 // y solo la pestaña activa en pantalla. La pestaña vive en el hash de la URL
 // (#inicio, #proyectos…) para que recargar o compartir el link no pierda
 // dónde estabas.
-type Tab = "inicio" | "servicios" | "proyectos" | "categorias" | "clientes" | "contacto" | "usuarios";
+type Tab = "inicio" | "servicios" | "proyectos" | "categorias" | "clientes" | "contacto" | "seo" | "usuarios";
 
 const TABS: { id: Tab; label: string; icon: LucideIcon; grupo: "Sitio" | "Catálogo" | "Configuración"; soloAdmin?: boolean }[] = [
   { id: "inicio", label: "Inicio", icon: Home, grupo: "Sitio" },
@@ -71,6 +75,7 @@ const TABS: { id: Tab; label: string; icon: LucideIcon; grupo: "Sitio" | "Catál
   { id: "proyectos", label: "Proyectos", icon: Images, grupo: "Catálogo" },
   { id: "categorias", label: "Categorías", icon: FolderTree, grupo: "Catálogo" },
   { id: "contacto", label: "Contacto", icon: Phone, grupo: "Configuración", soloAdmin: true },
+  { id: "seo", label: "SEO", icon: Search, grupo: "Configuración", soloAdmin: true },
   { id: "usuarios", label: "Usuarios", icon: Lock, grupo: "Configuración", soloAdmin: true },
 ];
 
@@ -167,6 +172,7 @@ export function AdminViewOne({
         {tab === "proyectos" && <ProyectosSection categorias={data.categorias} proyectos={data.proyectos} onChange={reload} />}
         {tab === "categorias" && <CategoriasSection categorias={data.categorias} onChange={reload} />}
         {tab === "contacto" && isAdmin && <ContactoSection contacto={data.contacto} onChange={reload} />}
+        {tab === "seo" && isAdmin && <AdminSeo seo={data.seo ?? {}} onSaved={reload} />}
         {tab === "usuarios" && isAdmin && <UsuariosSection adminUsers={data.adminUsers} currentEmail={currentEmail} onChange={reload} />}
       </div>
     </div>

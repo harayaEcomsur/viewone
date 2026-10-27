@@ -6,16 +6,14 @@ import { ContactoForm } from "@/components/viewone/ContactoForm";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { clientConfig } from "@/config/client.config";
 import { getContacto } from "@/lib/viewone-content-store";
-import { pageCanonical } from "@/lib/seo";
+import { seoMetadata } from "@/lib/viewone-seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Contacto y cotizaciones | ViewOne",
-  description:
-    "Cotiza tu letrero, señalética o proyecto de impresión digital. Cuéntanos qué necesitas y te ayudamos a definir la solución adecuada. Recoleta, Santiago.",
-  ...pageCanonical("/contacto"),
-};
+// Título y descripción editables desde el panel (pestaña SEO).
+export async function generateMetadata(): Promise<Metadata> {
+  return seoMetadata("contacto");
+}
 
 // /contacto (handoff sección 21): H1 "Cuéntanos qué necesitas" + bajada +
 // formulario. Desktop en dos columnas, mobile en una (el grid se encarga).
