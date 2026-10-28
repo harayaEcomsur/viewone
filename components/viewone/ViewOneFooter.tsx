@@ -74,7 +74,7 @@ export function ViewOneFooter({ contact: contactOverride }: { contact?: ContactI
             // producción" — queda tal cual (sin decidir por ViewOne) hasta
             // que lo confirmen.
             <a
-              href="https://haraya.dev/como-lo-hicimos"
+              href="https://www.haraya.dev/como-lo-hicimos"
               target="_blank"
               rel="noopener"
               className="text-xs text-background/40 opacity-70 transition-opacity hover:opacity-100 hover:text-background"
