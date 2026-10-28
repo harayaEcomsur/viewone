@@ -273,6 +273,10 @@ prueba y demos):
   Clics a WhatsApp/tel/mailto/redes/`/contacto` se miden con un listener
   global (`MedicionClics.tsx`), no botón por botón. Nunca mandar datos
   personales ni texto libre del formulario a GA4.
+- El panel (`/viewone-admin`) NO se mide (pedido 2026-10-27): ni GA4, ni
+  aviso de cookies, ni clics, y Vercel Analytics descarta esas visitas con
+  `beforeSend`. Lista en `RUTAS_INTERNAS` de `AnaliticaCliente.tsx`; sumar
+  ahí cualquier herramienta interna nueva.
 - Nota: `npm install <paquete>` falla en este repo con "reading 'edgesOut'"
   (bug de npm 10 con peers); usar `--legacy-peer-deps` al agregar paquetes.
 
